@@ -1,0 +1,72 @@
+name: Handoff
+options:
+  bundleIdPrefix: com.thomaskant
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    # Set your own Apple Development Team ID here (Xcode > Settings > Accounts),
+    # or leave blank and pick the team in Xcode's Signing & Capabilities tab.
+    # Kept out of version control so a fork doesn't inherit someone else's account.
+    DEVELOPMENT_TEAM: ${DEVELOPMENT_TEAM}
+    CODE_SIGN_STYLE: Automatic
+
+targets:
+  Handoff:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: Handoff
+    info:
+      path: Handoff/Info.plist
+      properties:
+        CFBundleDisplayName: Handoff
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+          - UIInterfaceOrientationPortrait
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+        NSLocalNetworkUsageDescription: "Handoff verbindet sich per WLAN mit dem vPilot-Plugin auf deinem PC, um Controller-Liste, Chat und Funkgerät zu spiegeln."
+        NSBonjourServices: []
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.thomaskant.handoff
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        TARGETED_DEVICE_FAMILY: "2"
+        IPHONEOS_DEPLOYMENT_TARGET: "17.0"
+        SUPPORTS_MACCATALYST: false
+
+  HandoffTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: HandoffTests
+    dependencies:
+      - target: Handoff
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.thomaskant.handoff.tests
+        GENERATE_INFOPLIST_FILE: true
+
+schemes:
+  Handoff:
+    build:
+      targets:
+        Handoff: all
+        HandoffTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - HandoffTests
