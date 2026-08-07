@@ -87,6 +87,13 @@ Data and upstream work this depends on:
 - [SimBrief](https://www.simbrief.com) by Navigraph — flight plan data
 - [vPilot](https://vpilot.rosscarlson.dev) — the pilot client the plugin runs inside
 
+## Author
+
+iPad app by **Thomas Kant**, Gifhorn — built with **Claude (Anthropic)**.
+
+The plugin this talks to, and the Android client whose interface this follows,
+are sushi.at's work; see Credits above.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).

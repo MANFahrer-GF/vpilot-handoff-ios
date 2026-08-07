@@ -215,7 +215,9 @@ struct SettingsView: View {
 
             section("PROJEKT") {
                 creditRow("Plugin & Android-App", "sushi.at/vpilot-handoff")
-                Text("Diese iPad-App ist ein eigenständiger Client für dasselbe Plugin, gebaut nach dessen öffentlicher Protokoll-Dokumentation.")
+                creditRow("iPad-App", "Thomas Kant, Gifhorn")
+                creditRow("Entwickelt mit", "Claude (Anthropic)")
+                Text("Diese iPad-App ist ein eigenständiger, inoffizieller Client für dasselbe Plugin, gebaut nach dessen öffentlicher Protokoll-Dokumentation.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
