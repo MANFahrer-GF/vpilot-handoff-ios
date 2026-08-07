@@ -126,7 +126,7 @@ struct SettingsView: View {
 
                 HStack(spacing: 10) {
                     Button("Verbinden") {
-                        store.connect(host: hostText)
+                        store.connect(host: hostText, port: store.lastPort)
                         dismiss()
                     }
                     .buttonStyle(.borderedProminent)
@@ -139,9 +139,11 @@ struct SettingsView: View {
                 }
 
                 ForEach(discovered, id: \.host) { result in
-                    Button("Gefunden: \(result.host)") {
+                    Button("Gefunden: \(result.host):\(result.port)") {
                         hostText = result.host
-                        store.connect(host: result.host)
+                        // Discovery reports the port the plugin actually listens on;
+                        // assuming the default would strand a moved installation.
+                        store.connect(host: result.host, port: result.port)
                         dismiss()
                     }
                 }
@@ -308,6 +310,7 @@ struct SettingsView: View {
         case .connecting: return "CONNECTING"
         case .awaitingPairingCode: return "PAIRING"
         case .failed: return "FAILED"
+        case .identityChanged: return "IDENTITY CHANGED"
         case .disconnected: return "DISCONNECTED"
         }
     }
@@ -316,7 +319,7 @@ struct SettingsView: View {
         switch store.connection.state {
         case .connected: return .green
         case .connecting, .awaitingPairingCode: return .orange
-        case .disconnected, .failed: return .red
+        case .disconnected, .failed, .identityChanged: return .red
         }
     }
 
@@ -343,7 +346,7 @@ enum AppearanceMode: String, CaseIterable, Identifiable {
     static let storageKey = "handoff.appearance"
 
     static var persisted: AppearanceMode {
-        UserDefaults.standard.string(forKey: storageKey)
+        HandoffDefaults.store.string(forKey: storageKey)
             .flatMap(AppearanceMode.init(rawValue:)) ?? .system
     }
 

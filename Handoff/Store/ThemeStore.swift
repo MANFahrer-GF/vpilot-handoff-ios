@@ -4,9 +4,10 @@ import Observation
 /// Holds the active controller-row theme plus any the pilot has saved under their
 /// own name. Persisted in UserDefaults -- purely a display preference, nothing the
 /// plugin knows or cares about.
+@MainActor
 @Observable
 final class ThemeStore {
-    private let defaults = UserDefaults.standard
+    private var defaults: UserDefaults { HandoffDefaults.store }
     private let activeKey = "handoff.theme.active"
     private let savedKey = "handoff.theme.saved"
 
@@ -14,11 +15,14 @@ final class ThemeStore {
     private(set) var saved: [ControllerTheme]
 
     init() {
+        // Read through the type, not `self.defaults` -- the computed property counts
+        // as touching self before every stored property is initialised.
+        let store = HandoffDefaults.store
         let decoder = JSONDecoder()
-        active = defaults.data(forKey: activeKey)
+        active = store.data(forKey: "handoff.theme.active")
             .flatMap { try? decoder.decode(ControllerTheme.self, from: $0) }
             ?? .default
-        saved = defaults.data(forKey: savedKey)
+        saved = store.data(forKey: "handoff.theme.saved")
             .flatMap { try? decoder.decode([ControllerTheme].self, from: $0) }
             ?? []
     }
@@ -34,6 +38,12 @@ final class ThemeStore {
         persistActive()
     }
 
+    /// Sliders and the colour picker fire continuously while dragging; writing the
+    /// encoded theme on every intermediate value meant dozens of UserDefaults writes
+    /// per drag. The in-memory value still updates immediately, so the preview stays
+    /// live -- only the write is coalesced.
+    private var persistTask: Task<Void, Never>?
+
     func updateActive(_ mutate: (inout ControllerTheme) -> Void) {
         var copy = active
         mutate(&copy)
@@ -43,7 +53,7 @@ final class ThemeStore {
             copy.name = "\(copy.name) (angepasst)"
         }
         active = copy
-        persistActive()
+        schedulePersistActive()
     }
 
     func saveActive(as name: String) {
@@ -64,7 +74,18 @@ final class ThemeStore {
         if active.name == theme.name { apply(.default) }
     }
 
+    private func schedulePersistActive() {
+        persistTask?.cancel()
+        persistTask = Task { [weak self] in
+            try? await Task.sleep(for: .milliseconds(400))
+            guard !Task.isCancelled else { return }
+            self?.persistActive()
+        }
+    }
+
     private func persistActive() {
+        persistTask?.cancel()
+        persistTask = nil
         guard let data = try? JSONEncoder().encode(active) else { return }
         defaults.set(data, forKey: activeKey)
     }

@@ -6,7 +6,7 @@ import Security
 /// Fingerprints/host bookkeeping live in UserDefaults; the bearer token -- the
 /// one piece that actually grants control of someone's radio -- lives in the Keychain.
 final class PairingStore {
-    private let defaults = UserDefaults.standard
+    private var defaults: UserDefaults { HandoffDefaults.store }
     private let deviceIdDefaultsKey = "handoff.deviceId"
 
     var deviceId: String {
@@ -24,6 +24,13 @@ final class PairingStore {
 
     func setPinnedFingerprint(_ fingerprint: String, forHost host: String) {
         defaults.set(fingerprint, forKey: fingerprintKey(host))
+    }
+
+    /// Deliberately forgets the pin so the next connection re-pins whatever answers.
+    /// Only ever called when the pilot has confirmed an identity change by typing the
+    /// code shown on that PC -- never automatically.
+    func clearPinnedFingerprint(forHost host: String) {
+        defaults.removeObject(forKey: fingerprintKey(host))
     }
 
     func token(forHost host: String) -> String? {

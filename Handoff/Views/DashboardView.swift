@@ -161,7 +161,10 @@ struct DashboardView: View {
 
     private var pairingSheetShown: Binding<Bool> {
         Binding(
-            get: { store.connection.state == .awaitingPairingCode },
+            get: {
+                store.connection.state == .awaitingPairingCode
+                    || store.connection.state == .identityChanged
+            },
             set: { _ in }
         )
     }

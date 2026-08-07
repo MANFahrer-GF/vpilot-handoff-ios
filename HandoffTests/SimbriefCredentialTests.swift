@@ -10,6 +10,7 @@ import Foundation
 @MainActor
 struct SimbriefCredentialTests {
     private func freshStore() -> AppStore {
+        TestDefaults.installOnce()
         let store = AppStore()
         store.simbriefUserId = nil
         store.simbriefUsername = nil

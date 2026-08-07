@@ -86,15 +86,8 @@ struct ThemeSerializationTests {
 
 @MainActor
 struct ThemeStoreTests {
-    /// Each case gets its own defaults suite so the tests don't fight each other
-    /// or leave state behind in the app's real preferences.
-    private func makeIsolatedDefaults(_ name: String) -> UserDefaults {
-        let defaults = UserDefaults(suiteName: name)!
-        defaults.removePersistentDomain(forName: name)
-        return defaults
-    }
-
     @Test func editingAPresetForksItRatherThanRedefiningIt() {
+        TestDefaults.installOnce()
         let store = ThemeStore()
         store.apply(.default)
         store.updateActive { $0.nonHighlightBrightness = 0.42 }
@@ -106,6 +99,7 @@ struct ThemeStoreTests {
     }
 
     @Test func savingUnderANameMakesItSelectable() {
+        TestDefaults.installOnce()
         let store = ThemeStore()
         store.apply(.protanopiaSafe)
         store.saveActive(as: "Cockpit Nacht")
@@ -116,6 +110,7 @@ struct ThemeStoreTests {
     }
 
     @Test func blankNamesAreRejected() {
+        TestDefaults.installOnce()
         let store = ThemeStore()
         let before = store.saved.count
         store.saveActive(as: "   ")
@@ -123,6 +118,7 @@ struct ThemeStoreTests {
     }
 
     @Test func presetsAlwaysComeFirstInThePicker() {
+        TestDefaults.installOnce()
         let store = ThemeStore()
         #expect(store.allThemes.prefix(3).map(\.name) == ControllerTheme.presets.map(\.name))
     }

@@ -119,19 +119,37 @@ struct FrequencyTuneSheet: View {
         return "\(String(padded[0..<3])).\(String(padded[3..<6]))"
     }
 
-    /// Nil until six digits are in AND the result is a legal civil VHF channel --
-    /// the plugin silently drops out-of-range values, so catching it here is the
-    /// only way the pilot ever finds out the entry was rejected.
+    /// Nil until six digits are in AND the result is a legal channel for the selected
+    /// spacing -- the plugin silently drops out-of-range values, so catching it here
+    /// is the only way the pilot ever finds out the entry was rejected.
     private var parsedValue: Double? {
         guard digits.count == Self.maxDigits else { return nil }
         guard let value = Double("\(String(digits[0..<3])).\(String(digits[3..<6]))") else { return nil }
         guard (118.0...136.990).contains(value) else { return nil }
+        guard isOnChannelGrid(value) else { return nil }
         return value
+    }
+
+    /// 25 kHz channels end in .x00, .x25, .x50 or .x75; the 8.33 kHz grid adds the
+    /// .x05/.x10/.x15… steps VATSIM uses. Without this the spacing toggle was
+    /// decoration -- it changed a label and nothing else.
+    private func isOnChannelGrid(_ mhz: Double) -> Bool {
+        let kHz = (mhz * 1000).rounded()
+        if spacing833 {
+            return kHz.truncatingRemainder(dividingBy: 5) == 0
+        }
+        return kHz.truncatingRemainder(dividingBy: 25) == 0
     }
 
     private var validationError: String? {
         guard digits.count == Self.maxDigits, parsedValue == nil else { return nil }
-        return "Außerhalb des Flugfunkbands (118.000–136.990)."
+        guard let value = Double("\(String(digits[0..<3])).\(String(digits[3..<6]))"),
+              (118.0...136.990).contains(value) else {
+            return "Außerhalb des Flugfunkbands (118.000–136.990)."
+        }
+        return spacing833
+            ? "Keine gültige 8,33-kHz-Frequenz."
+            : "Keine gültige 25-kHz-Frequenz — auf 8.33 umschalten?"
     }
 
     private func append(_ digit: Character) {

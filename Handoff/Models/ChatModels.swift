@@ -120,7 +120,7 @@ extension ISO8601DateFormatter {
 }
 
 extension DateFormatter {
-    nonisolated(unsafe) static let handoffTime: DateFormatter = {
+    static let handoffTime: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm"
         return formatter

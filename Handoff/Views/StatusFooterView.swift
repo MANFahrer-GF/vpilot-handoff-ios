@@ -38,6 +38,9 @@ struct StatusFooterView: View {
                             .font(.caption)
                             .foregroundStyle(.orange)
                     }
+                    if !store.operations.isEmpty {
+                        ProgressView().controlSize(.mini)
+                    }
                     Spacer(minLength: 0)
                 }
                 .contentShape(Rectangle())
@@ -72,6 +75,25 @@ struct StatusFooterView: View {
     private var expandedDetail: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 6) {
+                if let error = store.lastSendError {
+                    Label(error, systemImage: "exclamationmark.circle.fill")
+                        .font(.caption)
+                        .foregroundStyle(.red)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                ForEach(Array(store.operations.values), id: \.operationId) { operation in
+                    HStack(spacing: 8) {
+                        if operation.finished {
+                            Image(systemName: operation.success == false ? "xmark.circle.fill" : "checkmark.circle.fill")
+                                .foregroundStyle(operation.success == false ? .red : .green)
+                        } else {
+                            ProgressView().controlSize(.mini)
+                        }
+                        Text(operation.status).font(.caption)
+                    }
+                }
+
                 statusLine("Connected to Handoff vPilot plugin", store.connection.state == .connected)
                 if let status = store.subsystemStatus {
                     statusLine("Connected to RadioHost", status.radioHostConnected)
@@ -146,20 +168,22 @@ struct StatusFooterView: View {
     private var pluginLine: String {
         let version = store.subsystemStatus.map { "vPilot plugin v\($0.pluginVersion)" } ?? "vPilot plugin –"
         guard !store.lastHost.isEmpty else { return version }
-        return "\(version)\nwss://\(store.lastHost):48765"
+        let latency = store.connection.latencyMs.map { " · \($0)ms" } ?? ""
+        return "\(version)\nwss://\(store.lastHost):\(store.lastPort)\(latency)"
     }
 
     private var statusColor: Color {
         switch store.connection.state {
         case .connected: return .green
         case .connecting, .awaitingPairingCode: return .orange
-        case .disconnected, .failed: return .red
+        case .disconnected, .failed, .identityChanged: return .red
         }
     }
 
     private var summaryText: String {
         switch store.connection.state {
         case .disconnected: return "Disconnected"
+        case .identityChanged: return "Identität des PCs geändert"
         case .connecting: return "Connecting"
         case .awaitingPairingCode: return "Pairing"
         case .failed(let message): return message

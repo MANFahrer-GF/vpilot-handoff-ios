@@ -76,8 +76,11 @@ struct ChatPanelView: View {
         .padding(12)
     }
 
+    /// With no target selected the header says RADIO, so it shows radio traffic --
+    /// private conversations are reached by picking a callsign, not by being mixed
+    /// into the frequency's chatter.
     private var visibleMessages: [ChatMessage] {
-        guard let privateTarget else { return store.chatMessages }
+        guard let privateTarget else { return store.chatMessages.filter(\.isRadio) }
         return store.chatMessages.filter { $0.peer == privateTarget }
     }
 

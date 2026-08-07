@@ -9,6 +9,7 @@ enum DemoData {
         ProcessInfo.processInfo.arguments.contains("-handoffDemoData")
     }
 
+    @MainActor
     static func apply(to store: AppStore) {
         guard isEnabled else { return }
         store.controllers = decode(controllersJSON, as: ControllersMessage.self)?.controllers ?? []

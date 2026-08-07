@@ -5,6 +5,7 @@ import Observation
 /// callbacks (which fire off the network) into plain published state, and exposes
 /// one method per client->server command so views never touch the connection
 /// or the wire format directly.
+@MainActor
 @Observable
 final class AppStore {
     let connection = HandoffConnection()
@@ -19,7 +20,10 @@ final class AppStore {
     var diversionDestination: String?
     var nearbyAircraft: [NearbyAircraft] = []
     var pairingCodeError: String?
-    var pinnedIdentityChanged = false
+    /// Progress of long-running plugin operations (VatGlasses sync, SimBrief refresh),
+    /// keyed by the invocation id so two runs of the same operation can't clobber
+    /// each other. protocol.md guarantees no ordering or exclusivity between them.
+    var operations: [String: OperationProgressMessage] = [:]
 
     // MARK: View preferences
 
@@ -29,13 +33,14 @@ final class AppStore {
     /// invisible to Observation, so `preferredColorScheme` never re-evaluated and
     /// switching Hell/Dunkel did nothing until the app was relaunched.
     var appearance: AppearanceMode = AppearanceMode.persisted {
-        didSet { UserDefaults.standard.set(appearance.rawValue, forKey: AppearanceMode.storageKey) }
+        didSet { HandoffDefaults.store.set(appearance.rawValue, forKey: AppearanceMode.storageKey) }
     }
 
     /// Messages that arrived while the RADIO panel wasn't on screen -- drives the
     /// MSG tile's badge. Reset by `markChatRead()` when the panel is visible.
     var unreadChatCount = 0
     private var seenChatMessageIds: Set<String> = []
+    private var hasReceivedChatSnapshot = false
 
     // MARK: Debug mode
 
@@ -53,19 +58,32 @@ final class AppStore {
     /// token reconnect, so a client that kept these in memory would show empty
     /// fields on every relaunch. It also makes the reconciliation below possible --
     /// that contract assumes the client has its own stored credentials to compare.
-    var simbriefUserId: String? = UserDefaults.standard.string(forKey: "handoff.simbrief.userId") {
-        didSet { UserDefaults.standard.set(simbriefUserId, forKey: "handoff.simbrief.userId") }
+    var simbriefUserId: String? = HandoffDefaults.store.string(forKey: "handoff.simbrief.userId") {
+        didSet { HandoffDefaults.store.set(simbriefUserId, forKey: "handoff.simbrief.userId") }
     }
 
-    var simbriefUsername: String? = UserDefaults.standard.string(forKey: "handoff.simbrief.username") {
-        didSet { UserDefaults.standard.set(simbriefUsername, forKey: "handoff.simbrief.username") }
+    var simbriefUsername: String? = HandoffDefaults.store.string(forKey: "handoff.simbrief.username") {
+        didSet { HandoffDefaults.store.set(simbriefUsername, forKey: "handoff.simbrief.username") }
     }
 
     /// Stored for the same reason as `appearance` -- the status footer and the
     /// settings sheet both read this and must redraw when it changes.
-    var lastHost: String = UserDefaults.standard.string(forKey: "handoff.lastHost") ?? "" {
-        didSet { UserDefaults.standard.set(lastHost, forKey: "handoff.lastHost") }
+    var lastHost: String = HandoffDefaults.store.string(forKey: "handoff.lastHost") ?? "" {
+        didSet { HandoffDefaults.store.set(lastHost, forKey: "handoff.lastHost") }
     }
+
+    /// Remembered alongside the host: discovery reports the plugin's actual port, and
+    /// assuming the default would strand anyone who moved it.
+    var lastPort: Int = {
+        let stored = HandoffDefaults.store.integer(forKey: "handoff.lastPort")
+        return stored == 0 ? HandoffConnection.defaultPort : stored
+    }() {
+        didSet { HandoffDefaults.store.set(lastPort, forKey: "handoff.lastPort") }
+    }
+
+    /// Last command that couldn't be handed to the socket, surfaced in the footer so
+    /// a dropped frequency change doesn't pass for a successful one.
+    var lastSendError: String?
 
     init() {
         connection.onControllers = { [weak self] msg in
@@ -84,12 +102,13 @@ final class AppStore {
             // nothing actually changed so the list doesn't rebuild needlessly.
             if self.chatMessages != msg.messages {
                 let newIds = msg.messages.map(\.id).filter { !self.seenChatMessageIds.contains($0) }
-                if self.chatPanelVisible {
-                    self.seenChatMessageIds.formUnion(newIds)
-                } else {
+                // The first payload after connecting is the whole existing log, not
+                // news -- counting it would greet the pilot with a badge of "37".
+                if self.hasReceivedChatSnapshot && !self.chatPanelVisible {
                     self.unreadChatCount += newIds.count
-                    self.seenChatMessageIds.formUnion(newIds)
                 }
+                self.hasReceivedChatSnapshot = true
+                self.seenChatMessageIds.formUnion(newIds)
                 self.chatMessages = msg.messages
             }
             if self.selcalAlerts != msg.selcalAlerts { self.selcalAlerts = msg.selcalAlerts }
@@ -114,23 +133,29 @@ final class AppStore {
         }
         connection.onSimbriefCredentialsReceived = { [weak self] userId, username in
             self?.reconcileSimbriefCredentials(pluginUserId: userId, pluginUsername: username)
-            self?.pinnedIdentityChanged = false
         }
-        connection.onPinnedIdentityChanged = { [weak self] in
-            self?.pinnedIdentityChanged = true
+        connection.onOperationProgress = { [weak self] msg in
+            self?.applyOperationProgress(msg)
+        }
+        connection.onSendFailure = { [weak self] message in
+            self?.lastSendError = message
         }
     }
 
     // MARK: Connection lifecycle
 
-    func connect(host: String) {
+    func connect(host: String, port: Int = HandoffConnection.defaultPort) {
         lastHost = host
+        lastPort = port
         pairingCodeError = nil
+        lastSendError = nil
         controllers = []
         chatMessages = []
         selcalAlerts = []
         radioState = nil
-        connection.connect(host: host)
+        hasReceivedChatSnapshot = false
+        unreadChatCount = 0
+        connection.connect(host: host, port: port)
     }
 
     func submitPairingCode(_ code: String) {
@@ -153,11 +178,13 @@ final class AppStore {
         #endif
         guard !lastHost.isEmpty else { return }
         switch connection.state {
-        case .awaitingPairingCode, .connecting:
+        case .awaitingPairingCode, .connecting, .identityChanged:
+            // Mid-pairing, already trying, or deliberately refused -- reconnecting
+            // would either interrupt the pilot or silently retry a server we just
+            // rejected.
             return
         default:
-            connection.disconnect()
-            connect(host: lastHost)
+            connect(host: lastHost, port: lastPort)
         }
     }
 
@@ -280,6 +307,21 @@ final class AppStore {
         connection.send(SetDebugModeCommand(enabled: enabled))
         if !enabled {
             controllersDebug = nil
+        }
+    }
+
+    // MARK: Operations
+
+    /// Finished operations linger briefly so the pilot actually sees the outcome --
+    /// failures longer, since that's the actionable case. protocol.md leaves the
+    /// duration to the client but is explicit that clearing on arrival is too fast.
+    private func applyOperationProgress(_ msg: OperationProgressMessage) {
+        operations[msg.operationId] = msg
+        guard msg.finished else { return }
+        let linger: Duration = (msg.success == false) ? .seconds(12) : .seconds(4)
+        Task { [weak self] in
+            try? await Task.sleep(for: linger)
+            self?.operations.removeValue(forKey: msg.operationId)
         }
     }
 

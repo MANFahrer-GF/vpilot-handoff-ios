@@ -107,7 +107,10 @@ final class DiscoveryService: @unchecked Sendable {
 
             var ipBuffer = [CChar](repeating: 0, count: Int(INET_ADDRSTRLEN))
             inet_ntop(AF_INET, &fromAddr.sin_addr, &ipBuffer, socklen_t(INET_ADDRSTRLEN))
-            let host = String(cString: ipBuffer)
+            let host = ipBuffer.withUnsafeBufferPointer { buffer in
+                buffer.baseAddress.map { String(validatingCString: $0) ?? "" } ?? ""
+            }
+            guard !host.isEmpty else { continue }
 
             if !results.contains(where: { $0.host == host }) {
                 results.append(DiscoveryResult(host: host, port: port, fingerprint: fingerprint))

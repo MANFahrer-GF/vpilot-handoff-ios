@@ -292,7 +292,7 @@ struct ThemeEditorView: View {
 
 /// The facilities the editor exposes -- one per colour slot in `ControllerTheme`.
 enum ThemeFacility: String, CaseIterable, Identifiable {
-    case delivery, ground, tower, approach, center, atis
+    case delivery, ground, tower, approach, center, atis, other
 
     var id: String { rawValue }
 
@@ -304,6 +304,7 @@ enum ThemeFacility: String, CaseIterable, Identifiable {
         case .approach: return "APP"
         case .center: return "CTR"
         case .atis: return "ATIS"
+        case .other: return "?"
         }
     }
 
@@ -315,6 +316,9 @@ enum ThemeFacility: String, CaseIterable, Identifiable {
         case .approach: return 5
         case .center: return 6
         case .atis: return 0
+        // No facility enum from the feed -- the generic slot every unrecognised
+        // station falls into. It renders, so it has to be editable too.
+        case .other: return -1
         }
     }
 
@@ -326,6 +330,7 @@ enum ThemeFacility: String, CaseIterable, Identifiable {
         case .approach: return "LOWW_APP"
         case .center: return "LOVV_CTR"
         case .atis: return "LOWW_D_ATIS"
+        case .other: return "LOWW_APRON"
         }
     }
 
@@ -337,6 +342,7 @@ enum ThemeFacility: String, CaseIterable, Identifiable {
         case .approach: return 34675
         case .center: return 32600
         case .atis: return 21730
+        case .other: return 21980
         }
     }
 
@@ -361,6 +367,7 @@ enum ThemeFacility: String, CaseIterable, Identifiable {
         case .approach: theme.approach = color
         case .center: theme.center = color
         case .atis: theme.atis = color
+        case .other: theme.other = color
         }
     }
 }

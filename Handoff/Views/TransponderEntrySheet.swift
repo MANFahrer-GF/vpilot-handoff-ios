@@ -114,7 +114,13 @@ struct TransponderEntrySheet: View {
     }
 
     private func confirm() {
-        guard digits.count == Self.maxDigits, let code = Int(String(digits)) else { return }
+        guard digits.count == Self.maxDigits,
+              digits.allSatisfy({ ("0"..."7").contains($0) }),
+              let code = Int(String(digits)) else { return }
+        // Sent as a JSON number, so "0021" necessarily goes out as 21 -- there is no
+        // other representation on the wire. protocol.md calls it "a plain decimal
+        // 4-digit code" without saying how the plugin re-pads it; that side is not
+        // something this client can influence or verify from here.
         store.setTransponderCode(code)
         dismiss()
     }

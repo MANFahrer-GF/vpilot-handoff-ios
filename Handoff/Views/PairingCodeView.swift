@@ -16,12 +16,15 @@ struct PairingCodeView: View {
                     Spacer()
                 }
 
-                if store.pinnedIdentityChanged {
+                // Driven by our own refused handshake, not by anything the server
+                // said -- a hostile server can't suppress this by answering "success".
+                if store.connection.state == .identityChanged {
                     Text("""
                         Die Identität dieses PCs hat sich seit der letzten Kopplung geändert. \
+                        Die Verbindung wurde deshalb abgelehnt und es wurde nichts an ihn gesendet. \
                         Das passiert nach einer Neuinstallation oder einem Zurücksetzen des Plugins \
                         — es kann aber auch bedeuten, dass sich etwas anderes dafür ausgibt. \
-                        Nur fortfahren, wenn du das Plugin gerade selbst neu installiert oder \
+                        Gib den Code nur ein, wenn du das Plugin gerade selbst neu installiert oder \
                         zurückgesetzt hast.
                         """)
                         .font(.callout.bold())

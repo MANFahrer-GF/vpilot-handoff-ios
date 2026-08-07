@@ -23,6 +23,7 @@ struct ObservationTests {
     }
 
     @Test func appearanceChangesAreObservable() {
+        TestDefaults.installOnce()
         let store = AppStore()
         store.appearance = .system
         let observed = isObserved({ _ = store.appearance }) { store.appearance = .dark }
@@ -30,6 +31,7 @@ struct ObservationTests {
     }
 
     @Test func appearanceStillPersists() {
+        TestDefaults.installOnce()
         let store = AppStore()
         store.appearance = .dark
         #expect(AppStore().appearance == .dark)
@@ -38,6 +40,7 @@ struct ObservationTests {
     }
 
     @Test func lastHostChangesAreObservable() {
+        TestDefaults.installOnce()
         let store = AppStore()
         store.lastHost = ""
         let observed = isObserved({ _ = store.lastHost }) { store.lastHost = "192.168.1.42" }
@@ -46,6 +49,7 @@ struct ObservationTests {
     }
 
     @Test func hideTunedChangesAreObservable() {
+        TestDefaults.installOnce()
         let store = AppStore()
         store.hideTuned = false
         let observed = isObserved({ _ = store.hideTuned }) { store.hideTuned = true }
