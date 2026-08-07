@@ -22,7 +22,7 @@ enum DemoData {
         store.flightPlan = decode(flightPlanJSON, as: FlightPlanMessage.self)
         store.subsystemStatus = decode(subsystemJSON, as: SubsystemStatus.self)
         store.nearbyAircraft = decode(nearbyJSON, as: NearbyAircraftMessage.self)?.aircraft ?? []
-        store.unreadChatCount = 2
+        store.unreadByConversation = [ChatMessage.radioConversationKey: 1, "LOWW_TWR": 2]
     }
 
     private static func decode<T: Decodable>(_ json: String, as type: T.Type) -> T? {

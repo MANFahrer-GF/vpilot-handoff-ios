@@ -14,6 +14,7 @@ struct ChatPanelView: View {
 
     @State private var draft = ""
     @State private var showNearbyAircraft = false
+    @State private var flashOn = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -31,30 +32,41 @@ struct ChatPanelView: View {
                 showNearbyAircraft = false
             }
         }
-        .onAppear { store.markChatRead() }
-        .onChange(of: store.chatMessages) { _, _ in store.markChatRead() }
+        .onAppear {
+            store.markConversationRead(currentKey)
+            withAnimation(.easeInOut(duration: 0.5).repeatForever(autoreverses: true)) {
+                flashOn = true
+            }
+        }
+        .onChange(of: currentKey) { _, key in store.markConversationRead(key) }
+        .onChange(of: store.chatMessages) { _, _ in store.markConversationRead(currentKey) }
+    }
+
+    private var currentKey: String {
+        privateTarget ?? ChatMessage.radioConversationKey
+    }
+
+    /// Radio first, then every station the pilot has an exchange with -- plus the
+    /// one they just picked, even before a message exists for it.
+    private var conversationKeys: [String] {
+        var keys = [ChatMessage.radioConversationKey]
+        for message in store.chatMessages where !message.isRadio {
+            let key = message.conversationKey
+            if !keys.contains(key) { keys.append(key) }
+        }
+        if let privateTarget, !keys.contains(privateTarget) { keys.append(privateTarget) }
+        return keys
     }
 
     private var header: some View {
-        HStack {
-            Text(privateTarget.map { "PRIVATE · \($0)" } ?? "RADIO")
-                .font(.caption.bold())
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-                .background(Color(.secondarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 6))
-
-            if privateTarget != nil {
-                Button {
-                    privateTarget = nil
-                } label: {
-                    Image(systemName: "arrow.uturn.left")
+        HStack(spacing: 10) {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(conversationKeys, id: \.self) { key in
+                        conversationTab(key)
+                    }
                 }
-                .buttonStyle(.plain)
-                .foregroundStyle(.secondary)
             }
-
-            Spacer()
 
             Button {
                 showNearbyAircraft = true
@@ -74,6 +86,39 @@ struct ChatPanelView: View {
         }
         .foregroundStyle(.primary)
         .padding(12)
+    }
+
+    private func conversationTab(_ key: String) -> some View {
+        let isRadio = key == ChatMessage.radioConversationKey
+        let isSelected = key == currentKey
+        let unread = store.unreadByConversation[key] ?? 0
+        // Directed traffic is aimed at this pilot; ambient chatter on the frequency
+        // isn't. Only the former earns the flash.
+        let shouldFlash = unread > 0 && !isRadio
+
+        return Button {
+            privateTarget = isRadio ? nil : key
+        } label: {
+            HStack(spacing: 6) {
+                Text(isRadio ? "RADIO" : key)
+                    .font(.caption.bold())
+                if unread > 0 {
+                    Text("\(unread)")
+                        .font(.caption2.monospacedDigit().bold())
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 1)
+                        .background(shouldFlash && flashOn ? Color.orange : Color.blue)
+                        .foregroundStyle(.white)
+                        .clipShape(Capsule())
+                }
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(isSelected ? Color.accentColor.opacity(0.2) : Color(.secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 6))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 
     /// With no target selected the header says RADIO, so it shows radio traffic --

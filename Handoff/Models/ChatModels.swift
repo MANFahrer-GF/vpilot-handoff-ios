@@ -49,6 +49,15 @@ struct ChatMessage: Decodable, Identifiable, Equatable {
     var isOutgoing: Bool { direction == "outgoing" }
     var isRadio: Bool { channel == "radio" }
 
+    /// Reserved key for the frequency's own traffic, distinct from any callsign.
+    static let radioConversationKey = "\u{0}radio"
+
+    /// Which tab this message belongs to: the shared radio channel, or the station
+    /// it was exchanged with.
+    var conversationKey: String {
+        isRadio ? Self.radioConversationKey : (peer ?? "?")
+    }
+
     /// "122.800" for radio messages (the frequency identifies the channel),
     /// the other party's callsign for private/broadcast.
     var headerLabel: String {

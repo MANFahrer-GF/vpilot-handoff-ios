@@ -147,7 +147,6 @@ struct DashboardView: View {
     private func openChat() {
         withAnimation(.snappy) { chatOverlayShown = true }
         store.chatPanelVisible = true
-        store.markChatRead()
     }
 
     private func closeChat() {

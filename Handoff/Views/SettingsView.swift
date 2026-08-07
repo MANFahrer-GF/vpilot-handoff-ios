@@ -201,6 +201,12 @@ struct SettingsView: View {
                     .fixedSize(horizontal: false, vertical: true)
 
                 if store.debugMode {
+                    Toggle("Screenshot anhängen", isOn: attachScreenshotBinding)
+                    Text("Hängt ein Bild des Handoff-Fensters an den Schnappschuss. Nur dieses Fenster — iOS erlaubt keiner App, andere Apps mitzufotografieren, anders als die Vollbild-Option der Android-Version.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+
                     Button("Diagnose-Schnappschuss speichern") {
                         store.saveDebugSnapshot(appVersion: appVersion)
                     }
@@ -351,6 +357,10 @@ struct SettingsView: View {
 
     private var appearanceBinding: Binding<AppearanceMode> {
         Binding(get: { store.appearance }, set: { store.appearance = $0 })
+    }
+
+    private var attachScreenshotBinding: Binding<Bool> {
+        Binding(get: { store.attachDebugScreenshot }, set: { store.attachDebugScreenshot = $0 })
     }
 
     private var spacingBinding: Binding<Bool> {

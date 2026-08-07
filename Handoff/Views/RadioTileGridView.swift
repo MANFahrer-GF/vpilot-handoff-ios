@@ -170,6 +170,13 @@ struct RadioTileGridView: View {
             .clipShape(RoundedRectangle(cornerRadius: 5))
     }
 
+    /// A message addressed to this pilot outranks ambient frequency chatter, so it
+    /// gets its own colour rather than blending into the same blue count.
+    private var badgeColor: Color {
+        if store.hasUnreadDirectedMessage { return .orange }
+        return store.unreadChatCount > 0 ? .blue : .black
+    }
+
     private var messageTile: some View {
         tileShell(action: onOpenChat) {
             VStack(alignment: .leading, spacing: 2) {
@@ -181,7 +188,7 @@ struct RadioTileGridView: View {
                         .foregroundStyle(.white)
                         .padding(.horizontal, 7)
                         .padding(.vertical, 2)
-                        .background(store.unreadChatCount > 0 ? Color.blue : Color.black)
+                        .background(badgeColor)
                         .clipShape(RoundedRectangle(cornerRadius: 5))
                 }
                 Text(currentFrequencyText ?? " ")

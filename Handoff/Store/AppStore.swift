@@ -41,9 +41,21 @@ final class AppStore {
         didSet { HandoffDefaults.store.set(appearance.rawValue, forKey: AppearanceMode.storageKey) }
     }
 
-    /// Messages that arrived while the RADIO panel wasn't on screen -- drives the
-    /// MSG tile's badge. Reset by `markChatRead()` when the panel is visible.
-    var unreadChatCount = 0
+    /// Unread count per conversation, so each tab carries its own badge the way the
+    /// Android client does. The MSG tile shows the sum.
+    var unreadByConversation: [String: Int] = [:]
+    /// Which conversation the pilot is actually looking at; messages arriving there
+    /// while the panel is open are read on arrival.
+    var visibleConversation: String?
+
+    var unreadChatCount: Int { unreadByConversation.values.reduce(0, +) }
+
+    /// True while an unread *directed* message is waiting -- private traffic is aimed
+    /// at this pilot, unlike ambient chatter on the frequency, so the UI flashes it.
+    var hasUnreadDirectedMessage: Bool {
+        unreadByConversation.contains { $0.key != ChatMessage.radioConversationKey && $0.value > 0 }
+    }
+
     private var seenChatMessageIds: Set<String> = []
     private var hasReceivedChatSnapshot = false
 
@@ -106,6 +118,14 @@ final class AppStore {
         didSet { HandoffDefaults.store.set(blockInvalidFrequencies, forKey: "handoff.blockInvalidFreq") }
     }
 
+    /// Whether a debug snapshot carries a screenshot of this app's window. The
+    /// Android client's equivalent opt-in widens the capture to the whole display;
+    /// iOS can't do that at all (see AppScreenshotter), so the only real choice is
+    /// attach or don't.
+    var attachDebugScreenshot: Bool = HandoffDefaults.store.object(forKey: "handoff.attachDebugShot") as? Bool ?? true {
+        didSet { HandoffDefaults.store.set(attachDebugScreenshot, forKey: "handoff.attachDebugShot") }
+    }
+
     init() {
         connection.onControllers = { [weak self] msg in
             guard let self else { return }
@@ -122,14 +142,20 @@ final class AppStore {
             // Full-state resend on every change (protocol.md) -- skip the write when
             // nothing actually changed so the list doesn't rebuild needlessly.
             if self.chatMessages != msg.messages {
-                let newIds = msg.messages.map(\.id).filter { !self.seenChatMessageIds.contains($0) }
+                let arrived = msg.messages.filter { !self.seenChatMessageIds.contains($0.id) }
                 // The first payload after connecting is the whole existing log, not
                 // news -- counting it would greet the pilot with a badge of "37".
-                if self.hasReceivedChatSnapshot && !self.chatPanelVisible {
-                    self.unreadChatCount += newIds.count
+                if self.hasReceivedChatSnapshot {
+                    for message in arrived where !message.isOutgoing {
+                        let key = message.conversationKey
+                        // Already on screen in the tab it landed in? Then it's read.
+                        let isBeingWatched = self.chatPanelVisible && self.visibleConversation == key
+                        guard !isBeingWatched else { continue }
+                        self.unreadByConversation[key, default: 0] += 1
+                    }
                 }
                 self.hasReceivedChatSnapshot = true
-                self.seenChatMessageIds.formUnion(newIds)
+                self.seenChatMessageIds.formUnion(arrived.map(\.id))
                 self.chatMessages = msg.messages
             }
             if self.selcalAlerts != msg.selcalAlerts { self.selcalAlerts = msg.selcalAlerts }
@@ -175,7 +201,7 @@ final class AppStore {
         selcalAlerts = []
         radioState = nil
         hasReceivedChatSnapshot = false
-        unreadChatCount = 0
+        unreadByConversation.removeAll()
         connection.connect(host: host, port: port)
     }
 
@@ -367,9 +393,12 @@ final class AppStore {
     /// Set by the dashboard so incoming messages know whether they're being seen.
     var chatPanelVisible = false
 
-    func markChatRead() {
-        unreadChatCount = 0
-        seenChatMessageIds.formUnion(chatMessages.map(\.id))
+    /// Clears the badge for the conversation currently on screen -- not all of them,
+    /// so an unread private message doesn't disappear just because the pilot glanced
+    /// at the frequency.
+    func markConversationRead(_ key: String) {
+        visibleConversation = key
+        unreadByConversation[key] = 0
     }
 
     /// Kicks off the full snapshot round trip: save -> (once acknowledged) attach a
@@ -390,6 +419,7 @@ final class AppStore {
     }
 
     private func attachScreenshotIfAvailable(snapshotId: String) {
+        guard attachDebugScreenshot else { return }
         guard let pngData = AppScreenshotter.captureCurrentWindowPNG() else { return }
         let base64 = pngData.base64EncodedString()
         connection.send(AttachDebugSnapshotScreenshotCommand(snapshotId: snapshotId, screenshotPngBase64: base64))

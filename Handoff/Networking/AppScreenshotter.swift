@@ -1,9 +1,14 @@
 import UIKit
 
-/// View-scoped capture of the app's own window, matching the Android client's default
-/// (non-opted-in) debug screenshot behavior in protocol.md -- deliberately not a
-/// full-device capture, since the iPad normally runs this app in Split View next to
-/// an unrelated EFB app that has nothing to do with a Handoff bug report.
+/// Capture of the app's own window for a debug snapshot.
+///
+/// protocol.md's issue #73a lets the Android client opt into a *full-device* capture
+/// via MediaProjection, so a bug report can show the neighbouring EFB app. iOS has
+/// no equivalent: the sandbox permits an app to capture its own layers and nothing
+/// else -- ReplayKit records this app's content, not the screen. There is therefore
+/// no full-device option to offer here, only whether to attach the app's own window
+/// at all, which is a privacy choice worth exposing.
+@MainActor
 enum AppScreenshotter {
     static func captureCurrentWindowPNG() -> Data? {
         guard let window = UIApplication.shared.connectedScenes
