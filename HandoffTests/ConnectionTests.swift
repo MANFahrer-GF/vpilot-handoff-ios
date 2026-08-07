@@ -66,8 +66,13 @@ struct ConnectionStateTests {
         let connection = self.connection()
         connection.connect(host: "not a host", port: 48765)
         // Anything that can't become a URL must fail immediately rather than sit in
-        // .connecting forever with no socket behind it.
-        #expect(connection.state == .failed("Ungültige Adresse"))
+        // .connecting forever with no socket behind it. Asserted on the case, not the
+        // message -- pinning the wording made this fail the moment the UI language
+        // changed, which says nothing about the behaviour under test.
+        guard case .failed = connection.state else {
+            Issue.record("expected .failed, got \(connection.state)")
+            return
+        }
     }
 
     @Test func disconnectIsTerminalAndDoesNotSelfHeal() async throws {

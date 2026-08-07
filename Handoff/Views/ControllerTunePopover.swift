@@ -57,14 +57,14 @@ struct ControllerTunePopover: View {
                 }
 
                 HStack(spacing: 10) {
-                    secondaryButton(controller.isPinned ? "Pin lösen" : "Anpinnen") {
+                    secondaryButton(controller.isPinned ? "Unpin" : "Pin") {
                         controller.isPinned
                             ? store.clearPinnedController(controller.callsign)
                             : store.pinController(controller.callsign)
                         dismiss()
                     }
                     if controller.isSelcalActive {
-                        secondaryButton("SELCAL quittieren") {
+                        secondaryButton("Dismiss SELCAL") {
                             store.dismissSelcal(controller.callsign)
                             dismiss()
                         }

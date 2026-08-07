@@ -16,14 +16,14 @@ enum DiscoveryError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .socketCreationFailed: return "Netzwerk-Socket konnte nicht erstellt werden."
+        case .socketCreationFailed: return "Could not create a network socket."
         case .broadcastNotPermitted:
             // iOS gates broadcast/multicast sockets behind the Multicast Networking
             // entitlement on real devices (not in the Simulator, which shares the
             // Mac's own network stack). Manual IP entry is the documented fallback
             // in protocol.md for exactly this reason.
-            return "Broadcast-Suche vom Gerät nicht erlaubt -- IP bitte manuell eingeben."
-        case .sendFailed: return "Anfrage konnte nicht gesendet werden."
+            return "Broadcast discovery is not permitted on this device — enter the IP manually."
+        case .sendFailed: return "Could not send the discovery request."
         }
     }
 }

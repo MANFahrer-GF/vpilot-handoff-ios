@@ -143,7 +143,7 @@ struct ChatPanelView: View {
             }
             .overlay {
                 if visibleMessages.isEmpty {
-                    Text("Noch keine Nachrichten")
+                    Text("No messages yet")
                         .font(.callout)
                         .foregroundStyle(.secondary)
                 }
@@ -167,7 +167,7 @@ struct ChatPanelView: View {
                         Label("SELCAL · \(alert.from)", systemImage: "bell.fill")
                             .font(.caption.bold())
                         Spacer()
-                        Button("Quittieren") { store.dismissSelcal(alert.from) }
+                        Button("Dismiss") { store.dismissSelcal(alert.from) }
                             .font(.caption)
                     }
                     .padding(.horizontal, 12)
@@ -190,7 +190,7 @@ struct ChatPanelView: View {
                 .onSubmit(send)
 
             Button(action: send) {
-                Label(privateTarget == nil ? "TRANSMIT" : "SENDEN", systemImage: "mic.fill")
+                Label(privateTarget == nil ? "TRANSMIT" : "SEND", systemImage: "mic.fill")
                     .font(.caption.bold())
                     .padding(.horizontal, 14)
                     .padding(.vertical, 12)
@@ -207,7 +207,7 @@ struct ChatPanelView: View {
     }
 
     private var placeholder: String {
-        privateTarget.map { "Nachricht an \($0)…" } ?? "Transmit on current frequency…"
+        privateTarget.map { "Message to \($0)…" } ?? "Transmit on current frequency…"
     }
 
     private var canSend: Bool {
@@ -258,7 +258,7 @@ struct ChatMessageCard: View {
                     Text("·").font(.caption)
                     Text(message.timeLabel).font(.caption.monospaced())
                     if isDirected {
-                        Text(message.isRadio ? "AN DICH" : "PRIVAT")
+                        Text(message.isRadio ? "TO YOU" : "DIRECT")
                             .font(.system(size: 9, weight: .bold))
                             .padding(.horizontal, 5)
                             .padding(.vertical, 1)
@@ -339,7 +339,7 @@ struct PrivateChatTargetSheet: View {
                 .listStyle(.plain)
                 .overlay {
                     if store.nearbyAircraft.isEmpty {
-                        Text("Kein Verkehr in der Nähe")
+                        Text("No nearby traffic")
                             .font(.callout)
                             .foregroundStyle(.secondary)
                     }
@@ -349,7 +349,7 @@ struct PrivateChatTargetSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Abbrechen") { dismiss() }
+                    Button("Cancel") { dismiss() }
                 }
             }
         }

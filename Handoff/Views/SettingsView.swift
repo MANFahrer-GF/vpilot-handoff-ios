@@ -44,11 +44,11 @@ struct SettingsView: View {
                     .frame(maxWidth: .infinity)
                 }
             }
-            .navigationTitle("Einstellungen")
+            .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Fertig") { dismiss() }
+                    Button("Done") { dismiss() }
                 }
             }
             .sheet(isPresented: $showThemeEditor) {
@@ -72,7 +72,7 @@ struct SettingsView: View {
             section("SIMBRIEF") {
                 labeledField("SimBrief user ID", text: $simbriefUserId, keyboard: .numberPad)
                 labeledField("SimBrief username (fallback)", text: $simbriefUsername, placeholder: "optional")
-                Button("Speichern & Aktualisieren") {
+                Button("Save & refresh") {
                     store.setSimbriefCredentials(
                         userId: simbriefUserId.isEmpty ? nil : simbriefUserId,
                         username: simbriefUsername.isEmpty ? nil : simbriefUsername
@@ -81,8 +81,8 @@ struct SettingsView: View {
                 .buttonStyle(.borderedProminent)
             }
 
-            section("DARSTELLUNG") {
-                Picker("Erscheinungsbild", selection: appearanceBinding) {
+            section("APPEARANCE") {
+                Picker("Appearance", selection: appearanceBinding) {
                     ForEach(AppearanceMode.allCases) { mode in
                         Text(mode.label).tag(mode)
                     }
@@ -94,7 +94,7 @@ struct SettingsView: View {
                     showThemeEditor = true
                 } label: {
                     HStack {
-                        Label("Controller-Farben", systemImage: "paintpalette")
+                        Label("Controller colours", systemImage: "paintpalette")
                         Spacer()
                         Text(themeStore.active.name)
                             .font(.caption)
@@ -108,8 +108,8 @@ struct SettingsView: View {
                 .buttonStyle(.plain)
             }
 
-            section("PLUGIN-VERBINDUNG") {
-                labeledField("Manuelle IP (falls die Suche fehlschlägt)", text: $hostText, keyboard: .numbersAndPunctuation)
+            section("PLUGIN CONNECTION") {
+                labeledField("Manual IP (if discovery fails)", text: $hostText, keyboard: .numbersAndPunctuation)
 
                 HStack {
                     Text("Status:").font(.callout).foregroundStyle(.secondary)
@@ -125,7 +125,7 @@ struct SettingsView: View {
                 }
 
                 HStack(spacing: 10) {
-                    Button("Verbinden") {
+                    Button("Connect") {
                         store.connect(host: hostText, port: store.lastPort)
                         dismiss()
                     }
@@ -133,13 +133,13 @@ struct SettingsView: View {
                     .disabled(hostText.isEmpty)
 
                     if store.connection.state == .connected {
-                        Button("Trennen", role: .destructive) { store.disconnect() }
+                        Button("Disconnect", role: .destructive) { store.disconnect() }
                             .buttonStyle(.bordered)
                     }
                 }
 
                 ForEach(discovered, id: \.host) { result in
-                    Button("Gefunden: \(result.host):\(result.port)") {
+                    Button("Found: \(result.host):\(result.port)") {
                         hostText = result.host
                         // Discovery reports the port the plugin actually listens on;
                         // assuming the default would strand a moved installation.
@@ -153,74 +153,74 @@ struct SettingsView: View {
                 }
             }
 
-            section("STANDARD-KANALRASTER") {
-                Picker("Kanalraster", selection: spacingBinding) {
+            section("DEFAULT CHANNEL SPACING") {
+                Picker("Channel spacing", selection: spacingBinding) {
                     Text("25 kHz").tag(false)
                     Text("8.33 kHz").tag(true)
                 }
                 .pickerStyle(.segmented)
                 .labelsHidden()
-                Text("Womit das Frequenz-Tastenfeld startet. Dort lässt es sich für eine einzelne Eingabe umschalten.")
+                Text("What the frequency keypad starts on. It can be switched there for a single entry.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            section("FREQUENZ-TASTENFELD") {
-                Picker("Prüfung", selection: blockInvalidBinding) {
-                    Text("Ungültige blockieren").tag(true)
-                    Text("Alle zulassen").tag(false)
+            section("FREQUENCY KEYPAD") {
+                Picker("Validation", selection: blockInvalidBinding) {
+                    Text("Block invalid").tag(true)
+                    Text("Allow all").tag(false)
                 }
                 .pickerStyle(.segmented)
                 .labelsHidden()
-                Text("Ob Frequenzen abseits des Kanalrasters gesendet werden dürfen. Außerhalb von 118.000–136.990 wird immer blockiert — die verwirft das Plugin ohnehin kommentarlos.")
+                Text("Whether frequencies off the channel grid may be sent. Anything outside 118.000–136.990 is always blocked — the plugin discards those silently anyway.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            section("UPDATE-INTERVALL") {
-                Picker("Tempo", selection: updateIntervalBinding) {
-                    Text("Schnell").tag("fast")
+            section("UPDATE INTERVAL") {
+                Picker("Rate", selection: updateIntervalBinding) {
+                    Text("Fast").tag("fast")
                     Text("Normal").tag("normal")
-                    Text("Langsam").tag("slow")
+                    Text("Slow").tag("slow")
                 }
                 .pickerStyle(.segmented)
                 .labelsHidden()
-                Text("Wie oft Controller-Liste und Funkstatus aktualisiert werden. \"Langsam\" hilft, wenn die Darstellung träge wirkt.")
+                Text("How often the controller list and radio state refresh. \"Slow\" helps if the display feels sluggish.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            section("DIAGNOSE") {
-                Toggle("Debug-Modus", isOn: debugModeBinding)
-                Text("Zeigt die Ranking-Begründung pro Controller und erlaubt einen Diagnose-Schnappschuss für die Plugin-Entwicklung.")
+            section("DIAGNOSTICS") {
+                Toggle("Debug mode", isOn: debugModeBinding)
+                Text("Shows the ranking rationale per controller and allows a diagnostic snapshot for plugin development.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
 
                 if store.debugMode {
-                    Toggle("Screenshot anhängen", isOn: attachScreenshotBinding)
-                    Text("Hängt ein Bild des Handoff-Fensters an den Schnappschuss. Nur dieses Fenster — iOS erlaubt keiner App, andere Apps mitzufotografieren, anders als die Vollbild-Option der Android-Version.")
+                    Toggle("Attach screenshot", isOn: attachScreenshotBinding)
+                    Text("Attaches an image of the Handoff window to the snapshot. That window only — iOS never lets an app photograph other apps, unlike the Android version's full-screen option.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
 
-                    Button("Diagnose-Schnappschuss speichern") {
+                    Button("Save diagnostic snapshot") {
                         store.saveDebugSnapshot(appVersion: appVersion)
                     }
                     .buttonStyle(.bordered)
 
                     if let path = store.lastSnapshotPath {
-                        Label("Auf dem PC gespeichert", systemImage: "checkmark.circle.fill")
+                        Label("Saved on the PC", systemImage: "checkmark.circle.fill")
                             .font(.caption)
                             .foregroundStyle(.green)
                         Text(path).font(.caption2.monospaced()).foregroundStyle(.secondary)
                         HStack {
-                            TextField("Name für den Schnappschuss", text: $snapshotName)
+                            TextField("Name for the snapshot", text: $snapshotName)
                                 .textFieldStyle(.roundedBorder)
-                            Button("Benennen") {
+                            Button("Name it") {
                                 store.nameLastSnapshot(snapshotName)
                                 snapshotName = ""
                             }
@@ -247,27 +247,27 @@ struct SettingsView: View {
                 creditRow("Pilot client", "vPilot")
             }
 
-            section("PROJEKT") {
-                creditRow("iPad-App", "Thomas Kant, Gifhorn")
-                creditRow("Entwickelt mit", "Claude (Anthropic)")
-                Text("Diese iPad-App ist ein eigenständiger, inoffizieller Client für dasselbe Plugin, gebaut nach dessen öffentlicher Protokoll-Dokumentation.")
+            section("PROJECT") {
+                creditRow("iPad app", "Thomas Kant, Gifhorn")
+                creditRow("Built with", "Claude (Anthropic)")
+                Text("This iPad app is an independent, unofficial client for the same plugin, built from its public protocol documentation.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            section("MITWIRKEN") {
+            section("CONTRIBUTE") {
                 linkRow(
-                    "Diese iPad-App",
+                    "This iPad app",
                     "MANFahrer-GF/vpilot-handoff-ios",
                     url: "https://github.com/MANFahrer-GF/vpilot-handoff-ios"
                 )
                 linkRow(
-                    "Plugin & Android-App",
+                    "Plugin & Android app",
                     "sushiat/vpilot-handoff",
                     url: "https://github.com/sushiat/vpilot-handoff"
                 )
-                Text("Fehler in dieser iPad-App bitte im ersten Repository melden, nicht beim Original-Projekt.")
+                Text("Please report bugs in this iPad app in the first repository, not to the upstream project.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -277,7 +277,7 @@ struct SettingsView: View {
                 section("PLUGIN") {
                     LabeledContent("Version", value: status.pluginVersion)
                     if let interval = status.updateInterval {
-                        LabeledContent("Intervall", value: interval)
+                        LabeledContent("Interval", value: interval)
                     }
                 }
             }
@@ -287,7 +287,7 @@ struct SettingsView: View {
     // MARK: Building blocks
 
     @ViewBuilder
-    private func section<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
+    private func section<Content: View>(_ title: LocalizedStringKey, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             VStack(alignment: .leading, spacing: 4) {
                 Text(title).font(.caption.bold()).foregroundStyle(.secondary)
@@ -301,7 +301,7 @@ struct SettingsView: View {
     /// built from the two literal URLs above -- nothing here is composed from data
     /// the plugin sends.
     @ViewBuilder
-    private func linkRow(_ label: String, _ value: String, url: String) -> some View {
+    private func linkRow(_ label: LocalizedStringKey, _ value: String, url: String) -> some View {
         if let destination = URL(string: url) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(label).font(.caption).foregroundStyle(.secondary)
@@ -320,9 +320,9 @@ struct SettingsView: View {
     }
 
     private func labeledField(
-        _ label: String,
+        _ label: LocalizedStringKey,
         text: Binding<String>,
-        placeholder: String = "",
+        placeholder: LocalizedStringKey = "",
         keyboard: UIKeyboardType = .default
     ) -> some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -335,7 +335,7 @@ struct SettingsView: View {
         }
     }
 
-    private func creditRow(_ label: String, _ value: String, license: String? = nil) -> some View {
+    private func creditRow(_ label: LocalizedStringKey, _ value: String, license: String? = nil) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(label).font(.caption).foregroundStyle(.secondary)
             HStack {
@@ -412,7 +412,7 @@ struct SettingsView: View {
         do {
             discovered = try await discovery.discover()
             if discovered.isEmpty {
-                discoveryError = "Nichts gefunden — Firewall auf dem PC prüfen oder IP manuell eingeben."
+                discoveryError = "Nothing found — check the firewall on the PC or enter the IP manually."
             }
         } catch {
             discoveryError = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
@@ -432,11 +432,13 @@ enum AppearanceMode: String, CaseIterable, Identifiable {
             .flatMap(AppearanceMode.init(rawValue:)) ?? .system
     }
 
-    var label: String {
+    /// LocalizedStringKey, not String: a picker built from plain Strings renders
+    /// untranslated no matter what the catalog says.
+    var label: LocalizedStringKey {
         switch self {
         case .system: return "System"
-        case .light: return "Hell"
-        case .dark: return "Dunkel"
+        case .light: return "Light"
+        case .dark: return "Dark"
         }
     }
 

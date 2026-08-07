@@ -186,7 +186,7 @@ final class AppStore {
         connection.onDiversionPending = { [weak self] msg in self?.diversionDestination = msg.destination }
         connection.onNearbyAircraft = { [weak self] msg in self?.nearbyAircraft = msg.aircraft }
         connection.onInvalidPairingCode = { [weak self] in
-            self?.pairingCodeError = "Falscher Code -- bitte erneut versuchen."
+            self?.pairingCodeError = "Wrong code — please try again."
         }
         connection.onDebugSnapshotSaved = { [weak self] msg in
             guard let self, self.pendingSnapshotId == msg.snapshotId else { return }
@@ -196,7 +196,7 @@ final class AppStore {
         }
         connection.onDebugSnapshotNamed = { [weak self] msg in
             guard let self, self.pendingSnapshotId == msg.snapshotId else { return }
-            if !msg.success { self.lastSnapshotError = msg.error ?? "Benennung fehlgeschlagen." }
+            if !msg.success { self.lastSnapshotError = msg.error ?? "Renaming failed." }
         }
         connection.onSimbriefCredentialsReceived = { [weak self] userId, username in
             self?.reconcileSimbriefCredentials(pluginUserId: userId, pluginUsername: username)

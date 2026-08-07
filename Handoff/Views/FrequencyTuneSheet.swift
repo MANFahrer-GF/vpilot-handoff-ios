@@ -81,7 +81,7 @@ struct FrequencyTuneSheet: View {
                 spacing833.toggle()
             } label: {
                 VStack(spacing: 1) {
-                    Text("RASTER")
+                    Text("SPACING")
                         .font(.system(size: 9, weight: .bold))
                         .foregroundStyle(.secondary)
                     Text(grid.label)
@@ -96,7 +96,7 @@ struct FrequencyTuneSheet: View {
                 .clipShape(RoundedRectangle(cornerRadius: 10))
             }
             .buttonStyle(.plain)
-            .accessibilityLabel("Kanalraster, aktuell \(spacing833 ? "8,33" : "25") Kilohertz. Antippen zum Umschalten.")
+            .accessibilityLabel("Channel spacing, currently \(grid.label) kilohertz. Tap to switch.")
 
             Button(action: swapActiveStandby) {
                 Image(systemName: "arrow.up.arrow.down")
@@ -150,19 +150,19 @@ struct FrequencyTuneSheet: View {
             // Off-grid but accepted because the pilot chose "Allow all" -- worth
             // saying so, otherwise a typo looks like a deliberate entry.
             if !store.blockInvalidFrequencies, let value = parsedValue, !grid.contains(value) {
-                return "Außerhalb des \(grid.label)-kHz-Rasters — wird trotzdem gesendet."
+                return "Off the \(grid.label) kHz grid — sending anyway."
             }
             return nil
         }
         guard let value = Double("\(String(digits[0..<3])).\(String(digits[3..<6]))"),
               VHFChannelGrid.inBand(value) else {
-            return "Außerhalb des Flugfunkbands (118.000–136.990)."
+            return "Outside the VHF airband (118.000–136.990)."
         }
         // Only offer the other grid when it would actually accept this value --
         // suggesting it otherwise sends the pilot in a circle.
         return grid.other.contains(value)
-            ? "Keine gültige \(grid.label)-kHz-Frequenz — auf \(grid.other.label) umschalten?"
-            : "Keine gültige \(grid.label)-kHz-Frequenz."
+            ? "Not a valid \(grid.label) kHz channel — switch to \(grid.other.label)?"
+            : "Not a valid \(grid.label) kHz channel."
     }
 
     private var grid: VHFChannelGrid { spacing833 ? .khz833 : .khz25 }

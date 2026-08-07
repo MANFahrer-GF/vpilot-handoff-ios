@@ -12,7 +12,7 @@ struct PairingCodeView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
                 HStack {
-                    Text("Kopplung").font(.headline)
+                    Text("Pairing").font(.headline)
                     Spacer()
                 }
 
@@ -20,12 +20,10 @@ struct PairingCodeView: View {
                 // said -- a hostile server can't suppress this by answering "success".
                 if store.connection.state == .identityChanged {
                     Text("""
-                        Die Identität dieses PCs hat sich seit der letzten Kopplung geändert. \
-                        Die Verbindung wurde deshalb abgelehnt und es wurde nichts an ihn gesendet. \
-                        Das passiert nach einer Neuinstallation oder einem Zurücksetzen des Plugins \
-                        — es kann aber auch bedeuten, dass sich etwas anderes dafür ausgibt. \
-                        Gib den Code nur ein, wenn du das Plugin gerade selbst neu installiert oder \
-                        zurückgesetzt hast.
+                        This PC's identity has changed since it was last paired. The connection \
+                        was refused and nothing was sent to it. That happens after reinstalling or \
+                        resetting the plugin — but it can also mean something else is impersonating \
+                        it. Only enter the code if you just reinstalled or reset the plugin yourself.
                         """)
                         .font(.callout.bold())
                         .foregroundStyle(.orange)
@@ -35,7 +33,7 @@ struct PairingCodeView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
 
-                Text("Gib den Code ein, der auf dem PC (\(store.lastHost)) angezeigt wird, um dieses iPad zu koppeln.")
+                Text("Enter the code shown on the PC (\(store.lastHost)) to pair this iPad with it.")
                     .font(.callout)
                     .foregroundStyle(.secondary)
 
@@ -57,7 +55,7 @@ struct PairingCodeView: View {
                 }
 
                 HStack(spacing: 12) {
-                    Button("Abbrechen") {
+                    Button("Cancel") {
                         store.disconnect()
                     }
                     .frame(maxWidth: .infinity)
@@ -66,7 +64,7 @@ struct PairingCodeView: View {
                     .foregroundStyle(.primary)
                     .clipShape(RoundedRectangle(cornerRadius: 22))
 
-                    Button("Koppeln") {
+                    Button("Pair") {
                         store.submitPairingCode(code)
                         code = ""
                     }

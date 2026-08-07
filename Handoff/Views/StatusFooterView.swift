@@ -116,10 +116,10 @@ struct StatusFooterView: View {
                         warn: plan.vatsimPlanMissing || plan.simbriefVatsimMismatch
                     )
                     if plan.originMismatch == true {
-                        warningLine("Position passt nicht zum gefilten Startflughafen")
+                        warningLine("Position doesn't match the filed departure airport")
                     }
                     if plan.vatsimCidMismatch == true {
-                        warningLine("VATSIM-Flugplan könnte nicht deiner sein (CID-Abweichung)")
+                        warningLine("Filed VATSIM plan may not be yours (CID mismatch)")
                     }
                 }
 
@@ -140,14 +140,14 @@ struct StatusFooterView: View {
         return "\(origin) → \(destination)"
     }
 
-    private func statusLine(_ label: String, _ ok: Bool) -> some View {
+    private func statusLine(_ label: LocalizedStringKey, _ ok: Bool) -> some View {
         HStack(spacing: 8) {
             Circle().fill(ok ? Color.green : Color.red).frame(width: 8, height: 8)
             Text(label).font(.caption)
         }
     }
 
-    private func detailRow(_ label: String, _ value: String, warn: Bool) -> some View {
+    private func detailRow(_ label: LocalizedStringKey, _ value: String, warn: Bool) -> some View {
         HStack(alignment: .top, spacing: 10) {
             Text(label)
                 .font(.caption.bold())
@@ -159,7 +159,7 @@ struct StatusFooterView: View {
         }
     }
 
-    private func warningLine(_ text: String) -> some View {
+    private func warningLine(_ text: LocalizedStringKey) -> some View {
         Label(text, systemImage: "exclamationmark.triangle.fill")
             .font(.caption)
             .foregroundStyle(.orange)
@@ -183,7 +183,7 @@ struct StatusFooterView: View {
     private var summaryText: String {
         switch store.connection.state {
         case .disconnected: return "Disconnected"
-        case .identityChanged: return "Identität des PCs geändert"
+        case .identityChanged: return "PC identity changed"
         case .connecting: return "Connecting"
         case .awaitingPairingCode: return "Pairing"
         case .failed(let message): return message

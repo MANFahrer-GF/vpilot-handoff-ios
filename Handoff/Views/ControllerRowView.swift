@@ -49,7 +49,7 @@ struct ControllerRowView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel(controller.isPinned ? "Pin lösen" : "Anpinnen")
+                .accessibilityLabel(controller.isPinned ? "Unpin" : "Pin")
 
                 Button(action: onChatTap) {
                     Image(systemName: "text.bubble.fill")
@@ -58,7 +58,7 @@ struct ControllerRowView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("Chat mit \(controller.callsign)")
+                .accessibilityLabel("Chat with \(controller.callsign)")
             }
         }
         .foregroundStyle(foreground)

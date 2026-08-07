@@ -69,14 +69,14 @@ struct DashboardView: View {
                 .interactiveDismissDisabled()
         }
         .alert(
-            "Diversion erkannt",
+            "Diversion detected",
             isPresented: diversionAlertShown,
             presenting: store.diversionDestination
         ) { _ in
-            Button("Bestätigen") { store.confirmDiversion() }
-            Button("Verwerfen", role: .cancel) { store.dismissDiversion() }
+            Button("Confirm") { store.confirmDiversion() }
+            Button("Dismiss", role: .cancel) { store.dismissDiversion() }
         } message: { destination in
-            Text("Neues Ziel laut VATSIM-Feed: \(destination)")
+            Text("New destination on the VATSIM feed: \(destination)")
         }
         .onAppear {
             #if DEBUG
@@ -122,7 +122,7 @@ struct DashboardView: View {
             Text("Handoff").font(.title3.bold())
             // Not "by sushi.at": that's the plugin and Android client this talks to,
             // credited in Settings. This app is a separate, unofficial iPad client.
-            Text("iPad · inoffiziell").font(.caption).foregroundStyle(.secondary)
+            Text("iPad · unofficial").font(.caption).foregroundStyle(.secondary)
             Spacer()
             Text("v\(appVersion)").font(.caption.monospaced()).foregroundStyle(.secondary)
         }

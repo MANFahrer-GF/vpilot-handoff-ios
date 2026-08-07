@@ -97,7 +97,7 @@ final class HandoffConnection: NSObject {
         state = .connecting
 
         guard let url = URL(string: "wss://\(host):\(port)/") else {
-            state = .failed("Ungültige Adresse")
+            state = .failed("Invalid address")
             return
         }
 
@@ -155,11 +155,11 @@ final class HandoffConnection: NSObject {
     func send<T: Encodable>(_ command: T) {
         guard let data = try? JSONEncoder().encode(command),
               let text = String(data: data, encoding: .utf8) else {
-            onSendFailure?("Befehl konnte nicht kodiert werden.")
+            onSendFailure?("Could not encode command.")
             return
         }
         guard let task = webSocketTask else {
-            onSendFailure?("Nicht verbunden — Befehl wurde nicht gesendet.")
+            onSendFailure?("Not connected — command was not sent.")
             return
         }
         let sentGeneration = generation
@@ -167,7 +167,7 @@ final class HandoffConnection: NSObject {
             guard let error else { return }
             Task { @MainActor in
                 guard let self, self.generation == sentGeneration else { return }
-                self.onSendFailure?("Senden fehlgeschlagen: \(error.localizedDescription)")
+                self.onSendFailure?("Send failed: \(error.localizedDescription)")
             }
         }
     }
@@ -366,7 +366,7 @@ extension HandoffConnection: URLSessionWebSocketDelegate {
 private extension HandoffConnection {
     func rejectUnreadableCertificate() {
         teardownSocket()
-        state = .failed("Zertifikat des Servers ist unlesbar.")
+        state = .failed("Server certificate is unreadable.")
     }
 
     /// Self-signed certificate with no CA -- protocol.md's model is trust-on-first-use,

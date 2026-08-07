@@ -26,11 +26,11 @@ struct ThemeEditorView: View {
                 .frame(maxWidth: 1000)
                 .frame(maxWidth: .infinity)
             }
-            .navigationTitle("Controller-Farben")
+            .navigationTitle("Controller colours")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Fertig") { dismiss() }
+                    Button("Done") { dismiss() }
                 }
             }
             .sheet(item: $editingFacility) { facility in
@@ -42,7 +42,7 @@ struct ThemeEditorView: View {
 
     private var presetPicker: some View {
         VStack(alignment: .leading, spacing: 10) {
-            sectionTitle("VORLAGE")
+            sectionTitle("PRESET")
             HStack(spacing: 10) {
                 ForEach(ControllerTheme.presets) { preset in
                     Button {
@@ -59,7 +59,7 @@ struct ThemeEditorView: View {
                     .buttonStyle(.plain)
                 }
             }
-            Text("Aktiv: \(themeStore.active.name)")
+            Text("Active: \(themeStore.active.name)")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
@@ -67,7 +67,7 @@ struct ThemeEditorView: View {
 
     private var previewGrid: some View {
         VStack(alignment: .leading, spacing: 10) {
-            sectionTitle("ZEILE ANTIPPEN, UM IHRE FARBE ZU ÄNDERN")
+            sectionTitle("TAP A ROW TO CHANGE ITS COLOUR")
             LazyVGrid(
                 columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)],
                 spacing: 10
@@ -124,8 +124,8 @@ struct ThemeEditorView: View {
 
     private var contactMeSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            sectionTitle("CONTACT-ME-ALARM")
-            Text("Eine offene Contact-me-Anfrage lässt die Zeile zweimal pro Sekunde zwischen ihrer eigenen Farbe und dieser Alarmfarbe blinken.")
+            sectionTitle("CONTACT-ME ALERT")
+            Text("An unresolved contact-me request flashes a station's row between its own colour and this alert colour twice a second.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -152,39 +152,39 @@ struct ThemeEditorView: View {
     private var sliderSections: some View {
         VStack(alignment: .leading, spacing: 22) {
             sliderSection(
-                title: "HELLIGKEIT NICHT-HERVORGEHOBENER ZEILEN",
-                explanation: "Wo normale (nicht hervorgehobene) Zeilen zwischen Schwarz und Weiß liegen, relativ zu ihrer Hervorhebungsfarbe.",
+                title: "NON-HIGHLIGHT BRIGHTNESS",
+                explanation: "Where default (non-highlighted) rows sit between black and white, relative to their highlighted colour.",
                 value: brightnessBinding,
-                leading: "Schwarz",
-                middle: "Hervorhebung",
-                trailing: "Weiß"
+                leading: "Black",
+                middle: "Highlight",
+                trailing: "White"
             )
             sliderSection(
-                title: "TEXTKONTRAST-SCHWELLE",
-                explanation: "Ab wann der Zeilentext von Dunkel auf Weiß wechselt, wenn eine Farbe dunkler wird.",
+                title: "TEXT CONTRAST THRESHOLD",
+                explanation: "When row text switches from dark to white as a colour darkens.",
                 value: contrastBinding,
-                leading: "Früh",
+                leading: "Early",
                 middle: nil,
-                trailing: "Spät"
+                trailing: "Late"
             )
             sliderSection(
-                title: "DARK-MODE-ABDUNKLUNG",
-                explanation: "Zusätzliche Abdunklung auf jeder Zeile — auch hervorgehobenen — nur im dunklen Erscheinungsbild.",
+                title: "DARK MODE OFFSET",
+                explanation: "Extra darkening applied to every row — highlighted included — only in the dark appearance.",
                 value: darkOffsetBinding,
-                leading: "Aus",
+                leading: "Off",
                 middle: nil,
-                trailing: "Schwarz"
+                trailing: "Black"
             )
         }
     }
 
     private func sliderSection(
-        title: String,
-        explanation: String,
+        title: LocalizedStringKey,
+        explanation: LocalizedStringKey,
         value: Binding<Double>,
-        leading: String,
-        middle: String?,
-        trailing: String
+        leading: LocalizedStringKey,
+        middle: LocalizedStringKey?,
+        trailing: LocalizedStringKey
     ) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             sectionTitle(title)
@@ -209,11 +209,11 @@ struct ThemeEditorView: View {
 
     private var saveSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            sectionTitle("ALS NEUES THEMA SICHERN")
+            sectionTitle("SAVE AS")
             HStack {
-                TextField("Name des Themas", text: $newThemeName)
+                TextField("Theme name", text: $newThemeName)
                     .textFieldStyle(.roundedBorder)
-                Button("Sichern") {
+                Button("Save") {
                     themeStore.saveActive(as: newThemeName)
                     newThemeName = ""
                 }
@@ -225,7 +225,7 @@ struct ThemeEditorView: View {
 
     private var savedSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            sectionTitle("EIGENE THEMEN")
+            sectionTitle("YOUR THEMES")
             ForEach(themeStore.saved) { theme in
                 HStack {
                     Button(theme.name) { themeStore.apply(theme) }
@@ -250,7 +250,7 @@ struct ThemeEditorView: View {
         }
     }
 
-    private func sectionTitle(_ text: String) -> some View {
+    private func sectionTitle(_ text: LocalizedStringKey) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(text).font(.caption.bold()).foregroundStyle(.secondary)
             Divider()
@@ -381,7 +381,7 @@ private struct FacilityColorPicker: View {
         NavigationStack {
             VStack(spacing: 20) {
                 ColorPicker(
-                    "Farbe für \(facility.badge)",
+                    "Colour for \(facility.badge)",
                     selection: Binding(
                         get: { facility.color(in: themeStore.active).color },
                         set: { newValue in
@@ -398,7 +398,7 @@ private struct FacilityColorPicker: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Fertig") { dismiss() }
+                    Button("Done") { dismiss() }
                 }
             }
         }
