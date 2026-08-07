@@ -33,8 +33,11 @@ jobs:
       - name: Run tests
         run: |
           set -o pipefail
+          # No CODE_SIGNING_ALLOWED=NO here. The simulator SDK ad-hoc signs by
+          # default, and stripping that takes the Keychain entitlement with it --
+          # the two token tests then fail on CI for a reason that exists nowhere
+          # else, since every real install is signed.
           xcodebuild test \
             -project Handoff.xcodeproj \
             -scheme Handoff \
-            -destination "id=${{ steps.sim.outputs.udid }}" \
-            CODE_SIGNING_ALLOWED=NO
+            -destination "id=${{ steps.sim.outputs.udid }}"
