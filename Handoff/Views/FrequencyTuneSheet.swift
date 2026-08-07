@@ -84,7 +84,7 @@ struct FrequencyTuneSheet: View {
                     Text("RASTER")
                         .font(.system(size: 9, weight: .bold))
                         .foregroundStyle(.secondary)
-                    Text(spacing833 ? "8.33" : "25")
+                    Text(grid.label)
                         .font(.subheadline.monospaced().bold())
                     Text("kHz")
                         .font(.system(size: 9))
@@ -140,48 +140,32 @@ struct FrequencyTuneSheet: View {
         // The band limit always applies -- the plugin drops anything outside it, so
         // letting it through would just fail silently. The channel grid is the part
         // "Allow all" relaxes.
-        guard (118.0...136.990).contains(value) else { return nil }
-        guard !store.blockInvalidFrequencies || isOnChannelGrid(value) else { return nil }
+        guard VHFChannelGrid.inBand(value) else { return nil }
+        guard !store.blockInvalidFrequencies || grid.contains(value) else { return nil }
         return value
-    }
-
-    /// 8.33 kHz *channel names* aren't simply every 5 kHz: each 25 kHz block carries
-    /// three channels, which leaves .x20, .x45, .x70 and .x95 unassigned. Listing the
-    /// valid endings is shorter than deriving them and matches what a pilot reads off
-    /// a chart.
-    private static let valid833Endings: Set<Int> = [0, 5, 10, 15, 25, 30, 35, 40, 50, 55, 60, 65, 75, 80, 85, 90]
-
-    private func isOnChannelGrid(_ mhz: Double, spacing833: Bool) -> Bool {
-        let kHz = Int((mhz * 1000).rounded())
-        guard spacing833 else { return kHz % 25 == 0 }
-        return Self.valid833Endings.contains(kHz % 100)
-    }
-
-    private func isOnChannelGrid(_ mhz: Double) -> Bool {
-        isOnChannelGrid(mhz, spacing833: spacing833)
     }
 
     private var validationError: String? {
         guard digits.count == Self.maxDigits, parsedValue == nil else {
             // Off-grid but accepted because the pilot chose "Allow all" -- worth
             // saying so, otherwise a typo looks like a deliberate entry.
-            if digits.count == Self.maxDigits, !store.blockInvalidFrequencies,
-               let value = parsedValue, !isOnChannelGrid(value) {
-                return "Außerhalb des \(spacing833 ? "8,33" : "25")-kHz-Rasters — wird trotzdem gesendet."
+            if !store.blockInvalidFrequencies, let value = parsedValue, !grid.contains(value) {
+                return "Außerhalb des \(grid.label)-kHz-Rasters — wird trotzdem gesendet."
             }
             return nil
         }
         guard let value = Double("\(String(digits[0..<3])).\(String(digits[3..<6]))"),
-              (118.0...136.990).contains(value) else {
+              VHFChannelGrid.inBand(value) else {
             return "Außerhalb des Flugfunkbands (118.000–136.990)."
         }
-        if spacing833 { return "Keine gültige 8,33-kHz-Frequenz." }
-        // Only offer the switch when it would actually help -- suggesting it for a
-        // value that's invalid on both grids just sends the pilot in a circle.
-        return isOnChannelGrid(value, spacing833: true)
-            ? "Keine gültige 25-kHz-Frequenz — auf 8.33 umschalten?"
-            : "Keine gültige 25-kHz-Frequenz."
+        // Only offer the other grid when it would actually accept this value --
+        // suggesting it otherwise sends the pilot in a circle.
+        return grid.other.contains(value)
+            ? "Keine gültige \(grid.label)-kHz-Frequenz — auf \(grid.other.label) umschalten?"
+            : "Keine gültige \(grid.label)-kHz-Frequenz."
     }
+
+    private var grid: VHFChannelGrid { spacing833 ? .khz833 : .khz25 }
 
     private func append(_ digit: Character) {
         guard digits.count < Self.maxDigits else { return }
