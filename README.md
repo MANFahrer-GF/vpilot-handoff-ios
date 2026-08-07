@@ -1,5 +1,7 @@
 # Handoff for iPad
 
+[![Tests](../../actions/workflows/tests.yml/badge.svg)](../../actions/workflows/tests.yml)
+
 An **unofficial** iPad client for the [Handoff vPilot plugin](https://github.com/sushiat/vpilot-handoff)
 by sushi.at — the VATSIM controller list, chat and radio panel on a second screen,
 next to your charts in iPadOS Split View.
@@ -38,6 +40,48 @@ talking to VATSIM, the iPad is a second screen for it.
 - Both on the same LAN, with TCP 48765 (and UDP 48766 for auto-discovery) allowed
   through the Windows firewall
 
+## Installing
+
+There is no App Store build. Apple's store isn't a realistic route for a hobby
+client that only talks to a program on your own PC, so the app is distributed the
+same way the Android client is: as a plain build file you install yourself.
+
+Each [release](../../releases) carries an **unsigned `.ipa`**. Unsigned is
+deliberate — signing it here would tie it to one developer account and be useless
+to everyone else. Sideloading tools re-sign it with *your* Apple ID instead.
+
+### With SideStore or AltStore (free Apple ID)
+
+1. Set up [SideStore](https://sidestore.io) or [AltStore](https://altstore.io)
+   once, following their own instructions. Both want a computer for the initial
+   pairing; SideStore then runs without one.
+2. Download `Handoff-<version>.ipa` from the [releases page](../../releases) on
+   the iPad.
+3. Open it in SideStore/AltStore and install.
+
+What a **free** Apple ID costs you, and it's Apple's rule, not this app's:
+
+- the app stops launching after **7 days** and has to be refreshed — both tools
+  can do that automatically while the iPad is on your network,
+- you can have at most **3** sideloaded apps at a time,
+- the bundle identifier gets rewritten per install, so app data doesn't survive a
+  switch between tools.
+
+A paid Apple Developer account ($99/year) raises the 7 days to a year. It isn't
+needed otherwise.
+
+### Building it yourself instead
+
+If you already have Xcode, building from source (below) and running it on your own
+iPad is the simpler path and gives you the same 7-day free-account limit.
+
+### What the app is allowed to do
+
+It asks for **local network** access and nothing else. No account, no analytics,
+no server of ours — the iPad talks only to your PC. The pairing token lives in the
+iPad's Keychain, and the plugin's TLS certificate is pinned on first pairing, so a
+different machine answering on that address is refused rather than trusted.
+
 ## Building
 
 The Xcode project is generated from `project.yml`, so it isn't in version control.
@@ -64,6 +108,17 @@ xcodebuild -project Handoff.xcodeproj -scheme Handoff \
 
 Launching with `-handoffDemoData` fills the app with sample state. The flag is
 `#if DEBUG`-only and has to be passed explicitly, so it never shows up in normal use.
+
+### Cutting a release
+
+Pushing a `v*` tag runs [`.github/workflows/release.yml`](.github/workflows/release.yml):
+it archives with signing switched off, packages `Payload/Handoff.app` into an
+`.ipa`, checks the version actually got stamped into the bundle, and opens a
+**draft** release with the file attached. The draft is published by hand.
+
+```sh
+git tag v1.0.0 && git push origin v1.0.0
+```
 
 ## Notes on the protocol
 

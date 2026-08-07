@@ -1,0 +1,111 @@
+name: Release
+
+# Builds an unsigned .ipa and attaches it to a GitHub release.
+#
+# Unsigned is deliberate. Signing it here would need a paid Apple Developer
+# account and would bind the build to one team's provisioning profile, which is
+# useless to anyone else. AltStore and SideStore re-sign the app with the
+# installing pilot's own free Apple ID, so an unsigned payload is exactly what
+# they expect -- the same arrangement as the Android build's plain APK.
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to stamp into the build (e.g. 1.0.0)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  ipa:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Determine version
+        id: version
+        run: |
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            version="${{ github.event.inputs.version }}"
+          else
+            version="${GITHUB_REF_NAME#v}"
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Building $version"
+
+      - name: Install xcodegen
+        run: brew install xcodegen
+
+      - name: Generate project
+        run: DEVELOPMENT_TEAM="" xcodegen generate
+
+      - name: Archive without signing
+        run: |
+          set -o pipefail
+          xcodebuild archive \
+            -project Handoff.xcodeproj \
+            -scheme Handoff \
+            -configuration Release \
+            -sdk iphoneos \
+            -archivePath build/Handoff.xcarchive \
+            MARKETING_VERSION="${{ steps.version.outputs.version }}" \
+            CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGN_ENTITLEMENTS="" \
+            DEVELOPMENT_TEAM=""
+
+      - name: Package as .ipa
+        # An .ipa is a zip with the .app inside a Payload/ directory. Because the
+        # bundle is unsigned there is nothing for xcodebuild -exportArchive to do.
+        run: |
+          set -eu
+          app="build/Handoff.xcarchive/Products/Applications/Handoff.app"
+          test -d "$app"
+          # No _CodeSignature to strip on an unsigned build, but be explicit --
+          # a stale signature would make AltStore's re-sign fail.
+          rm -rf "$app/_CodeSignature"
+          mkdir -p build/Payload
+          cp -R "$app" build/Payload/
+          (cd build && zip -qry "Handoff-${{ steps.version.outputs.version }}.ipa" Payload)
+          ls -lh build/*.ipa
+
+      - name: Verify the payload
+        run: |
+          set -eu
+          ipa="build/Handoff-${{ steps.version.outputs.version }}.ipa"
+          unzip -l "$ipa" | grep -q "Payload/Handoff.app/Handoff"
+          unzip -p "$ipa" "Payload/Handoff.app/Info.plist" > /tmp/Info.plist
+          plutil -p /tmp/Info.plist | grep -E "CFBundleShortVersionString|CFBundleIdentifier"
+          got=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" /tmp/Info.plist)
+          # Guard against shipping an .ipa that still claims the placeholder version.
+          test "$got" = "${{ steps.version.outputs.version }}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Handoff-${{ steps.version.outputs.version }}-ipa
+          path: build/*.ipa
+
+      - name: Attach to release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/*.ipa
+          draft: true
+          generate_release_notes: true
+          body: |
+            Unofficial iPad client for the [Handoff vPilot plugin](https://github.com/sushiat/vpilot-handoff).
+            Not affiliated with the plugin's author, VATSIM or vPilot.
+
+            **Installation.** The `.ipa` is unsigned — there is no App Store build.
+            Install it with [AltStore](https://altstore.io) or
+            [SideStore](https://sidestore.io), which re-sign it with your own free
+            Apple ID. See the README for the full walkthrough.
+
+            **Requires** an iPad on iPadOS 17 or newer, on the same network as the
+            PC running vPilot with the Handoff plugin.

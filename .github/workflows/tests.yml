@@ -1,0 +1,40 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install xcodegen
+        run: brew install xcodegen
+
+      - name: Generate project
+        # No signing team on CI. project.yml reads ${DEVELOPMENT_TEAM} from the
+        # environment, so an empty value keeps the substitution well-formed.
+        run: DEVELOPMENT_TEAM="" xcodegen generate
+
+      - name: Pick an available iPad simulator
+        # Hard-coding a device name breaks every time the runner image changes its
+        # Xcode. Ask the runner what it actually has instead.
+        id: sim
+        run: |
+          udid=$(xcrun simctl list devices available --json \
+            | python3 -c 'import json,sys; d=json.load(sys.stdin)["devices"]; print(next(x["udid"] for r in d.values() for x in r if "iPad" in x["name"]))')
+          echo "udid=$udid" >> "$GITHUB_OUTPUT"
+          xcrun simctl list devices available | grep -m1 "$udid"
+
+      - name: Run tests
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project Handoff.xcodeproj \
+            -scheme Handoff \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            CODE_SIGNING_ALLOWED=NO

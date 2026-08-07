@@ -17,13 +17,13 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>NSBonjourServices</key>
 	<array/>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>Handoff verbindet sich per WLAN mit dem vPilot-Plugin auf deinem PC, um Controller-Liste, Chat und Funkgerät zu spiegeln.</string>
+	<string>Handoff connects over your local network to the vPilot plugin on your PC to mirror the controller list, chat and radio panel.</string>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UISupportedInterfaceOrientations</key>
