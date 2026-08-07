@@ -24,6 +24,11 @@ final class AppStore {
     /// keyed by the invocation id so two runs of the same operation can't clobber
     /// each other. protocol.md guarantees no ordering or exclusivity between them.
     var operations: [String: OperationProgressMessage] = [:]
+    private var operationTimeouts: [String: Task<Void, Never>] = [:]
+
+    /// protocol.md's prescribed backstop for a dropped `finished` message. Overridable
+    /// so the test suite doesn't sit on a real minute-long timer per case.
+    static var operationTimeout: Duration = .seconds(60)
 
     // MARK: View preferences
 
@@ -84,6 +89,22 @@ final class AppStore {
     /// Last command that couldn't be handed to the socket, surfaced in the footer so
     /// a dropped frequency change doesn't pass for a successful one.
     var lastSendError: String?
+
+    // MARK: Frequency entry preferences (gallery/05-settings.png)
+
+    /// Which channel grid the tune keypad starts on. 8.33 kHz is the European
+    /// default; a pilot flying 25 kHz-only regions can flip it once here instead of
+    /// on every entry.
+    var channelSpacing833: Bool = HandoffDefaults.store.object(forKey: "handoff.spacing833") as? Bool ?? true {
+        didSet { HandoffDefaults.store.set(channelSpacing833, forKey: "handoff.spacing833") }
+    }
+
+    /// "Block invalid" refuses off-grid entries; "Allow all" lets them through to the
+    /// plugin, which drops out-of-range values silently. Off-grid but in-band values
+    /// are the interesting case -- some add-ons accept them.
+    var blockInvalidFrequencies: Bool = HandoffDefaults.store.object(forKey: "handoff.blockInvalidFreq") as? Bool ?? true {
+        didSet { HandoffDefaults.store.set(blockInvalidFrequencies, forKey: "handoff.blockInvalidFreq") }
+    }
 
     init() {
         connection.onControllers = { [weak self] msg in
@@ -317,11 +338,27 @@ final class AppStore {
     /// duration to the client but is explicit that clearing on arrival is too fast.
     private func applyOperationProgress(_ msg: OperationProgressMessage) {
         operations[msg.operationId] = msg
-        guard msg.finished else { return }
+        operationTimeouts[msg.operationId]?.cancel()
+
+        guard msg.finished else {
+            // protocol.md requires the client's own 60s backstop: a dropped
+            // `finished` message (a disconnect mid-sync) would otherwise leave a
+            // spinner running forever.
+            operationTimeouts[msg.operationId] = Task { [weak self] in
+                try? await Task.sleep(for: AppStore.operationTimeout)
+                guard !Task.isCancelled else { return }
+                self?.operations.removeValue(forKey: msg.operationId)
+                self?.operationTimeouts.removeValue(forKey: msg.operationId)
+            }
+            return
+        }
+
         let linger: Duration = (msg.success == false) ? .seconds(12) : .seconds(4)
-        Task { [weak self] in
+        operationTimeouts[msg.operationId] = Task { [weak self] in
             try? await Task.sleep(for: linger)
+            guard !Task.isCancelled else { return }
             self?.operations.removeValue(forKey: msg.operationId)
+            self?.operationTimeouts.removeValue(forKey: msg.operationId)
         }
     }
 

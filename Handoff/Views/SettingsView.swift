@@ -153,6 +153,32 @@ struct SettingsView: View {
                 }
             }
 
+            section("STANDARD-KANALRASTER") {
+                Picker("Kanalraster", selection: spacingBinding) {
+                    Text("25 kHz").tag(false)
+                    Text("8.33 kHz").tag(true)
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                Text("Womit das Frequenz-Tastenfeld startet. Dort lässt es sich für eine einzelne Eingabe umschalten.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            section("FREQUENZ-TASTENFELD") {
+                Picker("Prüfung", selection: blockInvalidBinding) {
+                    Text("Ungültige blockieren").tag(true)
+                    Text("Alle zulassen").tag(false)
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                Text("Ob Frequenzen abseits des Kanalrasters gesendet werden dürfen. Außerhalb von 118.000–136.990 wird immer blockiert — die verwirft das Plugin ohnehin kommentarlos.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
             section("UPDATE-INTERVALL") {
                 Picker("Tempo", selection: updateIntervalBinding) {
                     Text("Schnell").tag("fast")
@@ -216,10 +242,26 @@ struct SettingsView: View {
             }
 
             section("PROJEKT") {
-                creditRow("Plugin & Android-App", "sushi.at/vpilot-handoff")
                 creditRow("iPad-App", "Thomas Kant, Gifhorn")
                 creditRow("Entwickelt mit", "Claude (Anthropic)")
                 Text("Diese iPad-App ist ein eigenständiger, inoffizieller Client für dasselbe Plugin, gebaut nach dessen öffentlicher Protokoll-Dokumentation.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            section("MITWIRKEN") {
+                linkRow(
+                    "Diese iPad-App",
+                    "MANFahrer-GF/vpilot-handoff-ios",
+                    url: "https://github.com/MANFahrer-GF/vpilot-handoff-ios"
+                )
+                linkRow(
+                    "Plugin & Android-App",
+                    "sushiat/vpilot-handoff",
+                    url: "https://github.com/sushiat/vpilot-handoff"
+                )
+                Text("Fehler in dieser iPad-App bitte im ersten Repository melden, nicht beim Original-Projekt.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -246,6 +288,28 @@ struct SettingsView: View {
                 Divider()
             }
             content()
+        }
+    }
+
+    /// Same shape as `creditRow`, but the value opens the repository. Only ever
+    /// built from the two literal URLs above -- nothing here is composed from data
+    /// the plugin sends.
+    @ViewBuilder
+    private func linkRow(_ label: String, _ value: String, url: String) -> some View {
+        if let destination = URL(string: url) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(label).font(.caption).foregroundStyle(.secondary)
+                Link(destination: destination) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "chevron.left.forwardslash.chevron.right")
+                            .font(.caption)
+                        Text(value).font(.callout.bold())
+                        Image(systemName: "arrow.up.forward.square")
+                            .font(.caption)
+                    }
+                    .contentShape(Rectangle())
+                }
+            }
         }
     }
 
@@ -287,6 +351,14 @@ struct SettingsView: View {
 
     private var appearanceBinding: Binding<AppearanceMode> {
         Binding(get: { store.appearance }, set: { store.appearance = $0 })
+    }
+
+    private var spacingBinding: Binding<Bool> {
+        Binding(get: { store.channelSpacing833 }, set: { store.channelSpacing833 = $0 })
+    }
+
+    private var blockInvalidBinding: Binding<Bool> {
+        Binding(get: { store.blockInvalidFrequencies }, set: { store.blockInvalidFrequencies = $0 })
     }
 
     private var updateIntervalBinding: Binding<String> {

@@ -122,8 +122,12 @@ struct StoreConnectionWiringTests {
         #expect(store.connection.state == .disconnected)
     }
 
-    @Test func operationProgressIsKeyedByInvocation() {
+    @Test func operationProgressIsKeyedByInvocation() async throws {
         TestDefaults.installOnce()
+        // Otherwise each unfinished operation parks a real 60-second timer and the
+        // whole suite waits on it.
+        AppStore.operationTimeout = .milliseconds(50)
+        defer { AppStore.operationTimeout = .seconds(60) }
         let store = AppStore()
         let first = try! JSONDecoder().decode(
             OperationProgressMessage.self,
@@ -138,6 +142,11 @@ struct StoreConnectionWiringTests {
         // Two runs of the same operation type must not clobber each other.
         #expect(store.operations.count == 2)
         #expect(store.operations["sync-1"]?.status == "12/24")
+
+        // protocol.md's backstop: a run whose `finished` never arrives must stop
+        // showing a spinner rather than hanging there for the rest of the flight.
+        try await Task.sleep(for: .milliseconds(300))
+        #expect(store.operations.isEmpty)
     }
 
     @Test func sendFailureSurfacesToTheUI() {

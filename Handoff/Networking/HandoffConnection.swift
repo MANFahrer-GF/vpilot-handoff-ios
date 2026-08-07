@@ -70,12 +70,17 @@ final class HandoffConnection: NSObject {
     private var pendingPairingCode: String?
 
     private var pingTask: Task<Void, Never>?
-    private var lastPongAt: Date?
+    /// Any inbound frame, not just a pong. Keying the watchdog on pongs alone would
+    /// tear down a perfectly healthy link against any plugin build that doesn't
+    /// answer pings -- the cure would be worse than the disease. The plugin
+    /// broadcasts `controllers` about once a second, so total silence is the honest
+    /// liveness signal; pong is only used to measure latency.
+    private var lastMessageAt: Date?
 
     private static let pingInterval: Duration = .seconds(10)
-    /// Three missed pings. Long enough to ride out a brief Wi-Fi stall, short enough
-    /// that a frozen controller list doesn't keep claiming to be live on approach.
-    private static let pongTimeout: TimeInterval = 32
+    /// Long enough to ride out a brief Wi-Fi stall, short enough that a frozen
+    /// controller list doesn't keep claiming to be live on approach.
+    private static let silenceTimeout: TimeInterval = 32
 
     // MARK: Lifecycle
 
@@ -88,7 +93,7 @@ final class HandoffConnection: NSObject {
         pendingFingerprint = nil
         wasConnected = false
         latencyMs = nil
-        lastPongAt = nil
+        lastMessageAt = nil
         state = .connecting
 
         guard let url = URL(string: "wss://\(host):\(port)/") else {
@@ -195,6 +200,7 @@ final class HandoffConnection: NSObject {
     }
 
     private func handleIncoming(_ text: String) {
+        lastMessageAt = Date()
         guard let data = text.data(using: .utf8),
               let typed = try? JSONDecoder().decode(MessageType.self, from: data) else { return }
 
@@ -257,7 +263,7 @@ final class HandoffConnection: NSObject {
 
     private func startPinging() {
         pingTask?.cancel()
-        lastPongAt = Date()
+        lastMessageAt = Date()
         let pingGeneration = generation
         pingTask = Task { [weak self] in
             while !Task.isCancelled {
@@ -273,7 +279,7 @@ final class HandoffConnection: NSObject {
     /// no error and no data, so without this the footer would keep claiming
     /// "connected" over a frozen controller list.
     private func sendPingAndCheckLiveness() {
-        if let lastPongAt, Date().timeIntervalSince(lastPongAt) > Self.pongTimeout {
+        if let lastMessageAt, Date().timeIntervalSince(lastMessageAt) > Self.silenceTimeout {
             handleDrop(error: URLError(.timedOut))
             return
         }
@@ -281,7 +287,6 @@ final class HandoffConnection: NSObject {
     }
 
     private func handlePong(_ pong: PongMessage) {
-        lastPongAt = Date()
         let now = Int64(Date().timeIntervalSince1970 * 1000)
         latencyMs = max(0, Int(now - pong.clientTimestamp))
     }
