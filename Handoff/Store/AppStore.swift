@@ -245,15 +245,10 @@ final class AppStore {
         if DemoData.isEnabled { return }
         #endif
         guard !lastHost.isEmpty else { return }
-        switch connection.state {
-        case .awaitingPairingCode, .connecting, .identityChanged:
-            // Mid-pairing, already trying, or deliberately refused -- reconnecting
-            // would either interrupt the pilot or silently retry a server we just
-            // rejected.
-            return
-        default:
-            connect(host: lastHost, port: lastPort)
-        }
+        // Mid-pairing, already trying, or deliberately refused -- reconnecting would
+        // either interrupt the pilot or silently retry a server we just rejected.
+        guard !connection.state.awaitsPilot, connection.state != .connecting else { return }
+        connect(host: lastHost, port: lastPort)
     }
 
     // MARK: Chat

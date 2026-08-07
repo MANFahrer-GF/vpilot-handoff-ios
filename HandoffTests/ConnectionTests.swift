@@ -11,8 +11,8 @@ struct PairingStoreTests {
     private func store(host: String) -> (PairingStore, String) {
         TestDefaults.installOnce()
         let pairing = PairingStore()
-        pairing.clearToken(forHost: host)
-        pairing.clearPinnedFingerprint(forHost: host)
+        pairing.clearToken(forEndpoint: host)
+        pairing.clearPinnedFingerprint(forEndpoint: host)
         return (pairing, host)
     }
 
@@ -26,28 +26,28 @@ struct PairingStoreTests {
 
     @Test func tokensRoundTripAndAreScopedPerHost() {
         let (pairing, host) = store(host: "10.0.0.1")
-        pairing.clearToken(forHost: "10.0.0.2")
+        pairing.clearToken(forEndpoint: "10.0.0.2")
 
-        pairing.setToken("token-a", forHost: host)
-        pairing.setToken("token-b", forHost: "10.0.0.2")
+        pairing.setToken("token-a", forEndpoint: host)
+        pairing.setToken("token-b", forEndpoint: "10.0.0.2")
 
-        #expect(pairing.token(forHost: host) == "token-a")
-        #expect(pairing.token(forHost: "10.0.0.2") == "token-b")
+        #expect(pairing.token(forEndpoint: host) == "token-a")
+        #expect(pairing.token(forEndpoint: "10.0.0.2") == "token-b")
 
-        pairing.clearToken(forHost: host)
-        #expect(pairing.token(forHost: host) == nil)
+        pairing.clearToken(forEndpoint: host)
+        #expect(pairing.token(forEndpoint: host) == nil)
         // Clearing one host must not disturb another paired PC.
-        #expect(pairing.token(forHost: "10.0.0.2") == "token-b")
-        pairing.clearToken(forHost: "10.0.0.2")
+        #expect(pairing.token(forEndpoint: "10.0.0.2") == "token-b")
+        pairing.clearToken(forEndpoint: "10.0.0.2")
     }
 
     @Test func pinnedFingerprintRoundTripsAndClears() {
         let (pairing, host) = store(host: "10.0.0.3")
-        #expect(pairing.pinnedFingerprint(forHost: host) == nil)
-        pairing.setPinnedFingerprint("AA:BB", forHost: host)
-        #expect(pairing.pinnedFingerprint(forHost: host) == "AA:BB")
-        pairing.clearPinnedFingerprint(forHost: host)
-        #expect(pairing.pinnedFingerprint(forHost: host) == nil)
+        #expect(pairing.pinnedFingerprint(forEndpoint: host) == nil)
+        pairing.setPinnedFingerprint("AA:BB", forEndpoint: host)
+        #expect(pairing.pinnedFingerprint(forEndpoint: host) == "AA:BB")
+        pairing.clearPinnedFingerprint(forEndpoint: host)
+        #expect(pairing.pinnedFingerprint(forEndpoint: host) == nil)
     }
 }
 

@@ -13,6 +13,34 @@ enum ConnectionState: Equatable {
     case identityChanged
     case connected
     case failed(String)
+
+    /// A state only the pilot can clear. Tearing down the socket produces a
+    /// "cancelled" error a moment later, and letting that overwrite the state would
+    /// erase the very thing they need to see -- which is exactly how the
+    /// identity-changed warning became unreachable and locked pilots out after a
+    /// legitimate plugin reinstall.
+    var awaitsPilot: Bool {
+        switch self {
+        case .identityChanged, .awaitingPairingCode: return true
+        default: return false
+        }
+    }
+
+    enum DropOutcome: Equatable {
+        /// The state was set deliberately and outranks a transport error.
+        case keepCurrentState
+        /// A live session dropped; retry it.
+        case scheduleReconnect
+        /// Never got established; surface why.
+        case reportFailure
+    }
+
+    /// Pure so the rule can be tested without a TLS server -- the reason this path
+    /// went unverified through two reviews.
+    static func dropOutcome(from state: ConnectionState, wasConnected: Bool) -> DropOutcome {
+        if state.awaitsPilot { return .keepCurrentState }
+        return wasConnected ? .scheduleReconnect : .reportFailure
+    }
 }
 
 private struct MessageType: Decodable { let type: String }
@@ -62,6 +90,12 @@ final class HandoffConnection: NSObject {
     /// carry an older generation and are dropped, so a dying connection can't
     /// overwrite the state of the one that replaced it.
     private var generation = 0
+
+    /// Pin and token are scoped to host *and* port. With the port configurable, two
+    /// plugin instances on one machine are different servers with different
+    /// certificates -- keying on the host alone made them share a pin, which reads as
+    /// an identity change every time you switch between them.
+    private var endpoint: String { "\(host):\(port)" }
 
     private var wasConnected = false
     private var pendingFingerprint: String?
@@ -141,8 +175,8 @@ final class HandoffConnection: NSObject {
             // The pilot has read the code off that PC's screen, which is what actually
             // proves it's the machine they meant. Drop the stale pin and let the next
             // handshake pin whatever answers.
-            pairingStore.clearPinnedFingerprint(forHost: host)
-            pairingStore.clearToken(forHost: host)
+            pairingStore.clearPinnedFingerprint(forEndpoint: endpoint)
+            pairingStore.clearToken(forEndpoint: endpoint)
             pendingPairingCode = code
             connect(host: host, port: port)
             return
@@ -173,7 +207,7 @@ final class HandoffConnection: NSObject {
     }
 
     private func sendAuthenticate(pairingCode: String?) {
-        let token = pairingCode == nil ? pairingStore.token(forHost: host) : nil
+        let token = pairingCode == nil ? pairingStore.token(forEndpoint: endpoint) : nil
         send(AuthenticateCommand(token: token, pairingCode: pairingCode, deviceId: pairingStore.deviceId))
     }
 
@@ -241,9 +275,9 @@ final class HandoffConnection: NSObject {
                 // Only a pairing-code success carries a fresh token -- and this is the
                 // point protocol.md says to commit the certificate pin, because the
                 // code proved the machine's identity.
-                pairingStore.setToken(token, forHost: host)
+                pairingStore.setToken(token, forEndpoint: endpoint)
                 if let pendingFingerprint {
-                    pairingStore.setPinnedFingerprint(pendingFingerprint, forHost: host)
+                    pairingStore.setPinnedFingerprint(pendingFingerprint, forEndpoint: endpoint)
                 }
                 onSimbriefCredentialsReceived?(result.simbriefUserId, result.simbriefUsername)
             }
@@ -294,11 +328,20 @@ final class HandoffConnection: NSObject {
     // MARK: Drops
 
     private func handleDrop(error: Error) {
-        teardownSocket()
-        guard wasConnected else {
+        switch ConnectionState.dropOutcome(from: state, wasConnected: wasConnected) {
+        case .keepCurrentState:
+            teardownSocket()
+            wasConnected = false
+            return
+        case .reportFailure:
+            teardownSocket()
             state = .failed(error.localizedDescription)
             return
+        case .scheduleReconnect:
+            break
         }
+
+        teardownSocket()
         wasConnected = false
         latencyMs = nil
         let retryHost = host
@@ -365,8 +408,17 @@ extension HandoffConnection: URLSessionWebSocketDelegate {
 
 private extension HandoffConnection {
     func rejectUnreadableCertificate() {
-        teardownSocket()
+        retireCurrentSocket()
         state = .failed("Server certificate is unreadable.")
+    }
+
+    /// Tears the socket down *and* moves past its generation, so the callbacks it is
+    /// about to fire are discarded instead of reporting a "cancelled" transport error
+    /// over the state we just set on purpose.
+    func retireCurrentSocket() {
+        teardownSocket()
+        generation += 1
+        wasConnected = false
     }
 
     /// Self-signed certificate with no CA -- protocol.md's model is trust-on-first-use,
@@ -377,10 +429,9 @@ private extension HandoffConnection {
     /// bearer token, and would leave a hostile server free to answer `{"success":true}`
     /// and drive a fabricated controller list past a warning the pilot never sees.
     func acceptFingerprint(_ fingerprint: String) -> Bool {
-        if let pinned = pairingStore.pinnedFingerprint(forHost: host), pinned != fingerprint {
-            pairingStore.clearToken(forHost: host)
-            teardownSocket()
-            wasConnected = false
+        if let pinned = pairingStore.pinnedFingerprint(forEndpoint: endpoint), pinned != fingerprint {
+            pairingStore.clearToken(forEndpoint: endpoint)
+            retireCurrentSocket()
             state = .identityChanged
             return false
         }
