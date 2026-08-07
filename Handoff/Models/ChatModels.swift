@@ -58,6 +58,26 @@ struct ChatMessage: Decodable, Identifiable, Equatable {
         isRadio ? Self.radioConversationKey : (peer ?? "?")
     }
 
+    /// Does this radio call name us? Matched on whole tokens rather than a substring,
+    /// so "DLH12" doesn't light up for "DLH123" and a callsign inside a longer word
+    /// doesn't count.
+    func mentions(callsign: String?) -> Bool {
+        guard let callsign, !callsign.isEmpty else { return false }
+        let needle = callsign.uppercased()
+        return text.uppercased()
+            .split(whereSeparator: { !$0.isLetter && !$0.isNumber })
+            .contains { $0 == needle }
+    }
+
+    /// Aimed at this pilot rather than at the frequency in general: an incoming
+    /// private message, or a radio call that names us. This is what earns a
+    /// highlight -- ambient chatter does not.
+    func isDirectedAtUs(ownCallsign: String?) -> Bool {
+        guard !isOutgoing else { return false }
+        if !isRadio { return true }
+        return mentions(callsign: ownCallsign)
+    }
+
     /// "122.800" for radio messages (the frequency identifies the channel),
     /// the other party's callsign for private/broadcast.
     var headerLabel: String {

@@ -134,7 +134,7 @@ struct ChatPanelView: View {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 8) {
                     ForEach(visibleMessages) { message in
-                        ChatMessageCard(message: message)
+                        ChatMessageCard(message: message, ownCallsign: store.ownCallsign)
                             .id(message.id)
                     }
                 }
@@ -228,27 +228,56 @@ struct ChatPanelView: View {
 
 struct ChatMessageCard: View {
     let message: ChatMessage
+    /// Used to spot a radio call that names us; nil before a flight plan is known.
+    var ownCallsign: String?
+
+    private var isDirected: Bool { message.isDirectedAtUs(ownCallsign: ownCallsign) }
+
+    private var background: Color {
+        if isDirected { return .orange.opacity(0.18) }
+        return message.isOutgoing ? .blue.opacity(0.12) : Color(.secondarySystemBackground)
+    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack(spacing: 6) {
-                Text(message.headerLabel)
-                    .font(.caption.monospaced())
-                if let sender = message.senderLabel {
-                    Text(sender).font(.caption.monospaced()).opacity(0.8)
-                }
-                Text("·").font(.caption)
-                Text(message.timeLabel).font(.caption.monospaced())
+        HStack(alignment: .top, spacing: 0) {
+            // A call sign buried in a wall of ambient chatter is easy to miss; the
+            // bar catches the eye even when the panel is only glanced at.
+            if isDirected {
+                Rectangle()
+                    .fill(.orange)
+                    .frame(width: 4)
             }
-            .foregroundStyle(.secondary)
 
-            Text(message.text)
-                .font(.callout)
-                .fixedSize(horizontal: false, vertical: true)
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 6) {
+                    Text(message.headerLabel)
+                        .font(.caption.monospaced())
+                    if let sender = message.senderLabel {
+                        Text(sender).font(.caption.monospaced()).opacity(0.8)
+                    }
+                    Text("·").font(.caption)
+                    Text(message.timeLabel).font(.caption.monospaced())
+                    if isDirected {
+                        Text(message.isRadio ? "AN DICH" : "PRIVAT")
+                            .font(.system(size: 9, weight: .bold))
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 1)
+                            .background(.orange)
+                            .foregroundStyle(.white)
+                            .clipShape(Capsule())
+                    }
+                }
+                .foregroundStyle(.secondary)
+
+                Text(message.text)
+                    .font(.callout)
+                    .fontWeight(isDirected ? .semibold : .regular)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(10)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(10)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(message.isOutgoing ? Color.blue.opacity(0.12) : Color(.secondarySystemBackground))
+        .background(background)
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 }

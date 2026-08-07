@@ -50,11 +50,26 @@ final class AppStore {
 
     var unreadChatCount: Int { unreadByConversation.values.reduce(0, +) }
 
-    /// True while an unread *directed* message is waiting -- private traffic is aimed
-    /// at this pilot, unlike ambient chatter on the frequency, so the UI flashes it.
-    var hasUnreadDirectedMessage: Bool {
-        unreadByConversation.contains { $0.key != ChatMessage.radioConversationKey && $0.value > 0 }
+    /// What ATC would call us on the frequency. The filed VATSIM callsign is the one
+    /// actually in use; the SimBrief one is a fallback for before we're connected.
+    var ownCallsign: String? {
+        flightPlan?.vatsimCallsign ?? flightPlan?.simbriefCallsign
     }
+
+    /// True while something aimed at this pilot is waiting: an unread private
+    /// conversation, or a radio call on the frequency that named our callsign.
+    /// Ambient chatter alone does not qualify.
+    var hasUnreadDirectedMessage: Bool {
+        if unreadByConversation.contains(where: { $0.key != ChatMessage.radioConversationKey && $0.value > 0 }) {
+            return true
+        }
+        guard (unreadByConversation[ChatMessage.radioConversationKey] ?? 0) > 0 else { return false }
+        return unreadRadioMentionsUs
+    }
+
+    /// Set when an unread radio message named us, so the flag survives even after
+    /// newer chatter has arrived behind it.
+    private(set) var unreadRadioMentionsUs = false
 
     private var seenChatMessageIds: Set<String> = []
     private var hasReceivedChatSnapshot = false
@@ -152,6 +167,11 @@ final class AppStore {
                         let isBeingWatched = self.chatPanelVisible && self.visibleConversation == key
                         guard !isBeingWatched else { continue }
                         self.unreadByConversation[key, default: 0] += 1
+                        // A call that names us is directed traffic even though it came
+                        // over the shared frequency.
+                        if message.isRadio, message.mentions(callsign: self.ownCallsign) {
+                            self.unreadRadioMentionsUs = true
+                        }
                     }
                 }
                 self.hasReceivedChatSnapshot = true
@@ -202,6 +222,7 @@ final class AppStore {
         radioState = nil
         hasReceivedChatSnapshot = false
         unreadByConversation.removeAll()
+        unreadRadioMentionsUs = false
         connection.connect(host: host, port: port)
     }
 
@@ -399,6 +420,7 @@ final class AppStore {
     func markConversationRead(_ key: String) {
         visibleConversation = key
         unreadByConversation[key] = 0
+        if key == ChatMessage.radioConversationKey { unreadRadioMentionsUs = false }
     }
 
     /// Kicks off the full snapshot round trip: save -> (once acknowledged) attach a
