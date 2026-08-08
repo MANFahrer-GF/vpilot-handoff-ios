@@ -59,6 +59,14 @@ purpose — signing it here would tie it to one developer account and be useless
 anyone else. [SideStore](https://sidestore.io) or [AltStore](https://altstore.io)
 re-sign it with *your own* free Apple ID.
 
+**Better than downloading the file:** add this source once in SideStore's or
+AltStore's *Sources* tab, and future versions arrive as an update badge instead
+of a manual download.
+
+```
+https://raw.githubusercontent.com/MANFahrer-GF/vpilot-handoff-ios/main/docs/source.json
+```
+
 With a free Apple ID, Apple expires the app after **7 days** (both tools can
 refresh it automatically over your network) and allows **3** sideloaded apps at a
 time. A paid Apple Developer account raises the 7 days to a year; it is not
