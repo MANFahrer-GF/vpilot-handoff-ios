@@ -55,9 +55,18 @@ to everyone else. Sideloading tools re-sign it with *your* Apple ID instead.
 1. Set up [SideStore](https://sidestore.io) or [AltStore](https://altstore.io)
    once, following their own instructions. Both want a computer for the initial
    pairing; SideStore then runs without one.
-2. Download `Handoff-<version>.ipa` from the [releases page](../../releases) on
-   the iPad.
-3. Open it in SideStore/AltStore and install.
+2. In the app's **Sources** tab, add this URL:
+
+   ```
+   https://raw.githubusercontent.com/MANFahrer-GF/vpilot-handoff-ios/main/docs/source.json
+   ```
+
+3. Install Handoff from the list.
+
+Adding the source is worth the extra step: new versions then show up as an
+update badge instead of you having to spot a release and move a file. If you'd
+rather not, `Handoff-<version>.ipa` on the [releases page](../../releases)
+installs directly.
 
 What a **free** Apple ID costs you, and it's Apple's rule, not this app's:
 
