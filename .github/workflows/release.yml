@@ -123,5 +123,12 @@ jobs:
             [SideStore](https://sidestore.io), which re-sign it with your own free
             Apple ID. See the README for the full walkthrough.
 
+            Adding this source once means future versions arrive as an update
+            badge instead of a manual download:
+
+            ```
+            https://raw.githubusercontent.com/MANFahrer-GF/vpilot-handoff-ios/main/docs/source.json
+            ```
+
             **Requires** an iPad on iPadOS 17 or newer, on the same network as the
             PC running vPilot with the Handoff plugin.

@@ -77,9 +77,8 @@ and is described in the README.
 
 ## Known limits
 
-- Tested against the protocol documentation and a local TLS stand-in, **not yet
-  against a live plugin** on a real VATSIM session. First-flight reports are
-  welcome.
+- Flown against a live plugin. Reports from other setups are still welcome —
+  this has seen one PC and one iPad, not a fleet of them.
 - No moving map. The plugin's own map is not part of the protocol surface this
   client consumes.
 - iPad only. There is no iPhone layout.

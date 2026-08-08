@@ -1,0 +1,45 @@
+name: Update sideload source
+
+# Keeps docs/source.json in step with the published releases.
+#
+# It runs on `release: published` rather than on the tag push, because the
+# generator reads back what is actually downloadable and a draft release has no
+# public asset yet. This fires whichever way the release was made -- cut by hand
+# with `gh release create`, or un-drafted later in the web UI.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The release event checks out the tag, which is detached. The source
+          # file lives on main and has to be committed there.
+          ref: main
+
+      - name: Regenerate docs/source.json
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tools/build-altstore-source.py
+
+      - name: Commit if it changed
+        run: |
+          if git diff --quiet -- docs/source.json; then
+            echo "source.json already current -- nothing to do."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/source.json
+          git commit -m "Update sideload source for ${{ github.event.release.tag_name || 'manual run' }}"
+          git push
+          echo "### Sideload source updated" >> "$GITHUB_STEP_SUMMARY"
+          python3 -c "import json; d=json.load(open('docs/source.json')); print('Listed versions: ' + ', '.join(v['version'] for v in d['apps'][0]['versions']))" >> "$GITHUB_STEP_SUMMARY"
