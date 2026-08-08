@@ -101,7 +101,7 @@ struct SettingsView: View {
                 .buttonStyle(.borderedProminent)
             }
 
-            section("APPEARANCE") {
+            section("APPEARANCE MODE") {
                 Picker("Appearance", selection: appearanceBinding) {
                     ForEach(AppearanceMode.allCases) { mode in
                         Text(mode.label).tag(mode)
