@@ -2,259 +2,6 @@
   "sourceLanguage": "en",
   "version": "1.0",
   "strings": {
-    "Settings": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Einstellungen"
-          }
-        }
-      }
-    },
-    "Done": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fertig"
-          }
-        }
-      }
-    },
-    "SIMBRIEF": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "SIMBRIEF"
-          }
-        }
-      }
-    },
-    "SimBrief user ID": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "SimBrief-Benutzer-ID"
-          }
-        }
-      }
-    },
-    "SimBrief username (fallback)": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "SimBrief-Benutzername (Ausweichweg)"
-          }
-        }
-      }
-    },
-    "optional": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "optional"
-          }
-        }
-      }
-    },
-    "Save & refresh": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Speichern & aktualisieren"
-          }
-        }
-      }
-    },
-    "APPEARANCE": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "DARSTELLUNG"
-          }
-        }
-      }
-    },
-    "Appearance": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Erscheinungsbild"
-          }
-        }
-      }
-    },
-    "System": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "System"
-          }
-        }
-      }
-    },
-    "Light": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hell"
-          }
-        }
-      }
-    },
-    "Dark": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dunkel"
-          }
-        }
-      }
-    },
-    "Controller colours": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Controller-Farben"
-          }
-        }
-      }
-    },
-    "PLUGIN CONNECTION": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "PLUGIN-VERBINDUNG"
-          }
-        }
-      }
-    },
-    "Manual IP (if discovery fails)": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Manuelle IP (falls die Suche fehlschlägt)"
-          }
-        }
-      }
-    },
-    "Status:": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Status:"
-          }
-        }
-      }
-    },
-    "Auto-detect": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Automatisch suchen"
-          }
-        }
-      }
-    },
-    "Connect": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Verbinden"
-          }
-        }
-      }
-    },
-    "Disconnect": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Trennen"
-          }
-        }
-      }
-    },
-    "Found: %@:%lld": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gefunden: %@:%lld"
-          }
-        }
-      }
-    },
-    "Nothing found — check the firewall on the PC or enter the IP manually.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nichts gefunden — Firewall auf dem PC prüfen oder IP manuell eingeben."
-          }
-        }
-      }
-    },
-    "DEFAULT CHANNEL SPACING": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "STANDARD-KANALRASTER"
-          }
-        }
-      }
-    },
-    "Channel spacing": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kanalraster"
-          }
-        }
-      }
-    },
     "25 kHz": {
       "extractionState": "manual",
       "localizations": {
@@ -277,46 +24,46 @@
         }
       }
     },
-    "What the frequency keypad starts on. It can be switched there for a single entry.": {
+    "APPEARANCE": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Womit das Frequenz-Tastenfeld startet. Dort lässt es sich für eine einzelne Eingabe umschalten."
+            "value": "DARSTELLUNG"
           }
         }
       }
     },
-    "FREQUENCY KEYPAD": {
+    "Active callsign": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "FREQUENZ-TASTENFELD"
+            "value": "Aktives Rufzeichen"
           }
         }
       }
     },
-    "Validation": {
+    "Active: %@": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Prüfung"
+            "value": "Aktiv: %@"
           }
         }
       }
     },
-    "Block invalid": {
+    "Airport & FIR data": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ungültige blockieren"
+            "value": "Flughafen- & FIR-Daten"
           }
         }
       }
@@ -332,112 +79,35 @@
         }
       }
     },
-    "Whether frequencies off the channel grid may be sent. Anything outside 118.000–136.990 is always blocked — the plugin discards those silently anyway.": {
+    "An unresolved contact-me request flashes a station's row between its own colour and this alert colour twice a second.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ob Frequenzen abseits des Kanalrasters gesendet werden dürfen. Außerhalb von 118.000–136.990 wird immer blockiert — die verwirft das Plugin ohnehin kommentarlos."
+            "value": "Eine offene Contact-me-Anfrage lässt die Zeile zweimal pro Sekunde zwischen ihrer eigenen Farbe und dieser Alarmfarbe blinken."
           }
         }
       }
     },
-    "UPDATE INTERVAL": {
+    "App icon": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "UPDATE-INTERVALL"
+            "value": "App-Icon"
           }
         }
       }
     },
-    "Rate": {
+    "Appearance": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tempo"
-          }
-        }
-      }
-    },
-    "Fast": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Schnell"
-          }
-        }
-      }
-    },
-    "Normal": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Normal"
-          }
-        }
-      }
-    },
-    "Slow": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Langsam"
-          }
-        }
-      }
-    },
-    "How often the controller list and radio state refresh. \"Slow\" helps if the display feels sluggish.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Wie oft Controller-Liste und Funkstatus aktualisiert werden. „Langsam“ hilft, wenn die Darstellung träge wirkt."
-          }
-        }
-      }
-    },
-    "DIAGNOSTICS": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "DIAGNOSE"
-          }
-        }
-      }
-    },
-    "Debug mode": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Debug-Modus"
-          }
-        }
-      }
-    },
-    "Shows the ranking rationale per controller and allows a diagnostic snapshot for plugin development.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zeigt die Ranking-Begründung pro Controller und erlaubt einen Diagnose-Schnappschuss für die Plugin-Entwicklung."
+            "value": "Erscheinungsbild"
           }
         }
       }
@@ -464,24 +134,387 @@
         }
       }
     },
-    "Save diagnostic snapshot": {
+    "Auto-detect": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diagnose-Schnappschuss speichern"
+            "value": "Automatisch suchen"
           }
         }
       }
     },
-    "Saved on the PC": {
+    "Black": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Auf dem PC gespeichert"
+            "value": "Schwarz"
+          }
+        }
+      }
+    },
+    "Block invalid": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ungültige blockieren"
+          }
+        }
+      }
+    },
+    "Built with": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entwickelt mit"
+          }
+        }
+      }
+    },
+    "CONTACT-ME ALERT": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CONTACT-ME-ALARM"
+          }
+        }
+      }
+    },
+    "CONTRIBUTE": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MITWIRKEN"
+          }
+        }
+      }
+    },
+    "CREDITS": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CREDITS"
+          }
+        }
+      }
+    },
+    "Cancel": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abbrechen"
+          }
+        }
+      }
+    },
+    "Channel spacing": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanalraster"
+          }
+        }
+      }
+    },
+    "Colour for %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Farbe für %@"
+          }
+        }
+      }
+    },
+    "Connect": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbinden"
+          }
+        }
+      }
+    },
+    "Controller colours": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Controller-Farben"
+          }
+        }
+      }
+    },
+    "Controller colours ": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Controller-Farben "
+          }
+        }
+      }
+    },
+    "DARK MODE OFFSET": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DARK-MODE-ABDUNKLUNG"
+          }
+        }
+      }
+    },
+    "DEFAULT CHANNEL SPACING": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "STANDARD-KANALRASTER"
+          }
+        }
+      }
+    },
+    "DIAGNOSTICS": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DIAGNOSE"
+          }
+        }
+      }
+    },
+    "Dark": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dunkel"
+          }
+        }
+      }
+    },
+    "Debug mode": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Debug-Modus"
+          }
+        }
+      }
+    },
+    "Disconnect": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trennen"
+          }
+        }
+      }
+    },
+    "Done": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fertig"
+          }
+        }
+      }
+    },
+    "Early": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Früh"
+          }
+        }
+      }
+    },
+    "Enter the code shown on the PC (%@) to pair this iPad with it.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gib den Code ein, der auf dem PC (%@) angezeigt wird, um dieses iPad zu koppeln."
+          }
+        }
+      }
+    },
+    "Extra darkening applied to every row — highlighted included — only in the dark appearance.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zusätzliche Abdunklung auf jeder Zeile — auch hervorgehobenen — nur im dunklen Erscheinungsbild."
+          }
+        }
+      }
+    },
+    "FREQUENCY KEYPAD": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FREQUENZ-TASTENFELD"
+          }
+        }
+      }
+    },
+    "Fast": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schnell"
+          }
+        }
+      }
+    },
+    "Flight plan data": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flugplandaten"
+          }
+        }
+      }
+    },
+    "Found: %@:%lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gefunden: %@:%lld"
+          }
+        }
+      }
+    },
+    "Highlight": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hervorhebung"
+          }
+        }
+      }
+    },
+    "How often the controller list and radio state refresh. \"Slow\" helps if the display feels sluggish.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wie oft Controller-Liste und Funkstatus aktualisiert werden. „Langsam“ hilft, wenn die Darstellung träge wirkt."
+          }
+        }
+      }
+    },
+    "Interval": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intervall"
+          }
+        }
+      }
+    },
+    "Late": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spät"
+          }
+        }
+      }
+    },
+    "Light": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hell"
+          }
+        }
+      }
+    },
+    "Live network data": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live-Netzwerkdaten"
+          }
+        }
+      }
+    },
+    "Manual IP (if discovery fails)": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manuelle IP (falls die Suche fehlschlägt)"
+          }
+        }
+      }
+    },
+    "NON-HIGHLIGHT BRIGHTNESS": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HELLIGKEIT NICHT-HERVORGEHOBENER ZEILEN"
           }
         }
       }
@@ -508,332 +541,24 @@
         }
       }
     },
-    "SYSTEM STATUS": {
+    "Normal": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "SYSTEMSTATUS"
+            "value": "Normal"
           }
         }
       }
     },
-    "CREDITS": {
+    "Nothing found — check the firewall on the PC or enter the IP manually.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "CREDITS"
-          }
-        }
-      }
-    },
-    "PROJECT": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "PROJEKT"
-          }
-        }
-      }
-    },
-    "iPad app": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "iPad-App"
-          }
-        }
-      }
-    },
-    "Built with": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Entwickelt mit"
-          }
-        }
-      }
-    },
-    "This iPad app is an independent, unofficial client for the same plugin, built from its public protocol documentation.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Diese iPad-App ist ein eigenständiger, inoffizieller Client für dasselbe Plugin, gebaut nach dessen öffentlicher Protokoll-Dokumentation."
-          }
-        }
-      }
-    },
-    "CONTRIBUTE": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "MITWIRKEN"
-          }
-        }
-      }
-    },
-    "This iPad app": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Diese iPad-App"
-          }
-        }
-      }
-    },
-    "Plugin & Android app": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Plugin & Android-App"
-          }
-        }
-      }
-    },
-    "Please report bugs in this iPad app in the first repository, not to the upstream project.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fehler in dieser iPad-App bitte im ersten Repository melden, nicht beim Original-Projekt."
-          }
-        }
-      }
-    },
-    "PLUGIN": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "PLUGIN"
-          }
-        }
-      }
-    },
-    "Version": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Version"
-          }
-        }
-      }
-    },
-    "Interval": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Intervall"
-          }
-        }
-      }
-    },
-    "Controller colours ": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Controller-Farben "
-          }
-        }
-      }
-    },
-    "PRESET": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "VORLAGE"
-          }
-        }
-      }
-    },
-    "Active: %@": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aktiv: %@"
-          }
-        }
-      }
-    },
-    "TAP A ROW TO CHANGE ITS COLOUR": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ZEILE ANTIPPEN, UM IHRE FARBE ZU ÄNDERN"
-          }
-        }
-      }
-    },
-    "CONTACT-ME ALERT": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "CONTACT-ME-ALARM"
-          }
-        }
-      }
-    },
-    "An unresolved contact-me request flashes a station's row between its own colour and this alert colour twice a second.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Eine offene Contact-me-Anfrage lässt die Zeile zweimal pro Sekunde zwischen ihrer eigenen Farbe und dieser Alarmfarbe blinken."
-          }
-        }
-      }
-    },
-    "NON-HIGHLIGHT BRIGHTNESS": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "HELLIGKEIT NICHT-HERVORGEHOBENER ZEILEN"
-          }
-        }
-      }
-    },
-    "Where default (non-highlighted) rows sit between black and white, relative to their highlighted colour.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Wo normale (nicht hervorgehobene) Zeilen zwischen Schwarz und Weiß liegen, relativ zu ihrer Hervorhebungsfarbe."
-          }
-        }
-      }
-    },
-    "Black": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Schwarz"
-          }
-        }
-      }
-    },
-    "Highlight": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hervorhebung"
-          }
-        }
-      }
-    },
-    "White": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Weiß"
-          }
-        }
-      }
-    },
-    "TEXT CONTRAST THRESHOLD": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "TEXTKONTRAST-SCHWELLE"
-          }
-        }
-      }
-    },
-    "When row text switches from dark to white as a colour darkens.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ab wann der Zeilentext von Dunkel auf Weiß wechselt, wenn eine Farbe dunkler wird."
-          }
-        }
-      }
-    },
-    "Early": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Früh"
-          }
-        }
-      }
-    },
-    "Late": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Spät"
-          }
-        }
-      }
-    },
-    "DARK MODE OFFSET": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "DARK-MODE-ABDUNKLUNG"
-          }
-        }
-      }
-    },
-    "Extra darkening applied to every row — highlighted included — only in the dark appearance.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zusätzliche Abdunklung auf jeder Zeile — auch hervorgehobenen — nur im dunklen Erscheinungsbild."
+            "value": "Nichts gefunden — Firewall auf dem PC prüfen oder IP manuell eingeben."
           }
         }
       }
@@ -849,101 +574,46 @@
         }
       }
     },
-    "SAVE AS": {
+    "PLUGIN": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "ALS NEUES THEMA SICHERN"
+            "value": "PLUGIN"
           }
         }
       }
     },
-    "Theme name": {
+    "PLUGIN CONNECTION": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Name des Themas"
+            "value": "PLUGIN-VERBINDUNG"
           }
         }
       }
     },
-    "Save": {
+    "PRESET": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sichern"
+            "value": "VORLAGE"
           }
         }
       }
     },
-    "YOUR THEMES": {
+    "PROJECT": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "EIGENE THEMEN"
-          }
-        }
-      }
-    },
-    "Colour for %@": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Farbe für %@"
-          }
-        }
-      }
-    },
-    "Pairing": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kopplung"
-          }
-        }
-      }
-    },
-    "This PC's identity has changed since it was last paired. The connection was refused and nothing was sent to it. That happens after reinstalling or resetting the plugin — but it can also mean something else is impersonating it. Only enter the code if you just reinstalled or reset the plugin yourself.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Die Identität dieses PCs hat sich seit der letzten Kopplung geändert. Die Verbindung wurde abgelehnt und es wurde nichts an ihn gesendet. Das passiert nach einer Neuinstallation oder einem Zurücksetzen des Plugins — es kann aber auch bedeuten, dass sich etwas anderes dafür ausgibt. Gib den Code nur ein, wenn du das Plugin gerade selbst neu installiert oder zurückgesetzt hast."
-          }
-        }
-      }
-    },
-    "Enter the code shown on the PC (%@) to pair this iPad with it.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gib den Code ein, der auf dem PC (%@) angezeigt wird, um dieses iPad zu koppeln."
-          }
-        }
-      }
-    },
-    "Cancel": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Abbrechen"
+            "value": "PROJEKT"
           }
         }
       }
@@ -959,68 +629,46 @@
         }
       }
     },
-    "Wrong code — please try again.": {
+    "Pairing": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Falscher Code — bitte erneut versuchen."
+            "value": "Kopplung"
           }
         }
       }
     },
-    "Renaming failed.": {
+    "Pilot client": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Benennung fehlgeschlagen."
+            "value": "Piloten-Client"
           }
         }
       }
     },
-    "Radio host": {
+    "Please report bugs in this iPad app in the first repository, not to the upstream project.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Radio-Host"
+            "value": "Fehler in dieser iPad-App bitte im ersten Repository melden, nicht beim Original-Projekt."
           }
         }
       }
     },
-    "Simulator": {
+    "Plugin & Android app": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Simulator"
-          }
-        }
-      }
-    },
-    "VATSIM feed": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "VATSIM-Feed"
-          }
-        }
-      }
-    },
-    "SimBrief fetched": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "SimBrief geladen"
+            "value": "Plugin & Android-App"
           }
         }
       }
@@ -1036,46 +684,112 @@
         }
       }
     },
-    "Active callsign": {
+    "Radio host": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aktives Rufzeichen"
+            "value": "Radio-Host"
           }
         }
       }
     },
-    "SimBrief": {
+    "Rate": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "SimBrief"
+            "value": "Tempo"
           }
         }
       }
     },
-    "VATSIM": {
+    "Renaming failed.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "VATSIM"
+            "value": "Benennung fehlgeschlagen."
           }
         }
       }
     },
-    "Airport & FIR data": {
+    "SAVE AS": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Flughafen- & FIR-Daten"
+            "value": "ALS NEUES THEMA SICHERN"
+          }
+        }
+      }
+    },
+    "SIMBRIEF": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SIMBRIEF"
+          }
+        }
+      }
+    },
+    "SYSTEM STATUS": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SYSTEMSTATUS"
+          }
+        }
+      }
+    },
+    "Save": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sichern"
+          }
+        }
+      }
+    },
+    "Save & refresh": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speichern & aktualisieren"
+          }
+        }
+      }
+    },
+    "Save diagnostic snapshot": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diagnose-Schnappschuss speichern"
+          }
+        }
+      }
+    },
+    "Saved on the PC": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auf dem PC gespeichert"
           }
         }
       }
@@ -1091,35 +805,332 @@
         }
       }
     },
-    "Live network data": {
+    "Settings": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Live-Netzwerkdaten"
+            "value": "Einstellungen"
           }
         }
       }
     },
-    "Flight plan data": {
+    "Shows the ranking rationale per controller and allows a diagnostic snapshot for plugin development.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Flugplandaten"
+            "value": "Zeigt die Ranking-Begründung pro Controller und erlaubt einen Diagnose-Schnappschuss für die Plugin-Entwicklung."
           }
         }
       }
     },
-    "Pilot client": {
+    "SimBrief": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Piloten-Client"
+            "value": "SimBrief"
+          }
+        }
+      }
+    },
+    "SimBrief fetched": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SimBrief geladen"
+          }
+        }
+      }
+    },
+    "SimBrief user ID": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SimBrief-Benutzer-ID"
+          }
+        }
+      }
+    },
+    "SimBrief username (fallback)": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SimBrief-Benutzername (Ausweichweg)"
+          }
+        }
+      }
+    },
+    "Simulator": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Simulator"
+          }
+        }
+      }
+    },
+    "Slow": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Langsam"
+          }
+        }
+      }
+    },
+    "Status:": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Status:"
+          }
+        }
+      }
+    },
+    "System": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System"
+          }
+        }
+      }
+    },
+    "TAP A ROW TO CHANGE ITS COLOUR": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ZEILE ANTIPPEN, UM IHRE FARBE ZU ÄNDERN"
+          }
+        }
+      }
+    },
+    "TEXT CONTRAST THRESHOLD": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TEXTKONTRAST-SCHWELLE"
+          }
+        }
+      }
+    },
+    "Theme name": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Name des Themas"
+          }
+        }
+      }
+    },
+    "This PC's identity has changed since it was last paired. The connection was refused and nothing was sent to it. That happens after reinstalling or resetting the plugin — but it can also mean something else is impersonating it. Only enter the code if you just reinstalled or reset the plugin yourself.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Identität dieses PCs hat sich seit der letzten Kopplung geändert. Die Verbindung wurde abgelehnt und es wurde nichts an ihn gesendet. Das passiert nach einer Neuinstallation oder einem Zurücksetzen des Plugins — es kann aber auch bedeuten, dass sich etwas anderes dafür ausgibt. Gib den Code nur ein, wenn du das Plugin gerade selbst neu installiert oder zurückgesetzt hast."
+          }
+        }
+      }
+    },
+    "This iPad app": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese iPad-App"
+          }
+        }
+      }
+    },
+    "This iPad app is an independent, unofficial client for the same plugin, built from its public protocol documentation.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese iPad-App ist ein eigenständiger, inoffizieller Client für dasselbe Plugin, gebaut nach dessen öffentlicher Protokoll-Dokumentation."
+          }
+        }
+      }
+    },
+    "UPDATE INTERVAL": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UPDATE-INTERVALL"
+          }
+        }
+      }
+    },
+    "VATSIM": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VATSIM"
+          }
+        }
+      }
+    },
+    "VATSIM feed": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VATSIM-Feed"
+          }
+        }
+      }
+    },
+    "Validation": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prüfung"
+          }
+        }
+      }
+    },
+    "Version": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version"
+          }
+        }
+      }
+    },
+    "What the frequency keypad starts on. It can be switched there for a single entry.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Womit das Frequenz-Tastenfeld startet. Dort lässt es sich für eine einzelne Eingabe umschalten."
+          }
+        }
+      }
+    },
+    "When row text switches from dark to white as a colour darkens.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ab wann der Zeilentext von Dunkel auf Weiß wechselt, wenn eine Farbe dunkler wird."
+          }
+        }
+      }
+    },
+    "Where default (non-highlighted) rows sit between black and white, relative to their highlighted colour.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wo normale (nicht hervorgehobene) Zeilen zwischen Schwarz und Weiß liegen, relativ zu ihrer Hervorhebungsfarbe."
+          }
+        }
+      }
+    },
+    "Whether frequencies off the channel grid may be sent. Anything outside 118.000–136.990 is always blocked — the plugin discards those silently anyway.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ob Frequenzen abseits des Kanalrasters gesendet werden dürfen. Außerhalb von 118.000–136.990 wird immer blockiert — die verwirft das Plugin ohnehin kommentarlos."
+          }
+        }
+      }
+    },
+    "White": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weiß"
+          }
+        }
+      }
+    },
+    "Wrong code — please try again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Falscher Code — bitte erneut versuchen."
+          }
+        }
+      }
+    },
+    "YOUR THEMES": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EIGENE THEMEN"
+          }
+        }
+      }
+    },
+    "iPad app": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iPad-App"
+          }
+        }
+      }
+    },
+    "optional": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "optional"
           }
         }
       }

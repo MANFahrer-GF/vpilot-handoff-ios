@@ -245,6 +245,9 @@ struct SettingsView: View {
                 creditRow("Live network data", "VATSIM Data Feed")
                 creditRow("Flight plan data", "SimBrief by Navigraph")
                 creditRow("Pilot client", "vPilot")
+                // The mark is sushi.at's, reused with permission so the iPad app
+                // isn't visually a stranger to the plugin it talks to.
+                creditRow("App icon", "sushi.at")
             }
 
             section("PROJECT") {

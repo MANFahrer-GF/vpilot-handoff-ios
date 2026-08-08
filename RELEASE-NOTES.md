@@ -1,29 +1,29 @@
-# Handoff for iPad — v1.0.1
+# Handoff for iPad — v1.0.2
 
-A small fix and a much better set of screenshots. Nothing about the protocol,
-pairing or radio handling changed, so there is no reason to re-pair.
+**New app icon.** The iPad app now carries the same handoff mark as the plugin and
+the Android client, so it no longer looks like a stranger to the thing it talks to.
 
-## Fixed
+The mark is **sushi.at's artwork, reused with their permission**. It is traced from
+`plugin/Assets/handoff.svg` upstream rather than redrawn by eye — same four paths,
+same 45° rotation about the same centre, same stroke width and colours. Measured
+against the shipped `handoff.ico` to be sure: principal axis −68.5° upstream,
+−68.4° here.
 
-- **The MSG tile showed a badge with `0`** once every conversation had been read.
-  A counter that renders zero reads as a count rather than as the absence of one;
-  the badge now disappears instead.
+Two differences, both forced by iOS: no baked-in corner radius, because iOS masks
+icons itself and a baked one leaves a dark seam outside the mask; and no alpha
+channel, because app icons must be opaque. The renderer is in
+[`tools/make-icon.py`](https://github.com/MANFahrer-GF/vpilot-handoff-ios/blob/main/tools/make-icon.py)
+if you want to see exactly what was done.
 
-## Also in this release
+Credit for the artwork now appears in the app's own credits screen and in the
+README.
 
-- A proper **[gallery](https://github.com/MANFahrer-GF/vpilot-handoff-ios/blob/main/docs/gallery.md)**
-  — dashboard in light and dark, the narrow Split View layout, the expanded status
-  line, both keypads, chat, settings, the colour-theme editor, and the pairing and
-  identity screens, with an explanation of what each state means.
-- The sample data behind `-handoffDemoData` now carries 23 stations instead of 11,
-  so the layout can be judged against something resembling a European evening.
-  Debug builds only; it can never appear in normal use.
-
-Everything else since v1.0.0 was documentation and build plumbing.
+Nothing else changed. No protocol, pairing or radio behaviour is affected, so there
+is no reason to re-pair.
 
 ## Installing
 
-The attached `Handoff-1.0.1.ipa` is **unsigned** on purpose — signing it here would
+The attached `Handoff-1.0.2.ipa` is **unsigned** on purpose — signing it here would
 tie it to one developer account and be useless to anyone else.
 [SideStore](https://sidestore.io) or [AltStore](https://altstore.io) re-sign it with
 *your own* free Apple ID.
@@ -50,7 +50,7 @@ required.
 ---
 
 Unofficial client, **not affiliated with sushi.at, VATSIM or vPilot** — though
-sushi.at was asked before this was published and gave their blessing for the name
-and for following the Android client's interface. Report problems with this app
-here, not upstream. iPad app by **Thomas Kant**, Gifhorn, built with **Claude
-(Anthropic)**. MIT licensed.
+sushi.at was asked before this was published and gave their blessing for the name,
+the artwork, and for following the Android client's interface. Report problems with
+this app here, not upstream. iPad app by **Thomas Kant**, Gifhorn, built with
+**Claude (Anthropic)**. MIT licensed.

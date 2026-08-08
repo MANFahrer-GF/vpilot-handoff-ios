@@ -4,16 +4,16 @@
   "subtitle": "VATSIM controllers, chat and radio on the iPad",
   "website": "https://github.com/MANFahrer-GF/vpilot-handoff-ios",
   "iconURL": "https://raw.githubusercontent.com/MANFahrer-GF/vpilot-handoff-ios/main/Handoff/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
-  "tintColor": "2CC5BF",
+  "tintColor": "1A1C1F",
   "apps": [
     {
       "name": "Handoff for iPad",
       "bundleIdentifier": "com.thomaskant.handoff",
       "developerName": "Thomas Kant",
       "subtitle": "VATSIM controllers, chat and radio on the iPad",
-      "localizedDescription": "An unofficial iPad client for the Handoff vPilot plugin by sushi.at \u2014 the VATSIM controller list, chat and radio panel on a second screen, next to your charts in Split View.\n\nNot affiliated with, endorsed by, or maintained by sushi.at, VATSIM or vPilot. Report problems with this app on its own GitHub repository, not upstream.\n\n\u2022 Controller list ranked by the plugin, colour-coded per facility, with VATSIM rating, pin, chat and one-tap tuning to COM1, COM2 or standby.\n\u2022 Radio panel \u2014 COM1/COM2 active and standby, transmit and receive selection and transponder, mirrored live from SimConnect. Tuning from the iPad writes back to the sim.\n\u2022 Chat with radio and private conversations as separate tabs, unread badges, and calls naming your own callsign highlighted.\n\u2022 Flight-plan cross-check against SimBrief and VATSIM.\n\u2022 Editable per-facility colour themes, including colourblind-safe presets.\n\u2022 8.33 kHz and 25 kHz channel spacing.\n\nRequires the Handoff plugin running in vPilot on a PC on the same network, with TCP 48765 and UDP 48766 open. The iPad talks to that PC and nothing else: no account, no analytics, no server. The plugin's certificate is pinned on first pairing and the token lives in the Keychain.",
+      "localizedDescription": "An unofficial iPad client for the Handoff vPilot plugin by sushi.at \u2014 the VATSIM controller list, chat and radio panel on a second screen, next to your charts in Split View.\n\nNot affiliated with, endorsed by, or maintained by sushi.at, VATSIM or vPilot. Report problems with this app on its own GitHub repository, not upstream.\n\n\u2022 Controller list ranked by the plugin, colour-coded per facility, with VATSIM rating, pin, chat and one-tap tuning to COM1, COM2 or standby.\n\u2022 Radio panel \u2014 COM1/COM2 active and standby, transmit and receive selection and transponder, mirrored live from SimConnect. Tuning from the iPad writes back to the sim.\n\u2022 Chat with radio and private conversations as separate tabs, unread badges, and calls naming your own callsign highlighted.\n\u2022 Flight-plan cross-check against SimBrief and VATSIM.\n\u2022 Editable per-facility colour themes, including colourblind-safe presets.\n\u2022 8.33 kHz and 25 kHz channel spacing.\n\nRequires the Handoff plugin running in vPilot on a PC on the same network, with TCP 48765 and UDP 48766 open. The iPad talks to that PC and nothing else: no account, no analytics, no server. The plugin's certificate is pinned on first pairing and the token lives in the Keychain.\n\nThe app icon is sushi.at's handoff mark, reused with permission.",
       "iconURL": "https://raw.githubusercontent.com/MANFahrer-GF/vpilot-handoff-ios/main/Handoff/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
-      "tintColor": "2CC5BF",
+      "tintColor": "1A1C1F",
       "category": "utilities",
       "screenshotURLs": [
         "https://raw.githubusercontent.com/MANFahrer-GF/vpilot-handoff-ios/main/docs/screenshots/dashboard-wide.png",

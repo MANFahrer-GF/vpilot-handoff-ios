@@ -171,6 +171,10 @@ Two things in `docs/protocol.md` are easy to get wrong and worth repeating:
 Data and upstream work this depends on:
 
 - [Handoff vPilot plugin & Android client](https://github.com/sushiat/vpilot-handoff) — sushi.at (MIT)
+- **App icon** — the handoff mark is sushi.at's artwork, reused with their permission
+  and traced from `plugin/Assets/handoff.svg` upstream rather than redrawn. The iPad
+  version drops the baked-in corner radius and the alpha channel, because iOS masks
+  icons itself and requires them opaque; see [`tools/make-icon.py`](tools/make-icon.py).
 - [VATSpy](https://github.com/vatsimnetwork/vatspy-data-project) — airport & FIR data (CC BY-SA 4.0)
 - [VatGlasses](https://github.com/lennycolton/vatglasses-data) — sector boundaries (CC BY-NC-SA 4.0)
 - [VATSIM Data Feed](https://vatsim.dev) — live network data

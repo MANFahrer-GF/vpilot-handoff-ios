@@ -61,7 +61,9 @@ calls naming your own callsign highlighted.
 Requires the Handoff plugin running in vPilot on a PC on the same network, with \
 TCP 48765 and UDP 48766 open. The iPad talks to that PC and nothing else: no \
 account, no analytics, no server. The plugin's certificate is pinned on first \
-pairing and the token lives in the Keychain."""
+pairing and the token lives in the Keychain.
+
+The app icon is sushi.at's handoff mark, reused with permission."""
 
 
 def releases():
@@ -113,7 +115,7 @@ def main():
         "subtitle": SUBTITLE,
         "website": f"https://github.com/{REPO}",
         "iconURL": f"{RAW}/Handoff/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
-        "tintColor": "2CC5BF",
+        "tintColor": "1A1C1F",
         "apps": [{
             "name": "Handoff for iPad",
             "bundleIdentifier": "com.thomaskant.handoff",
@@ -121,7 +123,7 @@ def main():
             "subtitle": SUBTITLE,
             "localizedDescription": DESCRIPTION,
             "iconURL": f"{RAW}/Handoff/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
-            "tintColor": "2CC5BF",
+            "tintColor": "1A1C1F",
             "category": "utilities",
             "screenshotURLs": [
                 f"{RAW}/docs/screenshots/{name}.png" for name in SHOTS
