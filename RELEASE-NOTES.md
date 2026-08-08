@@ -1,41 +1,25 @@
-# Handoff for iPad — v1.1.0
+# Handoff for iPad — v1.1.1
 
-**Demo mode.** Settings → *Try it without a plugin* fills the app with sample
-controllers, messages and radio state, so you can see what it does before deciding
-whether setting a plugin up is worth it. The sample data was already in the app,
-but only reachable from a debug build with a launch argument — which helped nobody.
+Maintenance release. Nothing to do with your setup — this just keeps the tagged
+version in step with the source tree, which had moved on a little since v1.1.0.
 
-While it is on:
+## Changed
 
-- the header and the status line both read **DEMO**,
-- **nothing leaves the device** — every outbound command is refused,
-- taps still answer, so it doesn't feel broken: tuning moves the frequency, a sent
-  message appears in its conversation, pinning sticks. All of it local.
+- Renamed a settings section header from "Appearance" to "Appearance Mode"
+  ("Darstellungsmodus" in German). Purely cosmetic on iPad — the old wording never
+  caused a problem there. It came up while trying the app as a native
+  [Mac app](https://github.com/MANFahrer-GF/vpilot-handoff-ios#running-on-a-mac):
+  Xcode's build tooling for that destination is stricter about generated symbol
+  names than the iPad build path is, and flagged "Appearance" and "APPEARANCE" as
+  colliding.
+- Removed a stale, unused entry from the string catalog left over from an earlier
+  edit.
 
-It is deliberately **not remembered across launches**. Leaving it on and relaunching
-mid-flight would otherwise show invented controllers beside a real aircraft, so
-every launch starts in the real mode. Returning to the foreground won't dial a
-plugin out from under a demo session either, and connecting for real ends it and
-clears the sample data.
-
-## Under the hood
-
-All 25 client commands now go through a single send path that refuses while demo
-mode is on, rather than a check per method — a command added later can't reach a
-real plugin by being forgotten. In a live session it forwards exactly as before.
-
-## Also
-
-- German translations for the new settings text, so the settings screen doesn't end
-  up part-translated for German pilots. The cockpit stays English as always.
-- A locally written demo message stamps its time with the same formatter the chat
-  row parses with, instead of relying on two defaults happening to agree.
-
-111 tests, no warnings.
+No other behaviour changed. 111 tests, no warnings.
 
 ## Installing
 
-The attached `Handoff-1.1.0.ipa` is **unsigned** on purpose — signing it here would
+The attached `Handoff-1.1.1.ipa` is **unsigned** on purpose — signing it here would
 tie it to one developer account and be useless to anyone else.
 [SideStore](https://sidestore.io) or [AltStore](https://altstore.io) re-sign it with
 *your own* free Apple ID.
