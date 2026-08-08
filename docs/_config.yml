@@ -1,0 +1,11 @@
+# GitHub Pages serves this folder. A theme only so the pages are readable; there is
+# no site to speak of beyond the four documents.
+title: Handoff for iPad
+description: Unofficial iPad client for the Handoff vPilot plugin
+theme: jekyll-theme-minimal
+
+# source.json is the sideload feed. It is fetched from raw.githubusercontent.com,
+# not from Pages, so the URL people have already added to AltStore keeps working --
+# but Jekyll must copy it through rather than treat it as a page.
+include:
+  - source.json

@@ -198,6 +198,15 @@ iPad app by **Thomas Kant**, Gifhorn — built with **Claude (Anthropic)**.
 The plugin this talks to, and the Android client whose interface this follows,
 are sushi.at's work; see Credits above.
 
+## Support and privacy
+
+- **[Support](https://manfahrer-gf.github.io/vpilot-handoff-ios/support)** — where
+  to ask, and the usual suspects to rule out first. iPad problems belong in
+  [this tracker](../../issues), not upstream.
+- **[Privacy](https://manfahrer-gf.github.io/vpilot-handoff-ios/privacy)** — no
+  server, no account, no analytics, no tracking. What is kept on the iPad, and the
+  one case where a screenshot leaves the app.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
