@@ -154,6 +154,51 @@ mode rather than showing invented controllers to a pilot who forgot it was on.
 `-handoffDemoScene connected|pairing|identity` (Debug builds only) parks the
 connection somewhere a demo run can't otherwise reach.
 
+### Running on a Mac
+
+Apple Silicon Macs can run unmodified iPad apps directly — Apple calls this
+"Designed for iPad", and it needed **no code changes here**: the setting that
+enables it (`SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD`) is Xcode's default for an
+iPad-only app that doesn't opt out, and this one doesn't.
+
+![Handoff running as a native window on macOS](docs/screenshots/mac-native.png)
+
+To try it: open the project as in *Building* above, then in Xcode's scheme
+toolbar pick **My Mac (Designed for iPad)** instead of a simulator or device, and
+run. It launches as an ordinary resizable window with a real Mac menu bar, and
+every control works with a mouse and keyboard — verified interactively on
+2026-08-08.
+
+Two honest caveats:
+
+- **No automated test coverage for this destination yet.** `xcodebuild test`
+  against `platform=macOS,name=My Mac` currently crashes before the test bundle
+  finishes bootstrapping, on this Xcode version — a tooling rough edge for this
+  destination combination, not a defect in the app. The 111-test suite is
+  exercised on iOS/iPadOS destinations, which is what CI runs.
+- **Connectivity to a live plugin from this mode is untested.** Everything shown
+  here is the UI running standalone; reaching an actual Handoff plugin over the
+  network from a Mac-hosted instance hasn't been tried.
+
+There is no separate downloadable macOS build, and handing someone else the
+locally-built `.app` directly would not work: "Designed for iPad" execution
+checks the Mac itself against the development provisioning profile's device list,
+the same way it would check an iPhone or iPad. The first attempt to run this
+target hit exactly that error --
+`doesn't include the currently selected device` -- until Xcode registered this
+Mac automatically. A personal profile only ever lists the machines its own Apple
+ID has built on, so someone else's Mac is refused outright, not merely warned
+about like an unsigned or ad-hoc-signed binary from Gatekeeper (no `xattr` or
+right-click-Open workaround applies -- this isn't a trust prompt, it's a
+provisioning check).
+
+Distributing something that just opens for anyone needs a **Developer ID
+certificate and notarization**, or a Mac App Store listing -- the same paid
+account this project otherwise avoids by shipping an unsigned `.ipa`. For now,
+running it on a Mac is a "build it yourself" capability: each person's own free
+Apple ID gets their own Mac added to their own profile automatically, the same
+way sideloading already works on your own iPad.
+
 ### Cutting a release
 
 Pushing a `v*` tag runs [`.github/workflows/release.yml`](.github/workflows/release.yml):
