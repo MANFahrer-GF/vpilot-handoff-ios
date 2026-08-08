@@ -1,29 +1,41 @@
-# Handoff for iPad — v1.0.2
+# Handoff for iPad — v1.1.0
 
-**New app icon.** The iPad app now carries the same handoff mark as the plugin and
-the Android client, so it no longer looks like a stranger to the thing it talks to.
+**Demo mode.** Settings → *Try it without a plugin* fills the app with sample
+controllers, messages and radio state, so you can see what it does before deciding
+whether setting a plugin up is worth it. The sample data was already in the app,
+but only reachable from a debug build with a launch argument — which helped nobody.
 
-The mark is **sushi.at's artwork, reused with their permission**. It is traced from
-`plugin/Assets/handoff.svg` upstream rather than redrawn by eye — same four paths,
-same 45° rotation about the same centre, same stroke width and colours. Measured
-against the shipped `handoff.ico` to be sure: principal axis −68.5° upstream,
-−68.4° here.
+While it is on:
 
-Two differences, both forced by iOS: no baked-in corner radius, because iOS masks
-icons itself and a baked one leaves a dark seam outside the mask; and no alpha
-channel, because app icons must be opaque. The renderer is in
-[`tools/make-icon.py`](https://github.com/MANFahrer-GF/vpilot-handoff-ios/blob/main/tools/make-icon.py)
-if you want to see exactly what was done.
+- the header and the status line both read **DEMO**,
+- **nothing leaves the device** — every outbound command is refused,
+- taps still answer, so it doesn't feel broken: tuning moves the frequency, a sent
+  message appears in its conversation, pinning sticks. All of it local.
 
-Credit for the artwork now appears in the app's own credits screen and in the
-README.
+It is deliberately **not remembered across launches**. Leaving it on and relaunching
+mid-flight would otherwise show invented controllers beside a real aircraft, so
+every launch starts in the real mode. Returning to the foreground won't dial a
+plugin out from under a demo session either, and connecting for real ends it and
+clears the sample data.
 
-Nothing else changed. No protocol, pairing or radio behaviour is affected, so there
-is no reason to re-pair.
+## Under the hood
+
+All 25 client commands now go through a single send path that refuses while demo
+mode is on, rather than a check per method — a command added later can't reach a
+real plugin by being forgotten. In a live session it forwards exactly as before.
+
+## Also
+
+- German translations for the new settings text, so the settings screen doesn't end
+  up part-translated for German pilots. The cockpit stays English as always.
+- A locally written demo message stamps its time with the same formatter the chat
+  row parses with, instead of relying on two defaults happening to agree.
+
+111 tests, no warnings.
 
 ## Installing
 
-The attached `Handoff-1.0.2.ipa` is **unsigned** on purpose — signing it here would
+The attached `Handoff-1.1.0.ipa` is **unsigned** on purpose — signing it here would
 tie it to one developer account and be useless to anyone else.
 [SideStore](https://sidestore.io) or [AltStore](https://altstore.io) re-sign it with
 *your own* free Apple ID.
