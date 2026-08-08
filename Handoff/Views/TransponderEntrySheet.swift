@@ -1,7 +1,12 @@
 import SwiftUI
 
-/// gallery/08-xdpr-code.png: 4-digit entry, 8 and 9 disabled (civil squawk digits
-/// are octal), common-code presets along the bottom.
+/// gallery/08-xdpr-code.png: 4-digit entry, 8 and 9 absent (civil squawk digits are
+/// octal), common-code presets along the bottom.
+///
+/// The grid order below -- 1-2-3 / 4-5-6 / 7-0-CLR / backspace-gap-confirm -- was
+/// checked against that screenshot again on 2026-08-08, including the empty middle
+/// slot in the last row. It looks like a misalignment and isn't; the Android dialog
+/// has the same hole. Don't "tidy" it without looking at the reference first.
 struct TransponderEntrySheet: View {
     @Environment(AppStore.self) private var store
     @Environment(\.dismiss) private var dismiss

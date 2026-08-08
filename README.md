@@ -20,13 +20,25 @@ next to your charts in iPadOS Split View.
 
 ## What it looks like
 
-| Wide window — radio and chat beside the dashboard | Narrow split — chat folds into an overlay |
-| --- | --- |
-| ![Dashboard with the controller list, radio tiles and chat panel](docs/screenshots/dashboard-wide.png) | ![Chat overlay on a narrow layout](docs/screenshots/narrow-chat.png) |
+Click any shot for the full-size image, or read the
+**[gallery](docs/gallery.md)** for what each state means.
 
-Sample data, not a live session. **[Full gallery →](docs/gallery.md)** — dark mode,
-the expanded status line, tuning keypads, chat, settings, colour themes, and the
-pairing and identity screens.
+<a href="docs/screenshots/dashboard-wide.png"><img src="docs/screenshots/dashboard-wide.png" height="300" alt="Dashboard: radio tiles, ranked controller list and chat side by side"></a>
+<a href="docs/screenshots/dashboard-dark.png"><img src="docs/screenshots/dashboard-dark.png" height="300" alt="The same dashboard in the dark appearance"></a>
+<a href="docs/screenshots/narrow-chat.png"><img src="docs/screenshots/narrow-chat.png" height="300" alt="Narrow Split View layout with chat pulled over the list"></a>
+<a href="docs/screenshots/status-expanded.png"><img src="docs/screenshots/status-expanded.png" height="300" alt="Expanded status line with subsystem states and flight-plan cross-check"></a>
+
+<a href="docs/screenshots/controller-tune.png"><img src="docs/screenshots/controller-tune.png" height="300" alt="Tuning popover for a controller"></a>
+<a href="docs/screenshots/frequency-tune.png"><img src="docs/screenshots/frequency-tune.png" height="300" alt="Frequency keypad with channel-spacing toggle"></a>
+<a href="docs/screenshots/transponder.png"><img src="docs/screenshots/transponder.png" height="300" alt="Transponder keypad, octal digits only"></a>
+<a href="docs/screenshots/private-chat.png"><img src="docs/screenshots/private-chat.png" height="300" alt="Private conversation with a directed message highlighted"></a>
+
+<a href="docs/screenshots/nearby-aircraft.png"><img src="docs/screenshots/nearby-aircraft.png" height="300" alt="Nearby traffic picker"></a>
+<a href="docs/screenshots/settings.png"><img src="docs/screenshots/settings.png" height="300" alt="Settings with SimBrief, appearance, connection and credits"></a>
+<a href="docs/screenshots/theme-editor.png"><img src="docs/screenshots/theme-editor.png" height="300" alt="Theme editor showing each facility in full and dimmed colour"></a>
+<a href="docs/screenshots/identity.png"><img src="docs/screenshots/identity.png" height="300" alt="Warning that the PC's certificate changed since it was last paired"></a>
+
+Sample data, not a live session — the callsigns and messages are made up.
 
 ## What it does
 
