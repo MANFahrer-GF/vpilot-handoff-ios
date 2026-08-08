@@ -13,6 +13,18 @@ next to your charts in iPadOS Split View.
 > you're building an alternate client (e.g. iOS)". Please report issues with this
 > app here, not to the upstream project. The plugin itself, and the Android client
 > this UI follows, are sushi.at's work.
+>
+> sushi.at was asked before this was published and gave their blessing for the
+> name and for following the Android client's interface. Support for the iPad app
+> is ours, not theirs — they have no iOS device to develop against.
+
+## What it looks like
+
+| Wide window — radio and chat beside the dashboard | Narrow split — chat folds into an overlay |
+| --- | --- |
+| ![Dashboard with the controller list, radio tiles and chat panel](docs/screenshots/dashboard-wide.png) | ![Chat overlay on a narrow layout](docs/screenshots/chat-narrow.png) |
+
+Sample data, not a live session.
 
 ## What it does
 
