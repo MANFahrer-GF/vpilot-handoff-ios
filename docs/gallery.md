@@ -82,7 +82,14 @@ The transponder pad has no 8 and 9 on purpose: squawk codes are octal.
 
 ## Settings
 
-![Settings with SimBrief, appearance, connection, channel spacing, update interval and credits](screenshots/settings.png)
+![Settings with demo mode, SimBrief, appearance, connection, channel spacing, update interval and credits](screenshots/settings.png)
+
+**Demo mode** sits at the top because this screen opens by itself on a first launch
+with no plugin configured — which is exactly when someone has nothing to look at.
+It fills the app with the sample data every shot on this page uses. While it is on,
+the header and the status line both read DEMO, and no command leaves the device:
+tapping a frequency changes the sample state and nothing else. Switching it off, or
+connecting to a plugin, clears the sample data.
 
 The cockpit is English everywhere. Only these settings screens follow the iPad's
 language, in English or German. The right column credits the upstream work and the

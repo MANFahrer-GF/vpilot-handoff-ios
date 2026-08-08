@@ -79,12 +79,10 @@ struct DashboardView: View {
             Text("New destination on the VATSIM feed: \(destination)")
         }
         .onAppear {
-            #if DEBUG
-            if DemoData.isEnabled {
-                DemoData.apply(to: store)
+            if DemoData.isEnabledAtLaunch {
+                store.demoMode = true
                 return
             }
-            #endif
             if store.lastHost.isEmpty { showSettings = true }
         }
     }
@@ -123,6 +121,19 @@ struct DashboardView: View {
             // Not "by sushi.at": that's the plugin and Android client this talks to,
             // credited in Settings. This app is a separate, unofficial iPad client.
             Text("iPad · unofficial").font(.caption).foregroundStyle(.secondary)
+            // Sample controllers mistaken for real ones is the only harm this
+            // feature can do, so the marking sits in the header and the status line
+            // both -- whichever the pilot happens to be looking at.
+            if store.demoMode {
+                Text("DEMO")
+                    .font(.caption2.bold())
+                    .padding(.horizontal, 7)
+                    .padding(.vertical, 3)
+                    .background(Color.orange)
+                    .foregroundStyle(.black)
+                    .clipShape(RoundedRectangle(cornerRadius: 5))
+                    .accessibilityLabel("Demo mode, sample data")
+            }
             Spacer()
             Text("v\(appVersion)").font(.caption.monospaced()).foregroundStyle(.secondary)
         }

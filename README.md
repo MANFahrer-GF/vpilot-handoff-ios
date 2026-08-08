@@ -141,8 +141,18 @@ xcodebuild -project Handoff.xcodeproj -scheme Handoff \
 
 ### Looking at the UI without a plugin
 
-Launching with `-handoffDemoData` fills the app with sample state. The flag is
-`#if DEBUG`-only and has to be passed explicitly, so it never shows up in normal use.
+**Settings → Demo mode** fills the app with sample controllers, messages and radio
+state. It is a normal feature, not a debug flag: someone deciding whether to set a
+plugin up should be able to see what they'd get first.
+
+While it is on the header and the status line both read DEMO, and
+`AppStore.send` refuses every outbound command — a tap changes the sample state and
+nothing else. It is deliberately not persisted, so every launch starts in the real
+mode rather than showing invented controllers to a pilot who forgot it was on.
+
+`-handoffDemoData` still switches it on at launch for the screenshot tooling, and
+`-handoffDemoScene connected|pairing|identity` (Debug builds only) parks the
+connection somewhere a demo run can't otherwise reach.
 
 ### Cutting a release
 

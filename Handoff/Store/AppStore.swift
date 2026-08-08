@@ -209,9 +209,87 @@ final class AppStore {
         }
     }
 
+    // MARK: Demo mode
+
+    /// Fills the app with sample data so it can be looked at without a plugin.
+    ///
+    /// Deliberately **not** persisted. A pilot who leaves it on and relaunches
+    /// mid-flight would otherwise be shown invented controllers next to a real
+    /// aircraft; every launch therefore starts in the real mode.
+    var demoMode: Bool = false {
+        didSet {
+            guard demoMode != oldValue else { return }
+            if demoMode {
+                // A live socket alongside sample data would overwrite it on the next
+                // full-state resend, so the link goes first.
+                connection.disconnect()
+                clearLiveState()
+                DemoData.apply(to: self)
+            } else {
+                clearLiveState()
+            }
+        }
+    }
+
+    private func clearLiveState() {
+        controllers = []
+        chatMessages = []
+        selcalAlerts = []
+        nearbyAircraft = []
+        radioState = nil
+        flightPlan = nil
+        subsystemStatus = nil
+        etaMinutes = nil
+        hasReceivedChatSnapshot = false
+        unreadByConversation.removeAll()
+        unreadRadioMentionsUs = false
+        lastSendError = nil
+    }
+
+    /// The single way out of this app. Demo mode is a hard stop here rather than a
+    /// check in each of the two dozen command methods, so a command added later
+    /// cannot reach a real plugin from a demo session by being forgotten.
+    private func send<T: Encodable>(_ command: T) {
+        guard !demoMode else { return }
+        connection.send(command)
+    }
+
+    /// Applies a tap to the sample radio state so the UI answers. Does nothing in a
+    /// live session: there, the sim is the authority and the change comes back over
+    /// the wire.
+    private func demoRadio(_ mutate: (inout RadioState) -> Void) {
+        guard demoMode, var state = radioState else { return }
+        mutate(&state)
+        radioState = state
+    }
+
+    private func demoSetPinned(_ callsign: String, _ pinned: Bool) {
+        guard demoMode else { return }
+        controllers = controllers.map { controller in
+            guard controller.callsign == callsign else { return controller }
+            var copy = controller
+            copy.isPinned = pinned
+            return copy
+        }
+    }
+
+    private func demoAppend(channel: String, peer: String?, text: String) {
+        guard demoMode else { return }
+        let stamp = ISO8601DateFormatter().string(from: Date())
+        chatMessages.append(
+            ChatMessage(
+                channel: channel, direction: "outgoing", peer: peer, from: nil,
+                text: text, frequencies: nil, timestamp: stamp
+            )
+        )
+    }
+
     // MARK: Connection lifecycle
 
     func connect(host: String, port: Int = HandoffConnection.defaultPort) {
+        // Connecting for real ends the demo; otherwise sample rows would sit in the
+        // list until the plugin's first resend replaced them.
+        demoMode = false
         lastHost = host
         lastPort = port
         pairingCodeError = nil
@@ -241,9 +319,9 @@ final class AppStore {
     /// stale in-memory state -- the stored bearer token makes this silent (no
     /// pairing code needed again) as long as the plugin is still reachable.
     func reconnectIfNeeded() {
-        #if DEBUG
-        if DemoData.isEnabled { return }
-        #endif
+        // Coming back to the foreground must not dial a plugin out from under a
+        // demo session and silently swap sample controllers for real ones.
+        guard !demoMode else { return }
         guard !lastHost.isEmpty else { return }
         // Mid-pairing, already trying, or deliberately refused -- reconnecting would
         // either interrupt the pilot or silently retry a server we just rejected.
@@ -254,85 +332,107 @@ final class AppStore {
     // MARK: Chat
 
     func sendPrivateMessage(to callsign: String, text: String) {
-        connection.send(SendPrivateMessageCommand(to: callsign, message: text))
+        demoAppend(channel: "private", peer: callsign, text: text)
+        send(SendPrivateMessageCommand(to: callsign, message: text))
     }
 
     func sendRadioMessage(_ text: String) {
-        connection.send(SendRadioMessageCommand(message: text))
+        demoAppend(channel: "radio", peer: nil, text: text)
+        send(SendRadioMessageCommand(message: text))
     }
 
     func dismissSelcal(_ callsign: String) {
-        connection.send(DismissSelcalCommand(callsign: callsign))
+        if demoMode { selcalAlerts.removeAll { $0.from == callsign } }
+        send(DismissSelcalCommand(callsign: callsign))
     }
 
     // MARK: Radio
 
     func setCom1Frequency(_ mhz: Double) {
-        connection.send(SetFrequencyCommand(type: "setCom1Frequency", megahertz: mhz))
+        demoRadio { $0.com1Frequency = VHFFrequency.encode(mhz: mhz) }
+        send(SetFrequencyCommand(type: "setCom1Frequency", megahertz: mhz))
     }
 
     func setCom2Frequency(_ mhz: Double) {
-        connection.send(SetFrequencyCommand(type: "setCom2Frequency", megahertz: mhz))
+        demoRadio { $0.com2Frequency = VHFFrequency.encode(mhz: mhz) }
+        send(SetFrequencyCommand(type: "setCom2Frequency", megahertz: mhz))
     }
 
     func setCom1StandbyFrequency(_ mhz: Double) {
-        connection.send(SetFrequencyCommand(type: "setCom1StandbyFrequency", megahertz: mhz))
+        demoRadio { $0.com1StandbyFrequency = VHFFrequency.encode(mhz: mhz) }
+        send(SetFrequencyCommand(type: "setCom1StandbyFrequency", megahertz: mhz))
     }
 
     func setCom2StandbyFrequency(_ mhz: Double) {
-        connection.send(SetFrequencyCommand(type: "setCom2StandbyFrequency", megahertz: mhz))
+        demoRadio { $0.com2StandbyFrequency = VHFFrequency.encode(mhz: mhz) }
+        send(SetFrequencyCommand(type: "setCom2StandbyFrequency", megahertz: mhz))
     }
 
     func setCom1ActiveAndStandby(active: Double, standby: Double) {
-        connection.send(SetActiveAndStandbyCommand(type: "setCom1ActiveAndStandbyFrequency", megahertz: active, standbyMegahertz: standby))
+        demoRadio {
+            $0.com1Frequency = VHFFrequency.encode(mhz: active)
+            $0.com1StandbyFrequency = VHFFrequency.encode(mhz: standby)
+        }
+        send(SetActiveAndStandbyCommand(type: "setCom1ActiveAndStandbyFrequency", megahertz: active, standbyMegahertz: standby))
     }
 
     func setCom2ActiveAndStandby(active: Double, standby: Double) {
-        connection.send(SetActiveAndStandbyCommand(type: "setCom2ActiveAndStandbyFrequency", megahertz: active, standbyMegahertz: standby))
+        demoRadio {
+            $0.com2Frequency = VHFFrequency.encode(mhz: active)
+            $0.com2StandbyFrequency = VHFFrequency.encode(mhz: standby)
+        }
+        send(SetActiveAndStandbyCommand(type: "setCom2ActiveAndStandbyFrequency", megahertz: active, standbyMegahertz: standby))
     }
 
     func setTransponderCode(_ code: Int) {
-        connection.send(SetTransponderCodeCommand(transponderCode: code))
+        demoRadio { $0.transponderCode = code }
+        send(SetTransponderCodeCommand(transponderCode: code))
     }
 
     func selectCom1Transmitter() {
-        connection.send(SelectTransmitterCommand(type: "selectCom1Transmitter"))
+        demoRadio { $0.com1TransmitEnabled = true; $0.com2TransmitEnabled = false }
+        send(SelectTransmitterCommand(type: "selectCom1Transmitter"))
     }
 
     func selectCom2Transmitter() {
-        connection.send(SelectTransmitterCommand(type: "selectCom2Transmitter"))
+        demoRadio { $0.com2TransmitEnabled = true; $0.com1TransmitEnabled = false }
+        send(SelectTransmitterCommand(type: "selectCom2Transmitter"))
     }
 
     func setCom1ReceiveEnabled(_ enabled: Bool) {
-        connection.send(SetReceiveEnabledCommand(type: "setCom1ReceiveEnabled", enabled: enabled))
+        demoRadio { $0.com1ReceiveEnabled = enabled }
+        send(SetReceiveEnabledCommand(type: "setCom1ReceiveEnabled", enabled: enabled))
     }
 
     func setCom2ReceiveEnabled(_ enabled: Bool) {
-        connection.send(SetReceiveEnabledCommand(type: "setCom2ReceiveEnabled", enabled: enabled))
+        demoRadio { $0.com2ReceiveEnabled = enabled }
+        send(SetReceiveEnabledCommand(type: "setCom2ReceiveEnabled", enabled: enabled))
     }
 
     // MARK: Controllers / flight plan
 
     func pinController(_ callsign: String) {
-        connection.send(PinControllerCommand(type: "pinController", callsign: callsign))
+        demoSetPinned(callsign, true)
+        send(PinControllerCommand(type: "pinController", callsign: callsign))
     }
 
     func clearPinnedController(_ callsign: String) {
-        connection.send(PinControllerCommand(type: "clearPinnedController", callsign: callsign))
+        demoSetPinned(callsign, false)
+        send(PinControllerCommand(type: "clearPinnedController", callsign: callsign))
     }
 
     func confirmDiversion() {
-        connection.send(SimpleCommand(type: "confirmDiversion"))
+        send(SimpleCommand(type: "confirmDiversion"))
         diversionDestination = nil
     }
 
     func dismissDiversion() {
-        connection.send(SimpleCommand(type: "dismissDiversion"))
+        send(SimpleCommand(type: "dismissDiversion"))
         diversionDestination = nil
     }
 
     func refreshFlightPlan() {
-        connection.send(SimpleCommand(type: "refreshFlightPlan"))
+        send(SimpleCommand(type: "refreshFlightPlan"))
     }
 
     // MARK: Settings
@@ -340,7 +440,7 @@ final class AppStore {
     func setSimbriefCredentials(userId: String?, username: String?) {
         simbriefUserId = userId
         simbriefUsername = username
-        connection.send(SetSimbriefCredentialsCommand(simbriefUserId: userId, simbriefUsername: username))
+        send(SetSimbriefCredentialsCommand(simbriefUserId: userId, simbriefUsername: username))
         refreshFlightPlan()
     }
 
@@ -360,14 +460,14 @@ final class AppStore {
     }
 
     func setUpdateInterval(_ interval: String) {
-        connection.send(SetUpdateIntervalCommand(interval: interval))
+        send(SetUpdateIntervalCommand(interval: interval))
     }
 
     // MARK: Debug mode
 
     func setDebugMode(_ enabled: Bool) {
         debugMode = enabled
-        connection.send(SetDebugModeCommand(enabled: enabled))
+        send(SetDebugModeCommand(enabled: enabled))
         if !enabled {
             controllersDebug = nil
         }
@@ -426,19 +526,19 @@ final class AppStore {
         lastSnapshotPath = nil
         lastSnapshotError = nil
         lastSnapshotName = nil
-        connection.send(SaveDebugSnapshotCommand(snapshotId: id, appVersion: appVersion))
+        send(SaveDebugSnapshotCommand(snapshotId: id, appVersion: appVersion))
     }
 
     func nameLastSnapshot(_ name: String) {
         guard let id = pendingSnapshotId else { return }
         lastSnapshotName = name
-        connection.send(NameDebugSnapshotCommand(snapshotId: id, name: name))
+        send(NameDebugSnapshotCommand(snapshotId: id, name: name))
     }
 
     private func attachScreenshotIfAvailable(snapshotId: String) {
         guard attachDebugScreenshot else { return }
         guard let pngData = AppScreenshotter.captureCurrentWindowPNG() else { return }
         let base64 = pngData.base64EncodedString()
-        connection.send(AttachDebugSnapshotScreenshotCommand(snapshotId: snapshotId, screenshotPngBase64: base64))
+        send(AttachDebugSnapshotScreenshotCommand(snapshotId: snapshotId, screenshotPngBase64: base64))
     }
 }

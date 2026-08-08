@@ -31,6 +31,22 @@ struct ChatMessage: Decodable, Identifiable, Equatable {
     /// identity each second and make SwiftUI rebuild (and scroll-jump) the list.
     var id: String { "\(timestamp)|\(channel)|\(direction)|\(peer ?? from ?? "")|\(text)" }
 
+    /// Only demo mode builds a message locally. A live conversation is always the
+    /// plugin's full resend, so echoing a sent message here would duplicate it the
+    /// moment the real one comes back.
+    init(
+        channel: String, direction: String, peer: String?, from: String?,
+        text: String, frequencies: [Int]?, timestamp: String
+    ) {
+        self.channel = channel
+        self.direction = direction
+        self.peer = peer
+        self.from = from
+        self.text = text
+        self.frequencies = frequencies
+        self.timestamp = timestamp
+    }
+
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         channel = try c.decodeIfPresent(String.self, forKey: .channel) ?? "radio"

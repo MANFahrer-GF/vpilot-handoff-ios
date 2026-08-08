@@ -52,7 +52,9 @@ struct Controller: Decodable, Identifiable, Equatable {
     let isHighlighted: Bool
     let isNext: Bool
     let isLikelyNext: Bool
-    let isPinned: Bool
+    /// `var` only so demo mode can reflect a pin locally. In a live session the
+    /// plugin owns this and sends the list back with the flag already set.
+    var isPinned: Bool
     let isStandbyTuned: Bool
     let isSelcalActive: Bool
     let debug: ControllerDebug?

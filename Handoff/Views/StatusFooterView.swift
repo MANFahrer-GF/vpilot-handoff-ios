@@ -173,6 +173,7 @@ struct StatusFooterView: View {
     }
 
     private var statusColor: Color {
+        if store.demoMode { return .orange }
         switch store.connection.state {
         case .connected: return .green
         case .connecting, .awaitingPairingCode: return .orange
@@ -181,6 +182,10 @@ struct StatusFooterView: View {
     }
 
     private var summaryText: String {
+        // Wins over the connection state on purpose: in demo mode there is no
+        // connection to describe, and "Disconnected" next to a full controller list
+        // would read as a glitch rather than as "none of this is real".
+        if store.demoMode { return "DEMO · sample data, no plugin" }
         switch store.connection.state {
         case .disconnected: return "Disconnected"
         case .identityChanged: return "PC identity changed"

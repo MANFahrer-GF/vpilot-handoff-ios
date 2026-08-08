@@ -1,14 +1,22 @@
-#if DEBUG
 import Foundation
 
-/// Sample state for verifying layout without a running plugin. Gated behind an
-/// explicit `-handoffDemoData` launch argument, so it can never appear during
-/// normal use -- not even in a Debug build installed on a real iPad.
+/// Sample state so the app can be looked at without a plugin: a pilot deciding
+/// whether it is worth setting one up, and an App Store reviewer, who has no
+/// Windows PC and would otherwise see nothing but "Disconnected".
+///
+/// This used to be `#if DEBUG` behind a launch argument. It is now reachable from
+/// Settings, which is the whole point -- but that makes the marking load-bearing:
+/// `AppStore.demoMode` refuses every outbound command and the UI says DEMO in two
+/// places, because sample controllers mistaken for real ones is the one failure
+/// this feature could cause.
 enum DemoData {
-    static var isEnabled: Bool {
+    /// Kept for the screenshot tooling, which drives a clean launch straight into
+    /// demo mode. Not the route a pilot takes -- that is the Settings switch.
+    static var isEnabledAtLaunch: Bool {
         ProcessInfo.processInfo.arguments.contains("-handoffDemoData")
     }
 
+    #if DEBUG
     /// Extra scenes that need a connection state a demo run can't reach on its own.
     /// `-handoffDemoScene connected|pairing|identity`
     private static var scene: String? {
@@ -16,17 +24,21 @@ enum DemoData {
         guard let i = args.firstIndex(of: "-handoffDemoScene"), i + 1 < args.count else { return nil }
         return args[i + 1]
     }
+    #endif
 
     @MainActor
     static func apply(to store: AppStore) {
-        guard isEnabled else { return }
         store.lastHost = "192.168.1.115"
+        #if DEBUG
+        // Screenshot tooling only: parks the state machine somewhere a demo run
+        // can't reach. Not compiled into a release build.
         switch scene {
         case "connected": store.connection.demoOverride(state: .connected, latencyMs: 12)
         case "pairing": store.connection.demoOverride(state: .awaitingPairingCode)
         case "identity": store.connection.demoOverride(state: .identityChanged)
         default: break
         }
+        #endif
         store.controllers = decode(controllersJSON, as: ControllersMessage.self)?.controllers ?? []
         store.etaMinutes = 14
         if let chat = decode(chatJSON, as: ChatMessagePayload.self) {
@@ -142,4 +154,3 @@ enum DemoData {
     ]}
     """
 }
-#endif

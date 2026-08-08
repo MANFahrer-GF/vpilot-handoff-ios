@@ -69,6 +69,26 @@ struct SettingsView: View {
 
     private var settingsColumn: some View {
         VStack(alignment: .leading, spacing: 26) {
+            // First in the column deliberately. This screen opens by itself on a
+            // first launch with no host configured, so it is what someone sees who
+            // has no plugin yet -- a pilot deciding whether to set one up, or an App
+            // Store reviewer who has no Windows PC at all.
+            section("TRY IT WITHOUT A PLUGIN") {
+                Toggle(isOn: demoBinding) {
+                    Label("Demo mode", systemImage: "theatermasks")
+                }
+                Text("Fills the app with made-up controllers, messages and radio state so you can see what it does. Nothing is sent anywhere, and the header and status line both read DEMO while it is on. Switching it off, or connecting to a plugin, clears the sample data.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                if store.demoMode {
+                    Label("Demo mode is on. Nothing you see is real traffic.", systemImage: "exclamationmark.triangle.fill")
+                        .font(.caption.bold())
+                        .foregroundStyle(.orange)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+
             section("SIMBRIEF") {
                 labeledField("SimBrief user ID", text: $simbriefUserId, keyboard: .numberPad)
                 labeledField("SimBrief username (fallback)", text: $simbriefUsername, placeholder: "optional")
@@ -357,6 +377,10 @@ struct SettingsView: View {
     }
 
     // MARK: Bindings
+
+    private var demoBinding: Binding<Bool> {
+        Binding(get: { store.demoMode }, set: { store.demoMode = $0 })
+    }
 
     private var appearanceBinding: Binding<AppearanceMode> {
         Binding(get: { store.appearance }, set: { store.appearance = $0 })
