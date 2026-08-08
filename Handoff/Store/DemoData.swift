@@ -10,10 +10,16 @@ import Foundation
 /// places, because sample controllers mistaken for real ones is the one failure
 /// this feature could cause.
 enum DemoData {
-    /// Kept for the screenshot tooling, which drives a clean launch straight into
-    /// demo mode. Not the route a pilot takes -- that is the Settings switch.
+    /// Screenshot tooling only, and Debug-only with it: a shipped build has exactly
+    /// one way into demo mode, the Settings switch. Launch arguments can't be set on
+    /// a device without a debugger anyway, but leaving a second door in the binary
+    /// invites the question of what else it opens.
     static var isEnabledAtLaunch: Bool {
+        #if DEBUG
         ProcessInfo.processInfo.arguments.contains("-handoffDemoData")
+        #else
+        false
+        #endif
     }
 
     #if DEBUG

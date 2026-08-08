@@ -110,6 +110,9 @@ struct DemoModeTests {
         #expect(last?.text == "requesting descent")
         #expect(last?.peer == "LOWW_APP")
         #expect(last?.isOutgoing == true)
+        // A message the app wrote itself has to carry a timestamp the chat row can
+        // parse, or it renders with a blank time next to every real one.
+        #expect(last?.timeLabel.isEmpty == false)
     }
 
     @Test func pinningWorksOnTheSampleList() {

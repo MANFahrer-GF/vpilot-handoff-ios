@@ -275,7 +275,10 @@ final class AppStore {
 
     private func demoAppend(channel: String, peer: String?, text: String) {
         guard demoMode else { return }
-        let stamp = ISO8601DateFormatter().string(from: Date())
+        // The same formatter the chat row parses with. Using a fresh one relied on
+        // its default options happening to match, which would render an empty time
+        // the day that default changed.
+        let stamp = ISO8601DateFormatter.handoffPlain.string(from: Date())
         chatMessages.append(
             ChatMessage(
                 channel: channel, direction: "outgoing", peer: peer, from: nil,

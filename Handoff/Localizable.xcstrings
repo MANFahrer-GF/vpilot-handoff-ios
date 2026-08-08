@@ -332,6 +332,28 @@
         }
       }
     },
+    "Demo mode": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demo-Modus"
+          }
+        }
+      }
+    },
+    "Demo mode is on. Nothing you see is real traffic.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Demo-Modus ist an. Nichts davon ist echter Verkehr."
+          }
+        }
+      }
+    },
     "Disconnect": {
       "extractionState": "manual",
       "localizations": {
@@ -405,6 +427,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Schnell"
+          }
+        }
+      }
+    },
+    "Fills the app with made-up controllers, messages and radio state so you can see what it does. Nothing is sent anywhere, and the header and status line both read DEMO while it is on. Switching it off, or connecting to a plugin, clears the sample data.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Füllt die App mit erfundenen Lotsen, Nachrichten und Funkzuständen, damit du siehst, was sie kann. Es wird nichts irgendwohin gesendet, und Kopfzeile wie Statuszeile zeigen währenddessen DEMO. Ausschalten oder eine Verbindung zu einem Plugin löscht die Beispieldaten."
           }
         }
       }
@@ -933,6 +966,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "TEXTKONTRAST-SCHWELLE"
+          }
+        }
+      }
+    },
+    "TRY IT WITHOUT A PLUGIN": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AUSPROBIEREN OHNE PLUGIN"
           }
         }
       }
