@@ -1,0 +1,44 @@
+{
+  "name": "Handoff for iPad",
+  "identifier": "com.thomaskant.handoff.source",
+  "subtitle": "VATSIM controllers, chat and radio on the iPad",
+  "website": "https://github.com/MANFahrer-GF/vpilot-handoff-ios",
+  "iconURL": "https://raw.githubusercontent.com/MANFahrer-GF/vpilot-handoff-ios/main/Handoff/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
+  "tintColor": "2CC5BF",
+  "apps": [
+    {
+      "name": "Handoff for iPad",
+      "bundleIdentifier": "com.thomaskant.handoff",
+      "developerName": "Thomas Kant",
+      "subtitle": "VATSIM controllers, chat and radio on the iPad",
+      "localizedDescription": "An unofficial iPad client for the Handoff vPilot plugin by sushi.at \u2014 the VATSIM controller list, chat and radio panel on a second screen, next to your charts in Split View.\n\nNot affiliated with, endorsed by, or maintained by sushi.at, VATSIM or vPilot. Report problems with this app on its own GitHub repository, not upstream.\n\n\u2022 Controller list ranked by the plugin, colour-coded per facility, with VATSIM rating, pin, chat and one-tap tuning to COM1, COM2 or standby.\n\u2022 Radio panel \u2014 COM1/COM2 active and standby, transmit and receive selection and transponder, mirrored live from SimConnect. Tuning from the iPad writes back to the sim.\n\u2022 Chat with radio and private conversations as separate tabs, unread badges, and calls naming your own callsign highlighted.\n\u2022 Flight-plan cross-check against SimBrief and VATSIM.\n\u2022 Editable per-facility colour themes, including colourblind-safe presets.\n\u2022 8.33 kHz and 25 kHz channel spacing.\n\nRequires the Handoff plugin running in vPilot on a PC on the same network, with TCP 48765 and UDP 48766 open. The iPad talks to that PC and nothing else: no account, no analytics, no server. The plugin's certificate is pinned on first pairing and the token lives in the Keychain.",
+      "iconURL": "https://raw.githubusercontent.com/MANFahrer-GF/vpilot-handoff-ios/main/Handoff/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
+      "tintColor": "2CC5BF",
+      "category": "utilities",
+      "screenshotURLs": [
+        "https://raw.githubusercontent.com/MANFahrer-GF/vpilot-handoff-ios/main/docs/screenshots/dashboard-wide.png",
+        "https://raw.githubusercontent.com/MANFahrer-GF/vpilot-handoff-ios/main/docs/screenshots/chat-narrow.png"
+      ],
+      "versions": [
+        {
+          "version": "1.0.0",
+          "date": "2026-08-07T20:14:34Z",
+          "localizedDescription": "# Handoff for iPad \u2014 v1.0.0\n\nFirst public build. An **unofficial** iPad client for the\n[Handoff vPilot plugin](https://github.com/sushiat/vpilot-handoff) by sushi.at,\nwritten against the plugin's public `docs/protocol.md`.\n\n**Not affiliated with, endorsed by, or maintained by sushi.at, VATSIM or vPilot.**\nReport problems with this app here, not upstream. The plugin itself, and the\nAndroid client this interface follows, are sushi.at's work.\n\n## What's in it\n\n- **Controller list** \u2014 ranked by the plugin, colour-coded per facility, showing\n  the station's VATSIM rating, with pin, chat and one-tap tuning to COM1, COM2 or\n  standby. `CONTACT ME`, `NEXT`, `TUNED`, `STBY` and `SELCAL` states are marked.\n- **Radio panel** \u2014 COM1/COM2 active and standby, transmit and receive selection,\n  transponder, all mirrored live from SimConnect. Tuning from the iPad writes back\n  to the sim.\n- **Chat** \u2014 radio and private conversations as separate tabs, unread badges per\n  conversation, and calls that name your own callsign highlighted as `TO YOU`.\n  SELCAL alerts appear as a banner.\n- **Flight-plan cross-check** \u2014 flags a missing VATSIM flight plan, a\n  SimBrief/VATSIM divergence, or a filed origin that doesn't match where the\n  aircraft is parked.\n- **Colour themes** \u2014 the per-facility palette is fully editable, with\n  colourblind-safe presets (deuteranopia, protanopia), contrast threshold and a\n  separate dark-mode offset.\n- **8.33 kHz and 25 kHz channel spacing**, with optional rejection of frequencies\n  that aren't valid channels.\n- **Adaptive layout** \u2014 the radio and chat panel sits beside the dashboard on a\n  wide window and folds into an overlay on a narrow split, so it works in Split\n  View next to your charts.\n\n## Language\n\nThe cockpit is **English everywhere**, like the radio work it mirrors. Only the\nsettings screens follow the iPad's language, in English or German.\n\n## Security\n\n- The plugin's TLS certificate is **pinned on first pairing**. A different machine\n  answering on that address is refused rather than trusted, and the app says so\n  instead of silently reconnecting.\n- The pairing token lives in the iPad **Keychain**, scoped per host *and* port.\n- No account, no analytics, no server of ours. The iPad talks to your PC and\n  nothing else. The only permission requested is local network access.\n\n## Requirements\n\n- iPad on **iPadOS 17** or newer\n- The Handoff plugin running in vPilot on the PC\n- Both on the same network, with **TCP 48765** (and **UDP 48766** for\n  auto-discovery) allowed through the Windows firewall\n\n## Installing\n\nThere is no App Store build. The attached `Handoff-1.0.0.ipa` is **unsigned** on\npurpose \u2014 signing it here would tie it to one developer account and be useless to\nanyone else. [SideStore](https://sidestore.io) or [AltStore](https://altstore.io)\nre-sign it with *your own* free Apple ID.\n\nWith a free Apple ID, Apple expires the app after **7 days** (both tools can\nrefresh it automatically over your network) and allows **3** sideloaded apps at a\ntime. A paid Apple Developer account raises the 7 days to a year; it is not\nrequired.\n\nBuilding from source and running it on your own iPad from Xcode is the same deal,\nand is described in the README.\n\n## Known limits\n\n- Tested against the protocol documentation and a local TLS stand-in, **not yet\n  against a live plugin** on a real VATSIM session. First-flight reports are\n  welcome.\n- No moving map. The plugin's own map is not part of the protocol surface this\n  client consumes.\n- iPad only. There is no iPhone layout.\n\n## Credits\n\n- [Handoff vPilot plugin & Android client](https://github.com/sushiat/vpilot-handoff) \u2014 sushi.at (MIT)\n- [VATSpy](https://github.com/vatsimnetwork/vatspy-data-project) \u2014 airport & FIR data (CC BY-SA 4.0)\n- [VatGlasses](https://github.com/lennycolton/vatglasses-data) \u2014 sector boundaries (CC BY-NC-SA 4.0)\n- [VATSIM Data Feed](https://vatsim.dev), [SimBrief](https://www.simbrief.com) by Navigraph,\n  [vPilot](https://vpilot.rosscarlson.dev)\n\n",
+          "downloadURL": "https://github.com/MANFahrer-GF/vpilot-handoff-ios/releases/download/v1.0.0/Handoff-1.0.0.ipa",
+          "size": 487249,
+          "minOSVersion": "17.0"
+        }
+      ],
+      "appPermissions": {
+        "entitlements": [],
+        "privacy": [
+          {
+            "name": "LocalNetwork",
+            "usageDescription": "Connects to the vPilot plugin on your own PC. Nothing leaves your network."
+          }
+        ]
+      }
+    }
+  ],
+  "news": []
+}
