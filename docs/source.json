@@ -17,7 +17,13 @@
       "category": "utilities",
       "screenshotURLs": [
         "https://raw.githubusercontent.com/MANFahrer-GF/vpilot-handoff-ios/main/docs/screenshots/dashboard-wide.png",
-        "https://raw.githubusercontent.com/MANFahrer-GF/vpilot-handoff-ios/main/docs/screenshots/chat-narrow.png"
+        "https://raw.githubusercontent.com/MANFahrer-GF/vpilot-handoff-ios/main/docs/screenshots/dashboard-dark.png",
+        "https://raw.githubusercontent.com/MANFahrer-GF/vpilot-handoff-ios/main/docs/screenshots/narrow-chat.png",
+        "https://raw.githubusercontent.com/MANFahrer-GF/vpilot-handoff-ios/main/docs/screenshots/status-expanded.png",
+        "https://raw.githubusercontent.com/MANFahrer-GF/vpilot-handoff-ios/main/docs/screenshots/controller-tune.png",
+        "https://raw.githubusercontent.com/MANFahrer-GF/vpilot-handoff-ios/main/docs/screenshots/frequency-tune.png",
+        "https://raw.githubusercontent.com/MANFahrer-GF/vpilot-handoff-ios/main/docs/screenshots/settings.png",
+        "https://raw.githubusercontent.com/MANFahrer-GF/vpilot-handoff-ios/main/docs/screenshots/theme-editor.png"
       ],
       "versions": [
         {

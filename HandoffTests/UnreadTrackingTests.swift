@@ -109,6 +109,20 @@ struct UnreadTrackingTests {
         store.disconnect()
     }
 
+    /// The MSG tile hides its badge on zero rather than showing a "0" pill, so the
+    /// total has to actually reach zero once everything has been read -- not merely
+    /// drop the conversation the pilot happened to be looking at.
+    @Test func readingEveryConversationLeavesNothingUnread() {
+        TestDefaults.installOnce()
+        let store = AppStore()
+        store.unreadByConversation = [ChatMessage.radioConversationKey: 3, "LOWW_TWR": 2]
+        #expect(store.unreadChatCount == 5)
+        store.markConversationRead(ChatMessage.radioConversationKey)
+        #expect(store.unreadChatCount == 2)
+        store.markConversationRead("LOWW_TWR")
+        #expect(store.unreadChatCount == 0)
+    }
+
     @Test func conversationKeySeparatesRadioFromPrivate() throws {
         let radio = try JSONDecoder().decode(ChatMessage.self, from: Data(radioOne.utf8))
         let direct = try JSONDecoder().decode(ChatMessage.self, from: Data(privateOne.utf8))

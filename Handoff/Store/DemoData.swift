@@ -9,9 +9,24 @@ enum DemoData {
         ProcessInfo.processInfo.arguments.contains("-handoffDemoData")
     }
 
+    /// Extra scenes that need a connection state a demo run can't reach on its own.
+    /// `-handoffDemoScene connected|pairing|identity`
+    private static var scene: String? {
+        let args = ProcessInfo.processInfo.arguments
+        guard let i = args.firstIndex(of: "-handoffDemoScene"), i + 1 < args.count else { return nil }
+        return args[i + 1]
+    }
+
     @MainActor
     static func apply(to store: AppStore) {
         guard isEnabled else { return }
+        store.lastHost = "192.168.1.115"
+        switch scene {
+        case "connected": store.connection.demoOverride(state: .connected, latencyMs: 12)
+        case "pairing": store.connection.demoOverride(state: .awaitingPairingCode)
+        case "identity": store.connection.demoOverride(state: .identityChanged)
+        default: break
+        }
         store.controllers = decode(controllersJSON, as: ControllersMessage.self)?.controllers ?? []
         store.etaMinutes = 14
         if let chat = decode(chatJSON, as: ChatMessagePayload.self) {
@@ -54,7 +69,31 @@ enum DemoData {
       {"callsign":"EDWW_MAR_CTR","frequency":36050,"cid":8,"name":"H. Beispiel","facility":6,"rating":5,
        "stationName":"Bremen Radar"},
       {"callsign":"EPWW_ST_CTR","frequency":23625,"cid":9,"name":"I. Muster","facility":6,"rating":4,
-       "stationName":"Warszawa Radar","isSelcalActive":true}
+       "stationName":"Warszawa Radar","isSelcalActive":true},
+      {"callsign":"EDDF_DEL","frequency":21750,"cid":10,"name":"J. Muster","facility":2,"rating":2,
+       "stationName":"Frankfurt Delivery"},
+      {"callsign":"EDDF_GND","frequency":21900,"cid":11,"name":"K. Beispiel","facility":3,"rating":3,
+       "stationName":"Frankfurt Ground"},
+      {"callsign":"EDDF_TWR","frequency":19900,"cid":12,"name":"L. Muster","facility":4,"rating":5,
+       "stationName":"Frankfurt Tower"},
+      {"callsign":"EDDF_APP","frequency":20800,"cid":13,"name":"M. Beispiel","facility":5,"rating":5,
+       "stationName":"Frankfurt Radar"},
+      {"callsign":"EDDM_TWR","frequency":18700,"cid":14,"name":"N. Muster","facility":4,"rating":4,
+       "stationName":"Muenchen Tower"},
+      {"callsign":"EDDL_TWR","frequency":18300,"cid":15,"name":"O. Beispiel","facility":4,"rating":3,
+       "stationName":"Duesseldorf Tower"},
+      {"callsign":"EHAM_TWR","frequency":19225,"cid":16,"name":"P. Muster","facility":4,"rating":5,
+       "stationName":"Schiphol Tower"},
+      {"callsign":"LSZH_TWR","frequency":18100,"cid":17,"name":"Q. Beispiel","facility":4,"rating":4,
+       "stationName":"Zurich Tower"},
+      {"callsign":"EBBR_APP","frequency":28250,"cid":18,"name":"R. Muster","facility":5,"rating":5,
+       "stationName":"Brussels Approach"},
+      {"callsign":"EDGG_KTG_CTR","frequency":35925,"cid":19,"name":"S. Beispiel","facility":6,"rating":5,
+       "stationName":"Langen Radar"},
+      {"callsign":"EDUU_HOF_CTR","frequency":32190,"cid":20,"name":"T. Muster","facility":6,"rating":11,
+       "stationName":"Rhein Radar"},
+      {"callsign":"LOVV_CTR","frequency":34350,"cid":21,"name":"U. Beispiel","facility":6,"rating":12,
+       "stationName":"Wien Radar"}
     ]}
     """
 

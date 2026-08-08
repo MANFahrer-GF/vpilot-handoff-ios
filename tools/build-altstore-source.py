@@ -25,6 +25,20 @@ OUT = pathlib.Path(__file__).resolve().parent.parent / "docs" / "source.json"
 
 SUBTITLE = "VATSIM controllers, chat and radio on the iPad"
 
+# Shown in the sideloader's listing, in this order. Names are checked against
+# docs/screenshots below, so a renamed file fails the build instead of leaving a
+# broken image in the store listing.
+SHOTS = [
+    "dashboard-wide",
+    "dashboard-dark",
+    "narrow-chat",
+    "status-expanded",
+    "controller-tune",
+    "frequency-tune",
+    "settings",
+    "theme-editor",
+]
+
 DESCRIPTION = """\
 An unofficial iPad client for the Handoff vPilot plugin by sushi.at — the VATSIM \
 controller list, chat and radio panel on a second screen, next to your charts in \
@@ -84,6 +98,11 @@ def version_entry(release):
 
 
 def main():
+    shots_dir = OUT.parent / "screenshots"
+    missing = [s for s in SHOTS if not (shots_dir / f"{s}.png").exists()]
+    if missing:
+        sys.exit(f"screenshots missing from {shots_dir}: {', '.join(missing)}")
+
     versions = [v for v in (version_entry(r) for r in releases()) if v]
     if not versions:
         sys.exit("no published release with an .ipa -- nothing to list")
@@ -105,8 +124,7 @@ def main():
             "tintColor": "2CC5BF",
             "category": "utilities",
             "screenshotURLs": [
-                f"{RAW}/docs/screenshots/dashboard-wide.png",
-                f"{RAW}/docs/screenshots/chat-narrow.png",
+                f"{RAW}/docs/screenshots/{name}.png" for name in SHOTS
             ],
             "versions": versions,
             "appPermissions": {

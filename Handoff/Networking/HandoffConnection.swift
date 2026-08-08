@@ -64,6 +64,16 @@ final class HandoffConnection: NSObject {
     /// Round-trip time of the last ping, shown in the status footer.
     private(set) var latencyMs: Int?
 
+    #if DEBUG
+    /// Parks the machine in a state that normally requires a live plugin, so the
+    /// pairing and identity-change screens can be captured for documentation
+    /// without one. Only reachable from the `-handoffDemoData` path.
+    func demoOverride(state newState: ConnectionState, latencyMs newLatency: Int? = nil) {
+        state = newState
+        latencyMs = newLatency
+    }
+    #endif
+
     var onControllers: ((ControllersMessage) -> Void)?
     var onChat: ((ChatMessagePayload) -> Void)?
     var onRadioState: ((RadioState) -> Void)?

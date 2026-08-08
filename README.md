@@ -22,9 +22,11 @@ next to your charts in iPadOS Split View.
 
 | Wide window — radio and chat beside the dashboard | Narrow split — chat folds into an overlay |
 | --- | --- |
-| ![Dashboard with the controller list, radio tiles and chat panel](docs/screenshots/dashboard-wide.png) | ![Chat overlay on a narrow layout](docs/screenshots/chat-narrow.png) |
+| ![Dashboard with the controller list, radio tiles and chat panel](docs/screenshots/dashboard-wide.png) | ![Chat overlay on a narrow layout](docs/screenshots/narrow-chat.png) |
 
-Sample data, not a live session.
+Sample data, not a live session. **[Full gallery →](docs/gallery.md)** — dark mode,
+the expanded status line, tuning keypads, chat, settings, colour themes, and the
+pairing and identity screens.
 
 ## What it does
 

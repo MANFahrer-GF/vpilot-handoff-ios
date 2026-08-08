@@ -173,8 +173,7 @@ struct RadioTileGridView: View {
     /// A message addressed to this pilot outranks ambient frequency chatter, so it
     /// gets its own colour rather than blending into the same blue count.
     private var badgeColor: Color {
-        if store.hasUnreadDirectedMessage { return .orange }
-        return store.unreadChatCount > 0 ? .blue : .black
+        store.hasUnreadDirectedMessage ? .orange : .blue
     }
 
     private var messageTile: some View {
@@ -183,13 +182,17 @@ struct RadioTileGridView: View {
                 HStack {
                     Text("MSG").font(.caption2.bold()).foregroundStyle(.secondary)
                     Spacer(minLength: 4)
-                    Text("\(store.unreadChatCount)")
-                        .font(.caption.monospacedDigit().bold())
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 7)
-                        .padding(.vertical, 2)
-                        .background(badgeColor)
-                        .clipShape(RoundedRectangle(cornerRadius: 5))
+                    // Nothing unread means no badge. It used to render a "0" in a dark
+                    // pill, which reads as a count rather than as the absence of one.
+                    if store.unreadChatCount > 0 {
+                        Text("\(store.unreadChatCount)")
+                            .font(.caption.monospacedDigit().bold())
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 7)
+                            .padding(.vertical, 2)
+                            .background(badgeColor)
+                            .clipShape(RoundedRectangle(cornerRadius: 5))
+                    }
                 }
                 Text(currentFrequencyText ?? " ")
                     .font(.system(.subheadline, design: .monospaced))
