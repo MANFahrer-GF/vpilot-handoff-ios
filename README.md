@@ -105,6 +105,24 @@ What a **free** Apple ID costs you, and it's Apple's rule, not this app's:
 A paid Apple Developer account ($99/year) raises the 7 days to a year. It isn't
 needed otherwise.
 
+#### If the automatic refresh stalls (SideStore)
+
+SideStore refreshes the app on its own, without a computer, using a shared
+**Anisette server** — a small piece of infrastructure that both AltStore and
+SideStore rely on to talk to Apple. The default ones
+([listed here](https://github.com/SideStore/anisette-servers)) are community-run
+and free, and occasionally slow or overloaded, since they're shared by every
+SideStore user, not just Handoff's.
+
+This project runs its own free public Anisette server as a fallback:
+`https://anisette.kant.ovh`. To use it: **Settings → Anisette Servers** in
+SideStore, then either point the list URL at
+[`docs/anisette-servers.json`](docs/anisette-servers.json) from this repo and
+pick "Handoff (kant.ovh)" from the refreshed list, or add the address directly
+if your SideStore version takes a single URL instead of a list. A full
+step-by-step walkthrough (English and German) is in
+[`docs/sidestore-anisette.md`](docs/sidestore-anisette.md).
+
 ### Building it yourself instead
 
 If you already have Xcode, building from source (below) and running it on your own
