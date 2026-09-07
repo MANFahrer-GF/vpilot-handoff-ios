@@ -68,6 +68,42 @@ struct ProtocolDecodingTests {
         #expect(message.senderLabel == nil)
     }
 
+    @Test func chatMessageFlagsMissingTextField() throws {
+        let message = try decode(
+            """
+            {"channel":"private","direction":"incoming","peer":"EDDF_TWR",
+             "timestamp":"2026-08-07T10:00:00Z"}
+            """,
+            as: ChatMessage.self
+        )
+        #expect(message.textWasMissing == true)
+        #expect(message.text == "")
+    }
+
+    @Test func chatMessageFlagsNullTextField() throws {
+        let message = try decode(
+            """
+            {"channel":"private","direction":"incoming","peer":"EDDF_TWR","text":null,
+             "timestamp":"2026-08-07T10:00:00Z"}
+            """,
+            as: ChatMessage.self
+        )
+        #expect(message.textWasMissing == true)
+        #expect(message.text == "")
+    }
+
+    @Test func chatMessageWithRealTextIsNotFlagged() throws {
+        let message = try decode(
+            """
+            {"channel":"private","direction":"incoming","peer":"EDDF_TWR","text":"cleared",
+             "timestamp":"2026-08-07T10:00:00Z"}
+            """,
+            as: ChatMessage.self
+        )
+        #expect(message.textWasMissing == false)
+        #expect(message.text == "cleared")
+    }
+
     @Test func timestampParsesWithAndWithoutFractionalSeconds() {
         #expect(Date.fromHandoffTimestamp("2026-08-07T10:00:00Z") != nil)
         #expect(Date.fromHandoffTimestamp("2026-08-07T10:00:00.123Z") != nil)

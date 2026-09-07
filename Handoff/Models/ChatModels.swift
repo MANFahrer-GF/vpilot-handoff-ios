@@ -23,6 +23,11 @@ struct ChatMessage: Decodable, Identifiable, Equatable {
     let peer: String?
     let from: String?
     let text: String
+    /// True when `text` above is the `""` decode fallback rather than a real value the
+    /// plugin sent -- i.e. the `text` key was absent or JSON `null`. Lets the UI show
+    /// "message not received" instead of a silent blank bubble indistinguishable from
+    /// an actually-empty message.
+    let textWasMissing: Bool
     let frequencies: [Int]?
     let timestamp: String
 
@@ -43,6 +48,7 @@ struct ChatMessage: Decodable, Identifiable, Equatable {
         self.peer = peer
         self.from = from
         self.text = text
+        self.textWasMissing = false
         self.frequencies = frequencies
         self.timestamp = timestamp
     }
@@ -53,7 +59,13 @@ struct ChatMessage: Decodable, Identifiable, Equatable {
         direction = try c.decodeIfPresent(String.self, forKey: .direction) ?? "incoming"
         peer = try c.decodeIfPresent(String.self, forKey: .peer)
         from = try c.decodeIfPresent(String.self, forKey: .from)
-        text = try c.decodeIfPresent(String.self, forKey: .text) ?? ""
+        if let decodedText = try c.decodeIfPresent(String.self, forKey: .text) {
+            text = decodedText
+            textWasMissing = false
+        } else {
+            text = ""
+            textWasMissing = true
+        }
         frequencies = try c.decodeIfPresent([Int].self, forKey: .frequencies)
         timestamp = try c.decodeIfPresent(String.self, forKey: .timestamp) ?? ""
     }

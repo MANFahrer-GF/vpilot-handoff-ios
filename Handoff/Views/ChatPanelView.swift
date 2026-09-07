@@ -269,10 +269,16 @@ struct ChatMessageCard: View {
                 }
                 .foregroundStyle(.secondary)
 
-                Text(message.text)
-                    .font(.callout)
-                    .fontWeight(isDirected ? .semibold : .regular)
-                    .fixedSize(horizontal: false, vertical: true)
+                if message.textWasMissing {
+                    Text("⚠️ Message received without content")
+                        .font(.callout.italic())
+                        .foregroundStyle(.secondary)
+                } else {
+                    Text(message.text)
+                        .font(.callout)
+                        .fontWeight(isDirected ? .semibold : .regular)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
             .padding(10)
             .frame(maxWidth: .infinity, alignment: .leading)

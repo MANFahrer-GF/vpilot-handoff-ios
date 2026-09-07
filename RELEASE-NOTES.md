@@ -1,25 +1,22 @@
-# Handoff for iPad — v1.1.1
+# Handoff for iPad — v1.1.2
 
-Maintenance release. Nothing to do with your setup — this just keeps the tagged
-version in step with the source tree, which had moved on a little since v1.1.0.
+Bugfix release.
 
 ## Changed
 
-- Renamed a settings section header from "Appearance" to "Appearance Mode"
-  ("Darstellungsmodus" in German). Purely cosmetic on iPad — the old wording never
-  caused a problem there. It came up while trying the app as a native
-  [Mac app](https://github.com/MANFahrer-GF/vpilot-handoff-ios#running-on-a-mac):
-  Xcode's build tooling for that destination is stricter about generated symbol
-  names than the iPad build path is, and flagged "Appearance" and "APPEARANCE" as
-  colliding.
-- Removed a stale, unused entry from the string catalog left over from an earlier
-  edit.
+- A private message whose text the plugin couldn't deliver (missing or JSON
+  `null` `text` field) used to render as a completely blank chat bubble,
+  indistinguishable from a message that was genuinely empty. It now shows
+  "⚠️ Message received without content" instead, so a delivery problem is
+  visible rather than silent. Filed upstream as
+  [sushiat/vpilot-handoff#131](https://github.com/sushiat/vpilot-handoff/issues/131)
+  to track down why the plugin would send that field empty in the first place.
 
-No other behaviour changed. 111 tests, no warnings.
+No other behaviour changed. 114 tests, no warnings.
 
 ## Installing
 
-The attached `Handoff-1.1.1.ipa` is **unsigned** on purpose — signing it here would
+The attached `Handoff-1.1.2.ipa` is **unsigned** on purpose — signing it here would
 tie it to one developer account and be useless to anyone else.
 [SideStore](https://sidestore.io) or [AltStore](https://altstore.io) re-sign it with
 *your own* free Apple ID.
