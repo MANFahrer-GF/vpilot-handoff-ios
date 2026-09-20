@@ -11,7 +11,18 @@ final class AppStore {
     let connection = HandoffConnection()
 
     var controllers: [Controller] = []
+    /// Plugin <= v0.5.0 only: one ETA for the whole list (see `ControllersMessage`).
     var etaMinutes: Double?
+
+    /// The header's ETA, or nil when the rows carry their own (plugin v0.6.0+) and the
+    /// header would otherwise duplicate or contradict them. A property rather than a
+    /// condition inside the view so both directions are testable.
+    var listLevelEtaText: String? {
+        guard !controllers.contains(where: { $0.etaMinutes != nil }),
+              let etaMinutes,
+              let minutes = Controller.wholeMinutes(etaMinutes) else { return nil }
+        return minutes < 1 ? "ETA <1\u{2032}" : "ETA \(Int(minutes))\u{2032}"
+    }
     var chatMessages: [ChatMessage] = []
     var selcalAlerts: [SelcalAlert] = []
     var radioState: RadioState?

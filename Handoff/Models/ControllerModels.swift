@@ -60,10 +60,21 @@ struct Controller: Decodable, Identifiable, Equatable {
     var isPinned: Bool
     let isStandbyTuned: Bool
     let isSelcalActive: Bool
-    /// Minutes until ownship reaches this controller's own sector, per protocol.md.
-    /// Per-controller since plugin v0.6.0 (issue #127); before that the plugin sent a
-    /// single ownship-level `etaMinutes` on the message instead -- see
-    /// `ControllersMessage.etaMinutes`, which the list still falls back to.
+    /// Minutes until ownship reaches this controller's own sector, per protocol.md,
+    /// **rounded to whole minutes at decode time**. Per-controller since plugin v0.6.0
+    /// (issue #127); before that the plugin sent a single ownship-level `etaMinutes` on
+    /// the message instead -- see `ControllersMessage.etaMinutes`, which the list still
+    /// falls back to.
+    ///
+    /// Rounded here rather than in the view for a reason: the raw value is a distance
+    /// divided by groundspeed, so it drifts on every one-second resend while approaching
+    /// a sector. Keeping it raw would make `controllers != msg.controllers` true every
+    /// second and re-render the whole list -- exactly the cost `AppStore`'s diff exists
+    /// to avoid. The badge only ever shows whole minutes anyway.
+    ///
+    /// `0` means "less than a minute out", not "arrived": the plugin only sends a value
+    /// for a sector still being approached (protocol.md), so a sub-minute value rounds
+    /// down into 0 rather than meaning zero distance.
     let etaMinutes: Double?
     let debug: ControllerDebug?
 
@@ -92,6 +103,7 @@ struct Controller: Decodable, Identifiable, Equatable {
         isStandbyTuned = try c.decodeIfPresent(Bool.self, forKey: .isStandbyTuned) ?? false
         isSelcalActive = try c.decodeIfPresent(Bool.self, forKey: .isSelcalActive) ?? false
         etaMinutes = try c.decodeIfPresent(Double.self, forKey: .etaMinutes)
+            .flatMap { Controller.wholeMinutes($0) }
         debug = try c.decodeIfPresent(ControllerDebug.self, forKey: .debug)
     }
 
@@ -100,6 +112,21 @@ struct Controller: Decodable, Identifiable, Equatable {
         case stationName, textAtis, requestsContactMe
         case isCurrent, isContactMe, isHighlighted, isNext, isLikelyNext
         case isPinned, isStandbyTuned, isSelcalActive, etaMinutes, debug
+    }
+
+    /// Whole minutes, or nil when there is nothing sensible to count down to: a
+    /// negative ETA means the geometry already passed the sector, and a non-finite one
+    /// means the plugin divided by something it shouldn't have. Both are dropped rather
+    /// than shown as an imminent arrival.
+    static func wholeMinutes(_ minutes: Double) -> Double? {
+        guard minutes.isFinite, minutes >= 0 else { return nil }
+        return minutes.rounded()
+    }
+
+    /// What the row badge shows, or nil when there is no ETA to show.
+    var etaBadgeText: String? {
+        guard let etaMinutes else { return nil }
+        return etaMinutes < 1 ? "ETA <1\u{2032}" : "ETA \(Int(etaMinutes))\u{2032}"
     }
 
     var frequencyMHzText: String {

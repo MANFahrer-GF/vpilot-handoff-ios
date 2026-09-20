@@ -75,7 +75,10 @@ struct ControllerRowView: View {
         if compact {
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 6) {
-                    Text(controller.callsign).font(.headline.monospaced())
+                    Text(controller.callsign)
+                        .font(.headline.monospaced())
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
                     statusTag
                     etaTag
                 }
@@ -150,8 +153,8 @@ struct ControllerRowView: View {
     /// readable next to the NEXT/NEXT? tag it qualifies.
     @ViewBuilder
     private var etaTag: some View {
-        if let eta = controller.etaMinutes {
-            tag("ETA \(Int(eta.rounded()))\u{2032}")
+        if let text = controller.etaBadgeText {
+            tag(text)
         }
     }
 

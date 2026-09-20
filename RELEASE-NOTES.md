@@ -12,9 +12,12 @@ Without this update the ETA simply stops appearing once you update the plugin.
 - **Older plugins keep working.** If the plugin still sends the list-level ETA
   (v0.5.0 and earlier), the header figure appears exactly as before. Nothing about
   the connection is version-gated.
+- **Under a minute reads as "ETA <1′"**, not "ETA 0′" — the plugin only sends an ETA
+  for a sector still ahead of you, so a rounded-down zero would read like the bug
+  upstream just fixed.
 - Demo mode carries a sample ETA, so the badge is visible without a plugin.
 
-No other behaviour changed. 115 tests, no warnings.
+No other behaviour changed. 118 tests, no warnings.
 
 ## Installing
 

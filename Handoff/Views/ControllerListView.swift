@@ -61,8 +61,8 @@ struct ControllerListView: View {
             // Plugin <= v0.5.0 sent one ETA for the whole list; v0.6.0 moved it onto
             // each controller (issue #127), where it renders as a row badge instead.
             // Kept as a fallback so an older plugin still shows its ETA somewhere.
-            if !store.controllers.contains(where: { $0.etaMinutes != nil }), let eta = store.etaMinutes {
-                Text("ETA \(Int(eta))′")
+            if let eta = store.listLevelEtaText {
+                Text(eta)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
