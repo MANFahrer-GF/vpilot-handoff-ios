@@ -77,6 +77,7 @@ struct ControllerRowView: View {
                 HStack(spacing: 6) {
                     Text(controller.callsign).font(.headline.monospaced())
                     statusTag
+                    etaTag
                 }
                 Text(controller.frequencyMHzText)
                     .font(.title3.monospacedDigit().bold())
@@ -89,7 +90,10 @@ struct ControllerRowView: View {
                         .font(.headline.monospaced())
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
-                    statusTag
+                    HStack(spacing: 4) {
+                        statusTag
+                        etaTag
+                    }
                 }
 
                 Text(controller.frequencyMHzText)
@@ -138,6 +142,16 @@ struct ControllerRowView: View {
             tag("TUNED")
         } else if controller.isStandbyTuned {
             tag("STBY")
+        }
+    }
+
+    /// Sits beside the status tag rather than replacing it: since plugin v0.6.0 the
+    /// ETA belongs to this controller's own sector (issue #127), so it has to stay
+    /// readable next to the NEXT/NEXT? tag it qualifies.
+    @ViewBuilder
+    private var etaTag: some View {
+        if let eta = controller.etaMinutes {
+            tag("ETA \(Int(eta.rounded()))\u{2032}")
         }
     }
 

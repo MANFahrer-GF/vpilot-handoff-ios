@@ -1,6 +1,9 @@
 import Foundation
 
 struct ControllersMessage: Decodable {
+    /// Plugin <= v0.5.0 only: one ETA for the whole list. Plugin v0.6.0 moved this
+    /// onto each controller (`Controller.etaMinutes`); both are still read so the
+    /// app keeps working against either side.
     let etaMinutes: Double?
     let debug: ControllersDebug?
     let controllers: [Controller]
@@ -57,6 +60,11 @@ struct Controller: Decodable, Identifiable, Equatable {
     var isPinned: Bool
     let isStandbyTuned: Bool
     let isSelcalActive: Bool
+    /// Minutes until ownship reaches this controller's own sector, per protocol.md.
+    /// Per-controller since plugin v0.6.0 (issue #127); before that the plugin sent a
+    /// single ownship-level `etaMinutes` on the message instead -- see
+    /// `ControllersMessage.etaMinutes`, which the list still falls back to.
+    let etaMinutes: Double?
     let debug: ControllerDebug?
 
     // Defensive decoding per protocol.md's Compatibility section: new optional
@@ -83,6 +91,7 @@ struct Controller: Decodable, Identifiable, Equatable {
         isPinned = try c.decodeIfPresent(Bool.self, forKey: .isPinned) ?? false
         isStandbyTuned = try c.decodeIfPresent(Bool.self, forKey: .isStandbyTuned) ?? false
         isSelcalActive = try c.decodeIfPresent(Bool.self, forKey: .isSelcalActive) ?? false
+        etaMinutes = try c.decodeIfPresent(Double.self, forKey: .etaMinutes)
         debug = try c.decodeIfPresent(ControllerDebug.self, forKey: .debug)
     }
 
@@ -90,7 +99,7 @@ struct Controller: Decodable, Identifiable, Equatable {
         case callsign, frequency, latitude, longitude, cid, name, facility, rating
         case stationName, textAtis, requestsContactMe
         case isCurrent, isContactMe, isHighlighted, isNext, isLikelyNext
-        case isPinned, isStandbyTuned, isSelcalActive, debug
+        case isPinned, isStandbyTuned, isSelcalActive, etaMinutes, debug
     }
 
     var frequencyMHzText: String {

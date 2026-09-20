@@ -46,7 +46,6 @@ enum DemoData {
         }
         #endif
         store.controllers = decode(controllersJSON, as: ControllersMessage.self)?.controllers ?? []
-        store.etaMinutes = 14
         if let chat = decode(chatJSON, as: ChatMessagePayload.self) {
             store.chatMessages = chat.messages
             store.selcalAlerts = chat.selcalAlerts
@@ -64,12 +63,12 @@ enum DemoData {
     }
 
     private static let controllersJSON = """
-    {"type":"controllers","etaMinutes":14,"controllers":[
+    {"type":"controllers","controllers":[
       {"callsign":"LOWW_TWR","frequency":19400,"cid":1,"name":"A. Muster","facility":4,"rating":3,
        "stationName":"Wien Tower","textAtis":["Wien Tower DCL LOWW","My active sector vats.im/lovv"],
        "isContactMe":true,"isHighlighted":true},
       {"callsign":"LOWW_APP","frequency":34675,"cid":2,"name":"B. Beispiel","facility":5,"rating":4,
-       "stationName":"Wien Radar","isNext":true,"isHighlighted":true},
+       "stationName":"Wien Radar","isNext":true,"isHighlighted":true,"etaMinutes":14},
       {"callsign":"LOWW_D_ATIS","frequency":21730,"facility":0,
        "stationName":"Wien Departure ATIS","isHighlighted":true},
       {"callsign":"LOWW_A_ATIS","frequency":22955,"facility":0,

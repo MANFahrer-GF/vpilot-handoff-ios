@@ -31,6 +31,9 @@ struct DemoModeTests {
         #expect(!store.chatMessages.isEmpty)
         #expect(store.radioState != nil)
         #expect(store.flightPlan != nil)
+        // The ETA badge has a sample to render: without one, demo mode would show
+        // a screen the reviewer can't tell apart from "plugin never sends an ETA".
+        #expect(store.controllers.contains { $0.etaMinutes != nil })
     }
 
     @Test func leavingClearsEverySampleField() {

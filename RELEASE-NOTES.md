@@ -1,22 +1,24 @@
-# Handoff for iPad — v1.1.2
+# Handoff for iPad — v1.2.0
 
-Bugfix release.
+Keeps up with plugin **v0.6.0**, which moved the ETA onto each controller instead of
+sending one value for the whole list ([issue #127](https://github.com/sushiat/vpilot-handoff/issues/127)).
+Without this update the ETA simply stops appearing once you update the plugin.
 
 ## Changed
 
-- A private message whose text the plugin couldn't deliver (missing or JSON
-  `null` `text` field) used to render as a completely blank chat bubble,
-  indistinguishable from a message that was genuinely empty. It now shows
-  "⚠️ Message received without content" instead, so a delivery problem is
-  visible rather than silent. Filed upstream as
-  [sushiat/vpilot-handoff#131](https://github.com/sushiat/vpilot-handoff/issues/131)
-  to track down why the plugin would send that field empty in the first place.
+- **ETA is now a badge on the controller row it belongs to**, next to NEXT/NEXT?,
+  instead of a single figure in the list header. When two CTR sectors are tied, each
+  row now shows its own genuine estimate — previously one could borrow the other's.
+- **Older plugins keep working.** If the plugin still sends the list-level ETA
+  (v0.5.0 and earlier), the header figure appears exactly as before. Nothing about
+  the connection is version-gated.
+- Demo mode carries a sample ETA, so the badge is visible without a plugin.
 
-No other behaviour changed. 114 tests, no warnings.
+No other behaviour changed. 115 tests, no warnings.
 
 ## Installing
 
-The attached `Handoff-1.1.2.ipa` is **unsigned** on purpose — signing it here would
+The attached `Handoff-1.2.0.ipa` is **unsigned** on purpose — signing it here would
 tie it to one developer account and be useless to anyone else.
 [SideStore](https://sidestore.io) or [AltStore](https://altstore.io) re-sign it with
 *your own* free Apple ID.

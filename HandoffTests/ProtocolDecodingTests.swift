@@ -159,6 +159,32 @@ struct ProtocolDecodingTests {
         #expect(message.etaMinutes == 12)
     }
 
+    /// Plugin v0.6.0 (issue #127) moved the ETA from the message onto each
+    /// controller. Both shapes have to decode: the app can meet either plugin.
+    @Test func etaDecodesPerControllerAndFromTheOlderMessageLevelField() throws {
+        let perController = try decode(
+            """
+            {"type":"controllers","controllers":[
+              {"callsign":"EDMM_CTR","frequency":19400,"isLikelyNext":true,"etaMinutes":7},
+              {"callsign":"EDDM_TWR","frequency":19410}]}
+            """,
+            as: ControllersMessage.self
+        )
+        #expect(perController.etaMinutes == nil)
+        #expect(perController.controllers[0].etaMinutes == 7)
+        #expect(perController.controllers[1].etaMinutes == nil)
+
+        let legacy = try decode(
+            """
+            {"type":"controllers","etaMinutes":12,
+             "controllers":[{"callsign":"EDDF_TWR","frequency":19400}]}
+            """,
+            as: ControllersMessage.self
+        )
+        #expect(legacy.etaMinutes == 12)
+        #expect(legacy.controllers[0].etaMinutes == nil)
+    }
+
     @Test func subsystemStatusDecodesWithoutOptionalDebugBlock() throws {
         let status = try decode(
             """
