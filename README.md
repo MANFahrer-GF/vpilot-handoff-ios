@@ -1,22 +1,22 @@
-# Handoff for iPad
+# vPilot Handoff
 
 [![Tests](../../actions/workflows/tests.yml/badge.svg)](../../actions/workflows/tests.yml)
 
-An **unofficial** iPad client for the [Handoff vPilot plugin](https://github.com/sushiat/vpilot-handoff)
-by sushi.at — the VATSIM controller list, chat and radio panel on a second screen,
-next to your charts in iPadOS Split View.
+An iPad client for the [Handoff vPilot plugin](https://github.com/sushiat/vpilot-handoff)
+by sushi.at, published with their permission — the VATSIM controller list, chat
+and radio panel on a second screen, next to your charts in iPadOS Split View.
 
-> This project is **not affiliated with, endorsed by, or maintained by sushi.at**.
-> It is an independent client written against the plugin's public
+> This is an **independent client, developed separately from sushi.at's plugin**.
+> It is written against the plugin's public
 > [`docs/protocol.md`](https://github.com/sushiat/vpilot-handoff/blob/master/docs/protocol.md),
 > in the same spirit as that document's note that it is "the source of truth if
 > you're building an alternate client (e.g. iOS)". Please report issues with this
 > app here, not to the upstream project. The plugin itself, and the Android client
 > this UI follows, are sushi.at's work.
 >
-> sushi.at was asked before this was published and gave their blessing for the
-> name and for following the Android client's interface. Support for the iPad app
-> is ours, not theirs — they have no iOS device to develop against.
+> sushi.at was asked before this was published and explicitly permitted the
+> name, the artwork and following the Android client's interface. Support for
+> the iPad app is ours, not theirs — they have no iOS device to develop against.
 
 ## What it looks like
 

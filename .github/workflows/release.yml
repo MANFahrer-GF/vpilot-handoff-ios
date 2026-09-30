@@ -115,8 +115,8 @@ jobs:
           draft: true
           generate_release_notes: true
           body: |
-            Unofficial iPad client for the [Handoff vPilot plugin](https://github.com/sushiat/vpilot-handoff).
-            Not affiliated with the plugin's author, VATSIM or vPilot.
+            iPad client for the [Handoff vPilot plugin](https://github.com/sushiat/vpilot-handoff),
+            published with sushi.at's permission. Report problems with the iPad app here, not upstream.
 
             **Installation.** The `.ipa` is unsigned — there is no App Store build.
             Install it with [AltStore](https://altstore.io) or

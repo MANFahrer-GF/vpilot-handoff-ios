@@ -4,7 +4,7 @@ title: Privacy
 
 # Privacy policy
 
-*Handoff for iPad — unofficial client for the [Handoff vPilot plugin](https://github.com/sushiat/vpilot-handoff).*
+*vPilot Handoff — iPad client for the [Handoff vPilot plugin](https://github.com/sushiat/vpilot-handoff).*
 Last updated: 8 August 2026.
 
 **Deutsche Fassung weiter unten.**
@@ -80,7 +80,7 @@ The app is free, open source (MIT) and not a commercial offering.
 
 # Datenschutzerklärung
 
-*Handoff für iPad — inoffizieller Client für das
+*vPilot Handoff — iPad-Client für das
 [Handoff-vPilot-Plugin](https://github.com/sushiat/vpilot-handoff).*
 Stand: 8. August 2026.
 

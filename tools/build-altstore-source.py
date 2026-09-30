@@ -40,12 +40,12 @@ SHOTS = [
 ]
 
 DESCRIPTION = """\
-An unofficial iPad client for the Handoff vPilot plugin by sushi.at — the VATSIM \
-controller list, chat and radio panel on a second screen, next to your charts in \
-Split View.
+An iPad client for the Handoff vPilot plugin by sushi.at, published with their \
+permission — the VATSIM controller list, chat and radio panel on a second screen, \
+next to your charts in Split View.
 
-Not affiliated with, endorsed by, or maintained by sushi.at, VATSIM or vPilot. \
-Report problems with this app on its own GitHub repository, not upstream.
+An independent client, developed separately from the plugin. Report problems with \
+this app on its own GitHub repository, not upstream.
 
 • Controller list ranked by the plugin, colour-coded per facility, with VATSIM \
 rating, pin, chat and one-tap tuning to COM1, COM2 or standby.
@@ -110,7 +110,7 @@ def main():
         sys.exit("no published release with an .ipa -- nothing to list")
 
     source = {
-        "name": "Handoff for iPad",
+        "name": "vPilot Handoff",
         "identifier": "com.thomaskant.handoff.source",
         "subtitle": SUBTITLE,
         "website": f"https://github.com/{REPO}",
