@@ -1,17 +1,18 @@
 ---
-title: Handoff for iPad
+title: vPilot Handoff
 ---
 
-# Handoff for iPad
+# vPilot Handoff
 
-An **unofficial** iPad client for the
-[Handoff vPilot plugin](https://github.com/sushiat/vpilot-handoff) by sushi.at —
-the VATSIM controller list, chat and radio panel on a second screen, next to your
-charts in iPadOS Split View.
+An iPad client for the
+[Handoff vPilot plugin](https://github.com/sushiat/vpilot-handoff) by sushi.at,
+published with their permission — the VATSIM controller list, chat and radio panel
+on a second screen, next to your charts in iPadOS Split View.
 
-Not affiliated with, endorsed by, or maintained by sushi.at, VATSIM or vPilot.
-sushi.at was asked before this was published and gave their blessing for the name,
-the artwork, and for following the Android client's interface.
+An independent client, developed separately from the plugin: sushi.at was asked
+before this was published and explicitly permitted the name, the artwork, and
+following the Android client's interface. Support for the iPad app is here, not
+upstream.
 
 - **[Gallery](gallery.md)** — what it looks like, and what each state means
 - **[Support](support.md)** — where to ask, and the usual suspects first

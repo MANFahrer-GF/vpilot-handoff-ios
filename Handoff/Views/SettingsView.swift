@@ -273,7 +273,7 @@ struct SettingsView: View {
             section("PROJECT") {
                 creditRow("iPad app", "Thomas Kant, Gifhorn")
                 creditRow("Built with", "Claude (Anthropic)")
-                Text("This iPad app is an independent, unofficial client for the same plugin, built from its public protocol documentation.")
+                Text("This iPad app is an independent client for the same plugin, built from its public protocol documentation with sushi.at's permission.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)

@@ -31,7 +31,9 @@ targets:
     info:
       path: Handoff/Info.plist
       properties:
-        CFBundleDisplayName: Handoff
+        # Store-facing name. "Handoff" alone collides with Apple's Continuity
+        # feature of the same name, which App Review rejects (guideline 4.1).
+        CFBundleDisplayName: vPilot Handoff
         # xcodegen writes this file, so the version has to be threaded through
         # here -- editing Info.plist directly is undone by the next generate.
         CFBundleShortVersionString: "$(MARKETING_VERSION)"
@@ -48,9 +50,15 @@ targets:
           - UIInterfaceOrientationPortraitUpsideDown
         NSLocalNetworkUsageDescription: "Handoff connects over your local network to the vPilot plugin on your PC to mirror the controller list, chat and radio panel."
         NSBonjourServices: []
+        # Only standard TLS from the OS (URLSession / Network.framework), so the
+        # build is exempt from export documentation. Without this key App Store
+        # Connect asks the encryption question on every single upload.
+        ITSAppUsesNonExemptEncryption: false
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.thomaskant.handoff
+        # Fixed once the App Store Connect record exists -- it cannot be changed
+        # afterwards without creating a new app. Chosen to match the store name.
+        PRODUCT_BUNDLE_IDENTIFIER: com.thomaskant.vpilothandoff
         # Both feed Info.plist. The release workflow overrides MARKETING_VERSION
         # with the git tag, so a tagged build carries its own version number.
         MARKETING_VERSION: "1.2.0"
@@ -70,7 +78,7 @@ targets:
       - target: Handoff
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.thomaskant.handoff.tests
+        PRODUCT_BUNDLE_IDENTIFIER: com.thomaskant.vpilothandoff.tests
         GENERATE_INFOPLIST_FILE: true
 
 schemes:
