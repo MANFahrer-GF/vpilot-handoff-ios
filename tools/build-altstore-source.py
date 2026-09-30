@@ -117,8 +117,10 @@ def main():
         "iconURL": f"{RAW}/Handoff/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
         "tintColor": "1A1C1F",
         "apps": [{
-            "name": "Handoff for iPad",
-            "bundleIdentifier": "com.thomaskant.handoff",
+            "name": "vPilot Handoff",
+            # Must match PRODUCT_BUNDLE_IDENTIFIER in project.yml, or AltStore
+            # won't recognise an installed build as this app when offering updates.
+            "bundleIdentifier": "com.thomaskant.vpilothandoff",
             "developerName": "Thomas Kant",
             "subtitle": SUBTITLE,
             "localizedDescription": DESCRIPTION,

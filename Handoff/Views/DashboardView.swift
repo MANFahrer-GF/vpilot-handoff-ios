@@ -117,10 +117,11 @@ struct DashboardView: View {
             Image(systemName: "chevron.left.forwardslash.chevron.right")
                 .font(.caption)
                 .foregroundStyle(.primary)
-            Text("Handoff").font(.title3.bold())
+            Text("vPilot Handoff").font(.title3.bold())
             // Not "by sushi.at": that's the plugin and Android client this talks to,
-            // credited in Settings. This app is a separate, unofficial iPad client.
-            Text("iPad · unofficial").font(.caption).foregroundStyle(.secondary)
+            // credited in Settings. This app is a separate iPad client, published
+            // with sushi.at's explicit permission.
+            Text("iPad").font(.caption).foregroundStyle(.secondary)
             // Sample controllers mistaken for real ones is the only harm this
             // feature can do, so the marking sits in the header and the status line
             // both -- whichever the pilot happens to be looking at.

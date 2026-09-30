@@ -6,7 +6,7 @@ import Foundation
 /// version even carried a `makeIsolatedDefaults` helper that was never called, so the
 /// isolation its comment promised didn't exist.
 enum TestDefaults {
-    private static let suiteName = "com.thomaskant.handoff.tests.isolated"
+    private static let suiteName = "com.thomaskant.vpilothandoff.tests.isolated"
     nonisolated(unsafe) private static var installed = false
 
     static func installOnce() {
