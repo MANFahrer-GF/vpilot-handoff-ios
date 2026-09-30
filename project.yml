@@ -50,6 +50,10 @@ targets:
           - UIInterfaceOrientationPortraitUpsideDown
         NSLocalNetworkUsageDescription: "Handoff connects over your local network to the vPilot plugin on your PC to mirror the controller list, chat and radio panel."
         NSBonjourServices: []
+        # Only standard TLS from the OS (URLSession / Network.framework), so the
+        # build is exempt from export documentation. Without this key App Store
+        # Connect asks the encryption question on every single upload.
+        ITSAppUsesNonExemptEncryption: false
     settings:
       base:
         # Fixed once the App Store Connect record exists -- it cannot be changed
