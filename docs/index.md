@@ -21,8 +21,12 @@ upstream.
 
 ## Installing
 
-There is no App Store build. Each [release](https://github.com/MANFahrer-GF/vpilot-handoff-ios/releases/latest)
-carries an unsigned `.ipa` that [SideStore](https://sidestore.io) or
+**TestFlight (recommended):** install Apple's TestFlight app, then open
+[https://testflight.apple.com/join/BNjesezx](https://testflight.apple.com/join/BNjesezx) on the iPad. No sideloading, no 7-day expiry. An App Store release
+is in review.
+
+**SideStore / AltStore:** each [release](https://github.com/MANFahrer-GF/vpilot-handoff-ios/releases/latest)
+also carries an unsigned `.ipa` that [SideStore](https://sidestore.io) or
 [AltStore](https://altstore.io) re-sign with your own free Apple ID.
 
 Adding this source once means updates arrive as a badge instead of a manual

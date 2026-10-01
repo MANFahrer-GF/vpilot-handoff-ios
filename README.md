@@ -68,15 +68,23 @@ talking to VATSIM, the iPad is a second screen for it.
 
 ## Installing
 
-There is no App Store build. Apple's store isn't a realistic route for a hobby
-client that only talks to a program on your own PC, so the app is distributed the
-same way the Android client is: as a plain build file you install yourself.
+### With TestFlight (recommended)
 
-Each [release](../../releases) carries an **unsigned `.ipa`**. Unsigned is
-deliberate — signing it here would tie it to one developer account and be useless
-to everyone else. Sideloading tools re-sign it with *your* Apple ID instead.
+The app is on **TestFlight**, Apple's own beta channel — no sideloading tool, no
+7-day expiry, updates arrive like any other app:
 
-### With SideStore or AltStore (free Apple ID)
+1. Install **TestFlight** from the App Store on the iPad.
+2. Open **https://testflight.apple.com/join/BNjesezx** on the iPad and tap *Accept*, then *Install*.
+
+A build on TestFlight is good for 90 days; newer builds replace it before then.
+An App Store release is in review and will be linked here once it is live.
+
+### With SideStore or AltStore (alternative)
+
+Each [release](../../releases) also carries an **unsigned `.ipa`**, the same way
+the Android client ships a plain APK. Unsigned is deliberate — signing it here
+would tie it to one developer account and be useless to everyone else.
+Sideloading tools re-sign it with *your* Apple ID instead.
 
 1. Set up [SideStore](https://sidestore.io) or [AltStore](https://altstore.io)
    once, following their own instructions. Both want a computer for the initial
@@ -87,7 +95,7 @@ to everyone else. Sideloading tools re-sign it with *your* Apple ID instead.
    https://raw.githubusercontent.com/MANFahrer-GF/vpilot-handoff-ios/main/docs/source.json
    ```
 
-3. Install Handoff from the list.
+3. Install vPilot Handoff from the list.
 
 Adding the source is worth the extra step: new versions then show up as an
 update badge instead of you having to spot a release and move a file. If you'd
