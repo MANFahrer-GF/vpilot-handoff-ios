@@ -118,10 +118,12 @@ jobs:
             iPad client for the [Handoff vPilot plugin](https://github.com/sushiat/vpilot-handoff),
             published with sushi.at's permission. Report problems with the iPad app here, not upstream.
 
-            **Installation.** The `.ipa` is unsigned — there is no App Store build.
-            Install it with [AltStore](https://altstore.io) or
-            [SideStore](https://sidestore.io), which re-sign it with your own free
-            Apple ID. See the README for the full walkthrough.
+            **Easiest install: TestFlight.** Install Apple's TestFlight app, then open
+            https://testflight.apple.com/join/BNjesezx on the iPad. No sideloading, no 7-day expiry.
+
+            **Alternatively** the attached `.ipa` is unsigned and installs with
+            [AltStore](https://altstore.io) or [SideStore](https://sidestore.io), which
+            re-sign it with your own free Apple ID. See the README for the full walkthrough.
 
             Adding this source once means future versions arrive as an update
             badge instead of a manual download:
