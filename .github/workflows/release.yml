@@ -115,22 +115,55 @@ jobs:
           draft: true
           generate_release_notes: true
           body: |
-            iPad client for the [Handoff vPilot plugin](https://github.com/sushiat/vpilot-handoff),
-            published with sushi.at's permission. Report problems with the iPad app here, not upstream.
+            The VATSIM controller list, chat and radio panel on your iPad — next to your
+            charts in Split View. This is the iPad client for the
+            [Handoff plugin for vPilot](https://github.com/sushiat/vpilot-handoff) by
+            sushi.at, published with their permission.
 
-            **Easiest install: TestFlight.** Install Apple's TestFlight app, then open
-            https://testflight.apple.com/join/BNjesezx on the iPad. No sideloading, no 7-day expiry.
+            ## Install
 
-            **Alternatively** the attached `.ipa` is unsigned and installs with
-            [AltStore](https://altstore.io) or [SideStore](https://sidestore.io), which
-            re-sign it with your own free Apple ID. See the README for the full walkthrough.
+            **TestFlight** — the easiest way. Install Apple's TestFlight app, then open
+            this link on the iPad and tap *Accept*:
 
-            Adding this source once means future versions arrive as an update
-            badge instead of a manual download:
+            https://testflight.apple.com/join/BNjesezx
+
+            No sideloading, no 7-day expiry; updates arrive like any other app.
+
+            **Sideloading** — if you prefer SideStore or AltStore: the attached
+            `Handoff-${{ steps.version.outputs.version }}.ipa` is unsigned on purpose, so
+            either tool can re-sign it with your own free Apple ID. Add this source once
+            and new versions show up as an update badge:
 
             ```
             https://raw.githubusercontent.com/MANFahrer-GF/vpilot-handoff-ios/main/docs/source.json
             ```
 
-            **Requires** an iPad on iPadOS 17 or newer, on the same network as the
-            PC running vPilot with the Handoff plugin.
+            With a free Apple ID the app expires after 7 days (both tools can refresh it
+            automatically) and you can have 3 sideloaded apps at a time — Apple's rules,
+            not ours.
+
+            ## What's new in ${{ steps.version.outputs.version }}
+
+            _Fill in before publishing: what changed, and whether it keeps up with a
+            plugin version. The auto-generated commit list below is a starting point,
+            not the release note._
+
+            ## Requirements
+
+            - iPad on iPadOS 17 or newer
+            - The Handoff plugin running in vPilot on a PC on the same network, with
+              TCP 48765 and UDP 48766 open
+            - No account, no server: the iPad talks to your PC and nothing else
+
+            ## Try it without a plugin
+
+            Settings → **Try it without a plugin** fills the app with sample controllers,
+            chat and radio state, so you can see what it does before setting anything up
+            on the PC.
+
+            ---
+
+            Support for the iPad app is [here](https://github.com/MANFahrer-GF/vpilot-handoff-ios/issues),
+            not upstream — sushi.at has no Apple device to test against. Plugin and
+            Android client are their work; the app icon is their artwork, used with
+            permission. iPad app by Thomas Kant, Gifhorn. MIT licensed.
