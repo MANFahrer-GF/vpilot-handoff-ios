@@ -1,54 +1,61 @@
-# Handoff for iPad — v1.2.0
+# vPilot Handoff 1.2.0
 
-Keeps up with plugin **v0.6.0**, which moved the ETA onto each controller instead of
-sending one value for the whole list ([issue #127](https://github.com/sushiat/vpilot-handoff/issues/127)).
-Without this update the ETA simply stops appearing once you update the plugin.
+The VATSIM controller list, chat and radio panel on your iPad — next to your charts
+in Split View. This is the iPad client for the
+[Handoff plugin for vPilot](https://github.com/sushiat/vpilot-handoff) by sushi.at,
+published with their permission.
 
-## Changed
+## Install
 
-- **ETA is now a badge on the controller row it belongs to**, next to NEXT/NEXT?,
-  instead of a single figure in the list header. When two CTR sectors are tied, each
-  row now shows its own genuine estimate — previously one could borrow the other's.
-- **Older plugins keep working.** If the plugin still sends the list-level ETA
-  (v0.5.0 and earlier), the header figure appears exactly as before. Nothing about
-  the connection is version-gated.
-- **Under a minute reads as "ETA <1′"**, not "ETA 0′" — the plugin only sends an ETA
-  for a sector still ahead of you, so a rounded-down zero would read like the bug
-  upstream just fixed.
-- Demo mode carries a sample ETA, so the badge is visible without a plugin.
+**TestFlight** — the easiest way. Install Apple's TestFlight app, then open this link
+on the iPad and tap *Accept*:
 
-No other behaviour changed. 118 tests, no warnings.
+https://testflight.apple.com/join/BNjesezx
 
-## Installing
+No sideloading, no 7-day expiry; updates arrive like any other app. An App Store
+release is in review and will follow.
 
-The attached `Handoff-1.2.0.ipa` is **unsigned** on purpose — signing it here would
-tie it to one developer account and be useless to anyone else.
-[SideStore](https://sidestore.io) or [AltStore](https://altstore.io) re-sign it with
-*your own* free Apple ID.
-
-**If you added the source, this update is already waiting for you.** If not, adding
-it once means future versions arrive as an update badge instead of a manual
-download:
+**Sideloading** — if you prefer SideStore or AltStore: the attached
+`Handoff-1.2.0.ipa` is unsigned on purpose, so either tool can re-sign it with your
+own free Apple ID. Add this source once and new versions show up as an update badge:
 
 ```
 https://raw.githubusercontent.com/MANFahrer-GF/vpilot-handoff-ios/main/docs/source.json
 ```
 
-With a free Apple ID, Apple expires the app after **7 days** (both tools can
-refresh it automatically over your network) and allows **3** sideloaded apps at a
-time. A paid Apple Developer account raises the 7 days to a year; it is not
-required.
+With a free Apple ID the app expires after 7 days (both tools can refresh it
+automatically) and you can have 3 sideloaded apps at a time — Apple's rules, not ours.
+
+## What's new in 1.2.0
+
+Keeps up with plugin **v0.6.0**, which now sends an ETA per controller instead of one
+figure for the whole list ([upstream #127](https://github.com/sushiat/vpilot-handoff/issues/127)).
+Without this update the ETA stops appearing once you update the plugin.
+
+- **ETA sits on the controller row it belongs to**, next to NEXT / NEXT?. When two CTR
+  sectors are tied, each shows its own estimate instead of borrowing the other's.
+- **Older plugins still work.** If the plugin sends the list-level ETA (v0.5.0 and
+  earlier), the header figure appears as before.
+- **Under a minute reads "ETA <1′"**, not "ETA 0′".
+- Demo mode carries a sample ETA, so the badge is visible without a plugin.
+
+Nothing else changed. 118 tests, no warnings.
 
 ## Requirements
 
-- iPad on **iPadOS 17** or newer
-- The [Handoff plugin](https://github.com/sushiat/vpilot-handoff) running in vPilot
-  on a PC on the same network, with **TCP 48765** and **UDP 48766** open
+- iPad on iPadOS 17 or newer
+- The Handoff plugin running in vPilot on a PC on the same network, with TCP 48765
+  and UDP 48766 open
+- No account, no server: the iPad talks to your PC and nothing else
+
+## Try it without a plugin
+
+Settings → **Try it without a plugin** fills the app with sample controllers, chat and
+radio state, so you can see what it does before setting anything up on the PC.
 
 ---
 
-Unofficial client, **not affiliated with sushi.at, VATSIM or vPilot** — though
-sushi.at was asked before this was published and gave their blessing for the name,
-the artwork, and for following the Android client's interface. Report problems with
-this app here, not upstream. iPad app by **Thomas Kant**, Gifhorn, built with
-**Claude (Anthropic)**. MIT licensed.
+Support for the iPad app is [here](https://github.com/MANFahrer-GF/vpilot-handoff-ios/issues),
+not upstream — sushi.at has no Apple device to test against. Plugin and Android client
+are their work; the app icon is their artwork, used with permission.
+iPad app by Thomas Kant, Gifhorn. MIT licensed.
