@@ -4,7 +4,7 @@ title: Support
 
 # Support
 
-*vPilot Handoff — iPad client for the
+*vPilot Remote — iPad client for the
 [Handoff vPilot plugin](https://github.com/sushiat/vpilot-handoff).*
 
 **Deutsche Fassung weiter unten.**
@@ -77,7 +77,7 @@ it worked.
 
 # Hilfe
 
-*vPilot Handoff — iPad-Client für das
+*vPilot Remote — iPad-Client für das
 [Handoff-vPilot-Plugin](https://github.com/sushiat/vpilot-handoff).*
 
 ## Wohin mit Fragen

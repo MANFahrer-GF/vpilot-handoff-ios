@@ -23,7 +23,7 @@ day-to-day use.
    ```
    https://raw.githubusercontent.com/MANFahrer-GF/vpilot-handoff-ios/main/docs/source.json
    ```
-3. Find "vPilot Handoff" in the source and install it.
+3. Find "vPilot Remote" in the source and install it.
 4. The first launch asks you to trust the developer profile: **Settings →
    General → VPN & Device Management → [your Apple ID] → Trust**.
 
@@ -74,7 +74,7 @@ für den Alltag brauchst du keinen Rechner mehr.
    ```
    https://raw.githubusercontent.com/MANFahrer-GF/vpilot-handoff-ios/main/docs/source.json
    ```
-3. "vPilot Handoff" in der Quelle suchen und installieren.
+3. "vPilot Remote" in der Quelle suchen und installieren.
 4. Beim ersten Start muss das Entwicklerprofil bestätigt werden: **Einstellungen
    → Allgemein → VPN & Geräteverwaltung → [deine Apple-ID] → Vertrauen**.
 

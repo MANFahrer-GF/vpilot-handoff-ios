@@ -1,4 +1,4 @@
-# vPilot Handoff
+# vPilot Remote
 
 [![Tests](../../actions/workflows/tests.yml/badge.svg)](../../actions/workflows/tests.yml)
 
@@ -95,7 +95,7 @@ Sideloading tools re-sign it with *your* Apple ID instead.
    https://raw.githubusercontent.com/MANFahrer-GF/vpilot-handoff-ios/main/docs/source.json
    ```
 
-3. Install vPilot Handoff from the list.
+3. Install vPilot Remote from the list.
 
 Adding the source is worth the extra step: new versions then show up as an
 update badge instead of you having to spot a release and move a file. If you'd

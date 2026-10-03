@@ -1,4 +1,4 @@
-# vPilot Handoff 1.2.0
+# vPilot Remote 1.2.0
 
 The VATSIM controller list, chat and radio panel on your iPad — next to your charts
 in Split View. This is the iPad client for the
