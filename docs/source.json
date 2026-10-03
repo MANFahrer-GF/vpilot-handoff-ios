@@ -1,5 +1,5 @@
 {
-  "name": "vPilot Handoff",
+  "name": "vPilot Remote",
   "identifier": "com.thomaskant.handoff.source",
   "subtitle": "VATSIM controllers, chat and radio on the iPad",
   "website": "https://github.com/MANFahrer-GF/vpilot-handoff-ios",
@@ -7,7 +7,7 @@
   "tintColor": "1A1C1F",
   "apps": [
     {
-      "name": "vPilot Handoff",
+      "name": "vPilot Remote",
       "bundleIdentifier": "com.thomaskant.vpilothandoff",
       "developerName": "Thomas Kant",
       "subtitle": "VATSIM controllers, chat and radio on the iPad",

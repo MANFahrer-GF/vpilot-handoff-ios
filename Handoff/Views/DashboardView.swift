@@ -117,7 +117,7 @@ struct DashboardView: View {
             Image(systemName: "chevron.left.forwardslash.chevron.right")
                 .font(.caption)
                 .foregroundStyle(.primary)
-            Text("vPilot Handoff").font(.title3.bold())
+            Text("vPilot Remote").font(.title3.bold())
             // Not "by sushi.at": that's the plugin and Android client this talks to,
             // credited in Settings. This app is a separate iPad client, published
             // with sushi.at's explicit permission.

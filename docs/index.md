@@ -1,8 +1,8 @@
 ---
-title: vPilot Handoff
+title: vPilot Remote
 ---
 
-# vPilot Handoff
+# vPilot Remote
 
 An iPad client for the
 [Handoff vPilot plugin](https://github.com/sushiat/vpilot-handoff) by sushi.at,

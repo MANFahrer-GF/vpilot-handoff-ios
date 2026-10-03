@@ -110,14 +110,14 @@ def main():
         sys.exit("no published release with an .ipa -- nothing to list")
 
     source = {
-        "name": "vPilot Handoff",
+        "name": "vPilot Remote",
         "identifier": "com.thomaskant.handoff.source",
         "subtitle": SUBTITLE,
         "website": f"https://github.com/{REPO}",
         "iconURL": f"{RAW}/Handoff/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
         "tintColor": "1A1C1F",
         "apps": [{
-            "name": "vPilot Handoff",
+            "name": "vPilot Remote",
             # Must match PRODUCT_BUNDLE_IDENTIFIER in project.yml, or AltStore
             # won't recognise an installed build as this app when offering updates.
             "bundleIdentifier": "com.thomaskant.vpilothandoff",
