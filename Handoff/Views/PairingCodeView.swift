@@ -33,7 +33,7 @@ struct PairingCodeView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
 
-                Text("Enter the code shown on the PC (\(store.lastHost)) to pair this iPad with it.")
+                Text("Enter the code shown on the PC (\(store.lastHost)) to pair this device with it.")
                     .font(.callout)
                     .foregroundStyle(.secondary)
 
