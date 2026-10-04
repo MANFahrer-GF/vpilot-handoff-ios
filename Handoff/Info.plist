@@ -25,7 +25,7 @@
 	<key>NSBonjourServices</key>
 	<array/>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>Handoff connects over your local network to the vPilot plugin on your PC to mirror the controller list, chat and radio panel.</string>
+	<string>vPilot Remote connects over your local network to the Handoff plugin in vPilot on your PC to mirror the controller list, chat and radio panel.</string>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UISupportedInterfaceOrientations</key>
