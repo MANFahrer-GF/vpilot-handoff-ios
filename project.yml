@@ -52,7 +52,7 @@ targets:
           - UIInterfaceOrientationLandscapeRight
           - UIInterfaceOrientationPortrait
           - UIInterfaceOrientationPortraitUpsideDown
-        NSLocalNetworkUsageDescription: "Handoff connects over your local network to the vPilot plugin on your PC to mirror the controller list, chat and radio panel."
+        NSLocalNetworkUsageDescription: "vPilot Remote connects over your local network to the Handoff plugin in vPilot on your PC to mirror the controller list, chat and radio panel."
         NSBonjourServices: []
         # Only standard TLS from the OS (URLSession / Network.framework), so the
         # build is exempt from export documentation. Without this key App Store
