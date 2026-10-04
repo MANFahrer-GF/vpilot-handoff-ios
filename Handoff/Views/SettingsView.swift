@@ -222,7 +222,7 @@ struct SettingsView: View {
 
                 if store.debugMode {
                     Toggle("Attach screenshot", isOn: attachScreenshotBinding)
-                    Text("Attaches an image of the Handoff window to the snapshot. That window only — iOS never lets an app photograph other apps, unlike the Android version's full-screen option.")
+                    Text("Attaches an image of this app's window to the snapshot. That window only — iOS never lets an app photograph other apps, unlike the Android version's full-screen option.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -271,9 +271,9 @@ struct SettingsView: View {
             }
 
             section("PROJECT") {
-                creditRow("iPad app", "Thomas Kant, Gifhorn")
+                creditRow("This app", "Thomas Kant, Gifhorn")
                 creditRow("Built with", "Claude (Anthropic)")
-                Text("This iPad app is an independent client for the same plugin, built from its public protocol documentation with sushi.at's permission.")
+                Text("This app is an independent client for the same plugin, built from its public protocol documentation with sushi.at's permission.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -281,7 +281,7 @@ struct SettingsView: View {
 
             section("CONTRIBUTE") {
                 linkRow(
-                    "This iPad app",
+                    "This app",
                     "MANFahrer-GF/vpilot-handoff-ios",
                     url: "https://github.com/MANFahrer-GF/vpilot-handoff-ios"
                 )
@@ -290,7 +290,7 @@ struct SettingsView: View {
                     "sushiat/vpilot-handoff",
                     url: "https://github.com/sushiat/vpilot-handoff"
                 )
-                Text("Please report bugs in this iPad app in the first repository, not to the upstream project.")
+                Text("Please report bugs in this app in the first repository, not to the upstream project.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)

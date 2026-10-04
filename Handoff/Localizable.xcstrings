@@ -146,13 +146,13 @@
         }
       }
     },
-    "Attaches an image of the Handoff window to the snapshot. That window only — iOS never lets an app photograph other apps, unlike the Android version's full-screen option." : {
+    "Attaches an image of this app's window to the snapshot. That window only — iOS never lets an app photograph other apps, unlike the Android version's full-screen option." : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hängt ein Bild des Handoff-Fensters an den Schnappschuss. Nur dieses Fenster — iOS erlaubt keiner App, andere Apps mitzufotografieren, anders als die Vollbild-Option der Android-Version."
+            "value" : "Hängt ein Bild des Fensters dieser App an den Schnappschuss. Nur dieses Fenster — iOS erlaubt keiner App, andere Apps mitzufotografieren, anders als die Vollbild-Option der Android-Version."
           }
         }
       }
@@ -427,13 +427,13 @@
         }
       }
     },
-    "Enter the code shown on the PC (%@) to pair this iPad with it." : {
+    "Enter the code shown on the PC (%@) to pair this device with it." : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gib den Code ein, der auf dem PC (%@) angezeigt wird, um dieses iPad zu koppeln."
+            "value" : "Gib den Code ein, der auf dem PC (%@) angezeigt wird, um dieses Gerät zu koppeln."
           }
         }
       }
@@ -549,13 +549,13 @@
         }
       }
     },
-    "iPad app" : {
+    "This app" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "iPad-App"
+            "value" : "Diese App"
           }
         }
       }
@@ -749,13 +749,13 @@
         }
       }
     },
-    "Please report bugs in this iPad app in the first repository, not to the upstream project." : {
+    "Please report bugs in this app in the first repository, not to the upstream project." : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Fehler in dieser iPad-App bitte im ersten Repository melden, nicht beim Original-Projekt."
+            "value" : "Fehler in dieser App bitte im ersten Repository melden, nicht beim Original-Projekt."
           }
         }
       }
@@ -1094,24 +1094,13 @@
         }
       }
     },
-    "This iPad app" : {
+    "This app is an independent client for the same plugin, built from its public protocol documentation with sushi.at's permission." : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Diese iPad-App"
-          }
-        }
-      }
-    },
-    "This iPad app is an independent client for the same plugin, built from its public protocol documentation with sushi.at's permission." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Diese iPad-App ist ein eigenständiger Client für dasselbe Plugin, gebaut nach dessen öffentlicher Protokoll-Dokumentation und mit ausdrücklicher Erlaubnis von sushi.at."
+            "value" : "Diese App ist ein eigenständiger Client für dasselbe Plugin, gebaut nach dessen öffentlicher Protokoll-Dokumentation und mit ausdrücklicher Erlaubnis von sushi.at."
           }
         }
       }
