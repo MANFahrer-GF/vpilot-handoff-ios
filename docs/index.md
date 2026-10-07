@@ -17,7 +17,7 @@ upstream.
 - **[Gallery](gallery.md)** — what it looks like, and what each state means
 - **[Support](support.md)** — where to ask, and the usual suspects first
 - **[Privacy](privacy.md)** — no server, no account, no tracking; the details
-- **[Source and downloads](https://github.com/MANFahrer-GF/vpilot-handoff-ios)** on GitHub
+- **[Source](https://github.com/MANFahrer-GF/vpilot-handoff-ios)** on GitHub
 
 ## Installing
 
@@ -26,17 +26,6 @@ updates like any other app.
 
 **TestFlight (beta builds):** install Apple's TestFlight app, then open
 [https://testflight.apple.com/join/BNjesezx](https://testflight.apple.com/join/BNjesezx) on the iPad.
-
-**SideStore / AltStore:** each [release](https://github.com/MANFahrer-GF/vpilot-handoff-ios/releases/latest)
-also carries an unsigned `.ipa` that [SideStore](https://sidestore.io) or
-[AltStore](https://altstore.io) re-sign with your own free Apple ID.
-
-Adding this source once means updates arrive as a badge instead of a manual
-download:
-
-```
-https://raw.githubusercontent.com/MANFahrer-GF/vpilot-handoff-ios/main/docs/source.json
-```
 
 ## Requirements
 

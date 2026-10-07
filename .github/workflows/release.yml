@@ -1,169 +1,31 @@
 name: Release
 
-# Builds an unsigned .ipa and attaches it to a GitHub release.
-#
-# Unsigned is deliberate. Signing it here would need a paid Apple Developer
-# account and would bind the build to one team's provisioning profile, which is
-# useless to anyone else. AltStore and SideStore re-sign the app with the
-# installing pilot's own free Apple ID, so an unsigned payload is exactly what
-# they expect -- the same arrangement as the Android build's plain APK.
+# Opens a draft GitHub release for a pushed v* tag, with RELEASE-NOTES.md as the
+# body. No binary is attached: the App Store is the download, TestFlight the beta.
+# The draft is published by hand once the store version is live.
 
 on:
   push:
     tags: ["v*"]
-  workflow_dispatch:
-    inputs:
-      version:
-        description: "Version to stamp into the build (e.g. 1.0.0)"
-        required: true
 
 permissions:
   contents: write
 
 jobs:
-  ipa:
-    runs-on: macos-15
+  draft:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Determine version
-        id: version
-        run: |
-          if [ -n "${{ github.event.inputs.version }}" ]; then
-            version="${{ github.event.inputs.version }}"
-          else
-            version="${GITHUB_REF_NAME#v}"
-          fi
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-          echo "Building $version"
-
-      - name: Install xcodegen
-        run: brew install xcodegen
-
-      - name: Generate project
-        run: DEVELOPMENT_TEAM="" xcodegen generate
-
-      - name: Archive without signing
-        run: |
-          set -o pipefail
-          xcodebuild archive \
-            -project Handoff.xcodeproj \
-            -scheme Handoff \
-            -configuration Release \
-            -sdk iphoneos \
-            -archivePath build/Handoff.xcarchive \
-            MARKETING_VERSION="${{ steps.version.outputs.version }}" \
-            CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGN_ENTITLEMENTS="" \
-            DEVELOPMENT_TEAM=""
-
-      - name: Package as .ipa
-        # An .ipa is a zip with the .app inside a Payload/ directory. Because the
-        # bundle is unsigned there is nothing for xcodebuild -exportArchive to do.
+      - name: Check the notes match the tag
         run: |
           set -eu
-          app="build/Handoff.xcarchive/Products/Applications/Handoff.app"
-          test -d "$app"
-          # No _CodeSignature to strip on an unsigned build, but be explicit --
-          # a stale signature would make AltStore's re-sign fail.
-          rm -rf "$app/_CodeSignature"
-          mkdir -p build/Payload
-          cp -R "$app" build/Payload/
-          (cd build && zip -qry "Handoff-${{ steps.version.outputs.version }}.ipa" Payload)
-          ls -lh build/*.ipa
+          version="${GITHUB_REF_NAME#v}"
+          head -1 RELEASE-NOTES.md | grep -q "$version" || {
+            echo "RELEASE-NOTES.md does not start with a heading for $version"; exit 1; }
 
-      - name: Verify the payload
-        run: |
-          set -eu
-          ipa="build/Handoff-${{ steps.version.outputs.version }}.ipa"
-          unzip -l "$ipa" | grep -q "Payload/Handoff.app/Handoff"
-          unzip -p "$ipa" "Payload/Handoff.app/Info.plist" > /tmp/Info.plist
-          plutil -p /tmp/Info.plist | grep -E "CFBundleShortVersionString|CFBundleIdentifier"
-          got=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" /tmp/Info.plist)
-          # Guard against shipping an .ipa that still claims the placeholder version.
-          test "$got" = "${{ steps.version.outputs.version }}"
-
-      - uses: actions/upload-artifact@v4
+      - uses: softprops/action-gh-release@v2
         with:
-          name: Handoff-${{ steps.version.outputs.version }}-ipa
-          path: build/*.ipa
-
-      - name: Is there already a published release for this tag?
-        # A release cut by hand (gh release create) also pushes the tag, which
-        # lands here. Without this guard the attach step below would set
-        # draft: true on it and un-publish a live release.
-        id: existing
-        if: startsWith(github.ref, 'refs/tags/')
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          if gh release view "$GITHUB_REF_NAME" --json isDraft -q .isDraft 2>/dev/null | grep -q false; then
-            echo "published=true" >> "$GITHUB_OUTPUT"
-            echo "$GITHUB_REF_NAME is already published -- leaving it alone."
-          else
-            echo "published=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Attach to release
-        if: startsWith(github.ref, 'refs/tags/') && steps.existing.outputs.published != 'true'
-        uses: softprops/action-gh-release@v2
-        with:
-          files: build/*.ipa
           draft: true
-          generate_release_notes: true
-          body: |
-            The VATSIM controller list, chat and radio panel on your iPad — next to your
-            charts in Split View. This is the iPad client for the
-            [Handoff plugin for vPilot](https://github.com/sushiat/vpilot-handoff) by
-            sushi.at, published with their permission.
-
-            ## Install
-
-            **App Store** — the easiest way, free, updates like any other app:
-            https://apps.apple.com/app/vpilot-remote/id6817687242
-
-            **TestFlight** — for the beta of the next version. Install Apple's TestFlight
-            app, then open this link on the iPad and tap *Accept*:
-            https://testflight.apple.com/join/BNjesezx
-
-            **Sideloading** — if you prefer SideStore or AltStore: the attached
-            `Handoff-${{ steps.version.outputs.version }}.ipa` is unsigned on purpose, so
-            either tool can re-sign it with your own free Apple ID. Add this source once
-            and new versions show up as an update badge:
-
-            ```
-            https://raw.githubusercontent.com/MANFahrer-GF/vpilot-handoff-ios/main/docs/source.json
-            ```
-
-            With a free Apple ID the app expires after 7 days (both tools can refresh it
-            automatically) and you can have 3 sideloaded apps at a time — Apple's rules,
-            not ours.
-
-            ## What's new in ${{ steps.version.outputs.version }}
-
-            _Fill in before publishing: what changed, and whether it keeps up with a
-            plugin version. The auto-generated commit list below is a starting point,
-            not the release note._
-
-            ## Requirements
-
-            - iPad on iPadOS 17 or newer
-            - The Handoff plugin running in vPilot on a PC on the same network, with
-              TCP 48765 and UDP 48766 open
-            - No account, no server: the iPad talks to your PC and nothing else
-
-            ## Try it without a plugin
-
-            Settings → **Try it without a plugin** fills the app with sample controllers,
-            chat and radio state, so you can see what it does before setting anything up
-            on the PC.
-
-            ---
-
-            Support for the iPad app is [here](https://github.com/MANFahrer-GF/vpilot-handoff-ios/issues),
-            not upstream — sushi.at has no Apple device to test against. Plugin and
-            Android client are their work; the app icon is their artwork, used with
-            permission. iPad app by Thomas Kant, Gifhorn. MIT licensed.
+          name: vPilot Remote ${{ github.ref_name }}
+          body_path: RELEASE-NOTES.md

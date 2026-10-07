@@ -1,4 +1,4 @@
-# vPilot Remote 1.2.1
+# vPilot Remote 1.2.2
 
 The VATSIM controller list, chat and radio panel on your tablet — next to your charts
 in Split View. This is the companion app for the
@@ -7,7 +7,7 @@ published with their permission.
 
 ## Install
 
-**App Store** — the easiest way, free, updates like any other app:
+**App Store** — free, updates like any other app:
 
 https://apps.apple.com/app/vpilot-remote/id6817687242
 
@@ -16,32 +16,15 @@ then open this link on the tablet and tap *Accept*:
 
 https://testflight.apple.com/join/BNjesezx
 
-**Sideloading** — if you prefer SideStore or AltStore: the attached
-`Handoff-1.2.1.ipa` is unsigned on purpose, so either tool can re-sign it with your
-own free Apple ID. Add this source once and new versions show up as an update badge:
+## What's new in 1.2.2
 
-```
-https://raw.githubusercontent.com/MANFahrer-GF/vpilot-handoff-ios/main/docs/source.json
-```
-
-With a free Apple ID the app expires after 7 days (both tools can refresh it
-automatically) and you can have 3 sideloaded apps at a time — Apple's rules, not ours.
-
-## What's new in 1.2.1
-
-- **New name: vPilot Remote.** App Review does not allow "Handoff" in an app's name
-  (it is the name of an Apple feature), so the app is now called vPilot Remote
-  everywhere — home screen, header, TestFlight. The plugin keeps its name; nothing
-  about the connection changed.
-- **Auto-detect finds the PC again.** Discovery used a network broadcast that iOS
-  silently drops on real devices. It now asks every address in your Wi-Fi subnet
-  directly, which iOS allows, so the plugin shows up without typing its IP. Manual
-  entry is still there as a fallback.
-- The header no longer carries an "iPad · unofficial" tag, and the credits say what
-  is true: an independent client, published with sushi.at's permission.
-
-Sideloaders: the bundle identifier changed with the rename, so this version installs
-next to the old one. Delete the old "Handoff" app and pair once more.
+- **Auto-detect fills in the address.** When one PC answers, its IP and port go
+  straight into the connection field; before, the result was only listed below it
+  and had to be tapped or typed.
+- **Sideload builds have ended.** The App Store version is signed, updates itself
+  and has no 7-day limit, so the unsigned `.ipa` for SideStore/AltStore is no
+  longer produced. If you still run a sideloaded "Handoff", delete it and install
+  from the App Store; pair once more.
 
 ## Requirements
 

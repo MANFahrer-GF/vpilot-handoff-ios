@@ -1,8 +1,0 @@
-{
-    "servers": [
-        {
-            "name": "Handoff (kant.ovh)",
-            "address": "https://anisette.kant.ovh"
-        }
-    ]
-}

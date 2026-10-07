@@ -64,10 +64,10 @@ targets:
         # afterwards without creating a new app, so it keeps the original name
         # even though the store name has since moved on. Nobody sees it.
         PRODUCT_BUNDLE_IDENTIFIER: com.thomaskant.vpilothandoff
-        # Both feed Info.plist. The release workflow overrides MARKETING_VERSION
-        # with the git tag, so a tagged build carries its own version number.
-        MARKETING_VERSION: "1.2.1"
-        CURRENT_PROJECT_VERSION: "10"
+        # Both feed Info.plist. Bump both for every App Store upload: the version
+        # is what users see, the build number is what App Store Connect counts.
+        MARKETING_VERSION: "1.2.2"
+        CURRENT_PROJECT_VERSION: "11"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         TARGETED_DEVICE_FAMILY: "2"
         IPHONEOS_DEPLOYMENT_TARGET: "17.0"
