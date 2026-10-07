@@ -7,13 +7,14 @@ published with their permission.
 
 ## Install
 
-**TestFlight** — the easiest way. Install Apple's TestFlight app, then open this link
-on the tablet and tap *Accept*:
+**App Store** — the easiest way, free, updates like any other app:
+
+https://apps.apple.com/app/vpilot-remote/id6817687242
+
+**TestFlight** — for the beta of the next version. Install Apple's TestFlight app,
+then open this link on the tablet and tap *Accept*:
 
 https://testflight.apple.com/join/BNjesezx
-
-No sideloading, no 7-day expiry; updates arrive like any other app. An App Store
-release is in review and will follow.
 
 **Sideloading** — if you prefer SideStore or AltStore: the attached
 `Handoff-1.2.1.ipa` is unsigned on purpose, so either tool can re-sign it with your

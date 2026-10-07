@@ -44,8 +44,9 @@ An iPad client for the Handoff vPilot plugin by sushi.at, published with their \
 permission — the VATSIM controller list, chat and radio panel on a second screen, \
 next to your charts in Split View.
 
-An independent client, developed separately from the plugin. Report problems with \
-this app on its own GitHub repository, not upstream.
+Also on the App Store as "vPilot Remote" — this source is for those who prefer \
+sideloading. An independent client, developed separately from the plugin. Report \
+problems with this app on its own GitHub repository, not upstream.
 
 • Controller list ranked by the plugin, colour-coded per facility, with VATSIM \
 rating, pin, chat and one-tap tuning to COM1, COM2 or standby.

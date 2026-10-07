@@ -21,9 +21,11 @@ upstream.
 
 ## Installing
 
-**TestFlight (recommended):** install Apple's TestFlight app, then open
-[https://testflight.apple.com/join/BNjesezx](https://testflight.apple.com/join/BNjesezx) on the iPad. No sideloading, no 7-day expiry. An App Store release
-is in review.
+**App Store (recommended):** [vPilot Remote on the App Store](https://apps.apple.com/app/vpilot-remote/id6817687242) — free,
+updates like any other app.
+
+**TestFlight (beta builds):** install Apple's TestFlight app, then open
+[https://testflight.apple.com/join/BNjesezx](https://testflight.apple.com/join/BNjesezx) on the iPad.
 
 **SideStore / AltStore:** each [release](https://github.com/MANFahrer-GF/vpilot-handoff-ios/releases/latest)
 also carries an unsigned `.ipa` that [SideStore](https://sidestore.io) or
