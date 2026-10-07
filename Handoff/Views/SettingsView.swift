@@ -440,6 +440,12 @@ struct SettingsView: View {
             discovered = try await discovery.discover()
             if discovered.isEmpty {
                 discoveryError = "Nothing found — check the firewall on the PC or enter the IP manually."
+            } else if discovered.count == 1, let only = discovered.first {
+                // One PC answered: that is the address the pilot wants, so it goes
+                // straight into the field. The "Found" row below still connects in
+                // one tap; with several answers the pilot picks from the rows instead.
+                hostText = only.host
+                store.lastPort = only.port
             }
         } catch {
             discoveryError = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
