@@ -48,11 +48,6 @@ reinstalling or resetting the plugin, in which case entering the new code is fin
 If you didn't do either, don't enter the code: something else is answering on that
 address.
 
-**"The app expired after a week."** That is Apple's rule for a free Apple ID, not
-this app. AltStore and SideStore can refresh it automatically while your iPad is on
-the same network as the computer you set them up with. A paid Apple Developer
-account stretches it to a year.
-
 **"I want to look at it without setting up a plugin."**
 *Settings → Try it without a plugin → Demo mode.* Sample data, clearly marked, and
 nothing is sent anywhere. It is not remembered across restarts — deliberately, so
@@ -119,11 +114,6 @@ mehr passt — normalerweise nach einer Neuinstallation oder einem Zurücksetzen
 Plugins; dann ist die Eingabe des neuen Codes in Ordnung. Wenn du weder das eine
 noch das andere getan hast: **gib den Code nicht ein.** Dann antwortet etwas
 anderes unter dieser Adresse.
-
-**„Die App ist nach einer Woche abgelaufen."** Das ist Apples Regel für eine
-kostenlose Apple-ID, nicht diese App. AltStore und SideStore können automatisch
-erneuern, solange dein iPad im selben Netz ist wie der Rechner, mit dem du sie
-eingerichtet hast. Ein kostenpflichtiges Entwicklerkonto dehnt es auf ein Jahr.
 
 **„Ich will es ansehen, ohne ein Plugin einzurichten."**
 *Einstellungen → Ausprobieren ohne Plugin → Demo-Modus.* Beispieldaten, deutlich

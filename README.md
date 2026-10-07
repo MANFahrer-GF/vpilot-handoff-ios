@@ -80,62 +80,16 @@ New versions go to TestFlight first. Install Apple's **TestFlight** app, then op
 **https://testflight.apple.com/join/BNjesezx** on the iPad and tap *Accept*. A TestFlight build is good for 90 days;
 the App Store version replaces it whenever you prefer the stable one.
 
-### With SideStore or AltStore (alternative)
+### Building it yourself
 
-Each [release](../../releases) also carries an **unsigned `.ipa`**, the same way
-the Android client ships a plain APK. Unsigned is deliberate — signing it here
-would tie it to one developer account and be useless to everyone else.
-Sideloading tools re-sign it with *your* Apple ID instead.
+If you have Xcode, building from source (below) and running it on your own iPad
+works too; Apple's free-account rules apply (the build expires after 7 days).
 
-1. Set up [SideStore](https://sidestore.io) or [AltStore](https://altstore.io)
-   once, following their own instructions. Both want a computer for the initial
-   pairing; SideStore then runs without one.
-2. In the app's **Sources** tab, add this URL:
-
-   ```
-   https://raw.githubusercontent.com/MANFahrer-GF/vpilot-handoff-ios/main/docs/source.json
-   ```
-
-3. Install vPilot Remote from the list.
-
-Adding the source is worth the extra step: new versions then show up as an
-update badge instead of you having to spot a release and move a file. If you'd
-rather not, `Handoff-<version>.ipa` on the [releases page](../../releases)
-installs directly.
-
-What a **free** Apple ID costs you, and it's Apple's rule, not this app's:
-
-- the app stops launching after **7 days** and has to be refreshed — both tools
-  can do that automatically while the iPad is on your network,
-- you can have at most **3** sideloaded apps at a time,
-- the bundle identifier gets rewritten per install, so app data doesn't survive a
-  switch between tools.
-
-A paid Apple Developer account ($99/year) raises the 7 days to a year. It isn't
-needed otherwise.
-
-#### If the automatic refresh stalls (SideStore)
-
-SideStore refreshes the app on its own, without a computer, using a shared
-**Anisette server** — a small piece of infrastructure that both AltStore and
-SideStore rely on to talk to Apple. The default ones
-([listed here](https://github.com/SideStore/anisette-servers)) are community-run
-and free, and occasionally slow or overloaded, since they're shared by every
-SideStore user, not just Handoff's.
-
-This project runs its own free public Anisette server as a fallback:
-`https://anisette.kant.ovh`. To use it: **Settings → Anisette Servers** in
-SideStore, then either point the list URL at
-[`docs/anisette-servers.json`](docs/anisette-servers.json) from this repo and
-pick "Handoff (kant.ovh)" from the refreshed list, or add the address directly
-if your SideStore version takes a single URL instead of a list. A full
-step-by-step walkthrough (English and German) is in
-[`docs/sidestore-anisette.md`](docs/sidestore-anisette.md).
-
-### Building it yourself instead
-
-If you already have Xcode, building from source (below) and running it on your own
-iPad is the simpler path and gives you the same 7-day free-account limit.
+Earlier versions were also distributed as an unsigned `.ipa` for SideStore and
+AltStore. That stopped with the App Store release: the store build is signed,
+updates itself and has no 7-day limit, so there is nothing the sideload route
+still offers. The old releases stay downloadable for the record; the sideload
+source now only carries a pointer to the App Store.
 
 ### What the app is allowed to do
 
@@ -220,21 +174,25 @@ right-click-Open workaround applies -- this isn't a trust prompt, it's a
 provisioning check).
 
 Distributing something that just opens for anyone needs a **Developer ID
-certificate and notarization**, or a Mac App Store listing -- the same paid
-account this project otherwise avoids by shipping an unsigned `.ipa`. For now,
-running it on a Mac is a "build it yourself" capability: each person's own free
-Apple ID gets their own Mac added to their own profile automatically, the same
-way sideloading already works on your own iPad.
+certificate and notarization**, or a Mac App Store listing; neither is set up.
+For now, running it on a Mac is a "build it yourself" capability: each person's
+own Apple ID gets their own Mac added to their own profile automatically, the
+same way running your own build on your own iPad works.
 
 ### Cutting a release
 
-Pushing a `v*` tag runs [`.github/workflows/release.yml`](.github/workflows/release.yml):
-it archives with signing switched off, packages `Payload/Handoff.app` into an
-`.ipa`, checks the version actually got stamped into the bundle, and opens a
-**draft** release with the file attached. The draft is published by hand.
+1. Bump `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` in `project.yml`, write
+   the version's notes into `RELEASE-NOTES.md`, merge.
+2. `xcodegen generate`, then in Xcode **Product → Archive → Distribute App → App
+   Store Connect**. Submit the build in App Store Connect; TestFlight gets it
+   first.
+3. Once it is live, tag it. Pushing a `v*` tag runs
+   [`.github/workflows/release.yml`](.github/workflows/release.yml), which opens a
+   **draft** GitHub release with `RELEASE-NOTES.md` as its body — no binary, the
+   App Store is the download. Publish the draft by hand.
 
 ```sh
-git tag v1.0.0 && git push origin v1.0.0
+git tag v1.2.2 && git push origin v1.2.2
 ```
 
 ## Notes on the protocol
