@@ -1,6 +1,7 @@
 # vPilot Remote
 
 [![Tests](../../actions/workflows/tests.yml/badge.svg)](../../actions/workflows/tests.yml)
+[![App Store](https://img.shields.io/badge/App_Store-vPilot_Remote-0D96F6?logo=apple&logoColor=white)](https://apps.apple.com/app/vpilot-remote/id6817687242)
 
 An iPad client for the [Handoff vPilot plugin](https://github.com/sushiat/vpilot-handoff)
 by sushi.at, published with their permission — the VATSIM controller list, chat
@@ -68,16 +69,16 @@ talking to VATSIM, the iPad is a second screen for it.
 
 ## Installing
 
-### With TestFlight (recommended)
+### From the App Store (recommended)
 
-The app is on **TestFlight**, Apple's own beta channel — no sideloading tool, no
-7-day expiry, updates arrive like any other app:
+**[vPilot Remote on the App Store](https://apps.apple.com/app/vpilot-remote/id6817687242)** — free, updates arrive like any
+other app, nothing to set up.
 
-1. Install **TestFlight** from the App Store on the iPad.
-2. Open **https://testflight.apple.com/join/BNjesezx** on the iPad and tap *Accept*, then *Install*.
+### With TestFlight (beta builds)
 
-A build on TestFlight is good for 90 days; newer builds replace it before then.
-An App Store release is in review and will be linked here once it is live.
+New versions go to TestFlight first. Install Apple's **TestFlight** app, then open
+**https://testflight.apple.com/join/BNjesezx** on the iPad and tap *Accept*. A TestFlight build is good for 90 days;
+the App Store version replaces it whenever you prefer the stable one.
 
 ### With SideStore or AltStore (alternative)
 

@@ -122,12 +122,12 @@ jobs:
 
             ## Install
 
-            **TestFlight** — the easiest way. Install Apple's TestFlight app, then open
-            this link on the iPad and tap *Accept*:
+            **App Store** — the easiest way, free, updates like any other app:
+            https://apps.apple.com/app/vpilot-remote/id6817687242
 
+            **TestFlight** — for the beta of the next version. Install Apple's TestFlight
+            app, then open this link on the iPad and tap *Accept*:
             https://testflight.apple.com/join/BNjesezx
-
-            No sideloading, no 7-day expiry; updates arrive like any other app.
 
             **Sideloading** — if you prefer SideStore or AltStore: the attached
             `Handoff-${{ steps.version.outputs.version }}.ipa` is unsigned on purpose, so
