@@ -50,9 +50,10 @@ struct ChatPanelView: View {
     /// one they just picked, even before a message exists for it.
     private var conversationKeys: [String] {
         var keys = [ChatMessage.radioConversationKey]
-        for message in store.chatMessages where !message.isRadio {
+        for message in store.chatMessages {
             let key = message.conversationKey
-            if !keys.contains(key) { keys.append(key) }
+            guard key != ChatMessage.radioConversationKey, !keys.contains(key) else { continue }
+            keys.append(key)
         }
         if let privateTarget, !keys.contains(privateTarget) { keys.append(privateTarget) }
         return keys
@@ -125,8 +126,10 @@ struct ChatPanelView: View {
     /// private conversations are reached by picking a callsign, not by being mixed
     /// into the frequency's chatter.
     private var visibleMessages: [ChatMessage] {
-        guard let privateTarget else { return store.chatMessages.filter(\.isRadio) }
-        return store.chatMessages.filter { $0.peer == privateTarget }
+        // Filtered by tab rather than by channel: a broadcast counts towards the radio tab
+        // (protocol.md keeps one tab for both), so it has to be listed there too -- otherwise
+        // the badge would count a message the pilot cannot find anywhere.
+        store.chatMessages.filter { $0.belongs(toConversation: privateTarget ?? ChatMessage.radioConversationKey) }
     }
 
     private var messageList: some View {
@@ -258,7 +261,7 @@ struct ChatMessageCard: View {
                     Text("·").font(.caption)
                     Text(message.timeLabel).font(.caption.monospaced())
                     if isDirected {
-                        Text(message.isRadio ? "TO YOU" : "DIRECT")
+                        Text(message.channel == "private" ? "DIRECT" : "TO YOU")
                             .font(.system(size: 9, weight: .bold))
                             .padding(.horizontal, 5)
                             .padding(.vertical, 1)

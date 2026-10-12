@@ -54,7 +54,27 @@ enum DemoData {
         store.flightPlan = decode(flightPlanJSON, as: FlightPlanMessage.self)
         store.subsystemStatus = decode(subsystemJSON, as: SubsystemStatus.self)
         store.nearbyAircraft = decode(nearbyJSON, as: NearbyAircraftMessage.self)?.aircraft ?? []
+        // A slot roughly ten minutes out, with a runway and SID assigned -- enough for the tile,
+        // its countdown and the expanded rows to show something real.
+        store.cdmSlot = CdmSlot.display(for: demoCdmFlight(), now: Date())
         store.unreadByConversation = [ChatMessage.radioConversationKey: 1, "LOWW_TWR": 2]
+    }
+
+    /// Built in code rather than as wire JSON: the times have to sit relative to "now", or the
+    /// sample tile would show a countdown from whenever this file was last edited.
+    private static func demoCdmFlight() -> CdmFlight {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HHmm"
+        formatter.timeZone = TimeZone(identifier: "UTC")
+        let tobt = formatter.string(from: Date().addingTimeInterval(10 * 60))
+        var data = CdmFlightData()
+        data.tobt = tobt
+        data.depInfo = "29/LANUX2C"
+        var flight = CdmFlight(callsign: "DLH123", departure: "LOWW", arrival: "EDDF")
+        flight.tobt = tobt
+        flight.cdmSts = "COMPLY"
+        flight.cdmData = data
+        return flight
     }
 
     private static func decode<T: Decodable>(_ json: String, as type: T.Type) -> T? {
@@ -66,7 +86,7 @@ enum DemoData {
     {"type":"controllers","controllers":[
       {"callsign":"LOWW_TWR","frequency":19400,"cid":1,"name":"A. Muster","facility":4,"rating":3,
        "stationName":"Wien Tower","textAtis":["Wien Tower DCL LOWW","My active sector vats.im/lovv"],
-       "isContactMe":true,"isHighlighted":true},
+       "isContactMe":true,"contactMeText":"LOWW_TWR: DLH123, contact me on 119.400","isHighlighted":true},
       {"callsign":"LOWW_APP","frequency":34675,"cid":2,"name":"B. Beispiel","facility":5,"rating":4,
        "stationName":"Wien Radar","isNext":true,"isHighlighted":true,"etaMinutes":14},
       {"callsign":"LOWW_D_ATIS","frequency":21730,"facility":0,

@@ -60,7 +60,16 @@ private struct PongMessage: Decodable {
 final class HandoffConnection: NSObject {
     static let defaultPort = 48765
 
-    private(set) var state: ConnectionState = .disconnected
+    private(set) var state: ConnectionState = .disconnected {
+        didSet {
+            guard state != oldValue else { return }
+            onStateChanged?(state)
+        }
+    }
+
+    /// Raised on every state change, so the store can end work that belongs to a session
+    /// rather than to the socket -- a link that drops on its own never calls `disconnect()`.
+    var onStateChanged: ((ConnectionState) -> Void)?
     /// Round-trip time of the last ping, shown in the status footer.
     private(set) var latencyMs: Int?
 
@@ -76,6 +85,7 @@ final class HandoffConnection: NSObject {
 
     var onControllers: ((ControllersMessage) -> Void)?
     var onChat: ((ChatMessagePayload) -> Void)?
+    var onChatReadState: ((ChatReadStateMessage) -> Void)?
     var onRadioState: ((RadioState) -> Void)?
     var onFlightPlan: ((FlightPlanMessage) -> Void)?
     var onSubsystemStatus: ((SubsystemStatus) -> Void)?
@@ -196,12 +206,25 @@ final class HandoffConnection: NSObject {
 
     // MARK: Sending
 
+    #if DEBUG
+    /// Every command as it goes out, for tests that need to prove something reached the wire
+    /// rather than just the local state. Debug-only, same as `demoOverride`.
+    var onDidEncodeCommand: ((String) -> Void)?
+
+    /// Feeds one raw server message through the real dispatch, so the type switch itself is
+    /// covered instead of the callbacks being poked directly.
+    func receiveForTesting(_ text: String) { handleIncoming(text) }
+    #endif
+
     func send<T: Encodable>(_ command: T) {
         guard let data = try? JSONEncoder().encode(command),
               let text = String(data: data, encoding: .utf8) else {
             onSendFailure?("Could not encode command.")
             return
         }
+        #if DEBUG
+        onDidEncodeCommand?(text)
+        #endif
         guard let task = webSocketTask else {
             onSendFailure?("Not connected — command was not sent.")
             return
@@ -256,6 +279,8 @@ final class HandoffConnection: NSObject {
             if let msg = try? decoder.decode(ControllersMessage.self, from: data) { onControllers?(msg) }
         case "chat":
             if let msg = try? decoder.decode(ChatMessagePayload.self, from: data) { onChat?(msg) }
+        case "chatReadState":
+            if let msg = try? decoder.decode(ChatReadStateMessage.self, from: data) { onChatReadState?(msg) }
         case "radioState":
             if let msg = try? decoder.decode(RadioState.self, from: data) { onRadioState?(msg) }
         case "flightPlan":

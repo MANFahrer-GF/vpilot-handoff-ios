@@ -185,6 +185,44 @@ struct ProtocolDecodingTests {
         #expect(legacy.controllers[0].etaMinutes == nil)
     }
 
+    /// Issue #151 upstream moved a known controller's "contact me" out of the chat
+    /// log and onto the controller row. If this field went unread, the request would
+    /// still flash the row but the pilot could no longer see what was asked.
+    @Test func contactMeTextAndChatIdsDecode() throws {
+        let controllers = try decode("""
+            {"type":"controllers","controllers":[
+              {"callsign":"EDDM_TWR","frequency":19400,"isContactMe":true,
+               "contactMeText":"DLH4TK contact me on 118.700"},
+              {"callsign":"EDDM_APP","frequency":19410}]}
+            """, as: ControllersMessage.self)
+        #expect(controllers.controllers[0].contactMeText == "DLH4TK contact me on 118.700")
+        #expect(controllers.controllers[1].contactMeText == nil)
+
+        let chat = try decode("""
+            {"type":"chat","sessionId":"b3f1c2e0","messages":[
+              {"id":41,"channel":"radio","direction":"incoming","from":"EDDM_TWR","text":"hi","timestamp":"2026-10-12T10:00:00Z"}]}
+            """, as: ChatMessagePayload.self)
+        #expect(chat.sessionId == "b3f1c2e0")
+        #expect(chat.messages[0].messageId == 41)
+        #expect(chat.messages[0].readStateTab == "radio")
+
+        // An older plugin sends neither, and that absence is load-bearing: it selects
+        // the app's own local unread tracking.
+        let legacy = try decode("""
+            {"type":"chat","messages":[
+              {"channel":"private","direction":"incoming","peer":"EDDM_APP","text":"hi","timestamp":"2026-10-12T10:00:00Z"}]}
+            """, as: ChatMessagePayload.self)
+        #expect(legacy.sessionId == nil)
+        #expect(legacy.messages[0].messageId == nil)
+        #expect(legacy.messages[0].readStateTab == "EDDM_APP")
+
+        let readState = try decode("""
+            {"type":"chatReadState","sessionId":"b3f1c2e0","readThrough":{"radio":38,"EGLL_TWR":41}}
+            """, as: ChatReadStateMessage.self)
+        #expect(readState.readThrough["radio"] == 38)
+        #expect(readState.readThrough["EGLL_TWR"] == 41)
+    }
+
     @Test func subsystemStatusDecodesWithoutOptionalDebugBlock() throws {
         let status = try decode(
             """

@@ -72,6 +72,31 @@ struct ControllerRowView: View {
 
     @ViewBuilder
     private var rowContent: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            rowHeadline
+            contactMeLine
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    /// The controller's own "contact me" wording (issue #151). From a plugin that
+    /// sends it, this request never arrives in the chat at all, so the row is the
+    /// only place the pilot can read what was asked. The plugin clears it -- and
+    /// `isContactMe` with it -- once the frequency is tuned or it expires.
+    @ViewBuilder
+    private var contactMeLine: some View {
+        if controller.isContactMe, let text = controller.contactMeText,
+           !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            Text(text)
+                .font(.subheadline.weight(.medium))
+                .lineLimit(4)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    @ViewBuilder
+    private var rowHeadline: some View {
         if compact {
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 6) {

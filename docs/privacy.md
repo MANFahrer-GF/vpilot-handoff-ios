@@ -36,7 +36,7 @@ Deleting the app removes all of it.
 
 ## What is sent, and to whom
 
-Only to the plugin on your own PC, over your local network:
+### To the plugin on your own PC, over your local network
 
 - the pairing code you type, and afterwards the token above,
 - the installation identifier,
@@ -51,10 +51,34 @@ PC by this app's doing. Debug mode is off by default. iOS does not allow an app 
 capture anything outside its own window, so nothing else on your iPad can appear in
 it.
 
+### To the A-CDM service, over the internet
+
+The departure-slot tile (TOBT/TSAT/CTOT) reads `api.viffsys.com`, the same A-CDM
+backend the Android client and the EuroScope CDM plugin use. It runs **only** while a
+flight plan filed with VATSIM gives a departure airport, and then roughly once a minute until
+the flight takes off or the session ends. The first request asks which airports are part of the
+CDM network at all; if yours is not, nothing further is sent.
+
+Each request asks that airport for its list of tracked flights, so what leaves your
+iPad is **the departure airport** (in the request) and your iPad's IP address, as with
+any web request. Your callsign is matched against the answer **on the device**; it is
+not sent. No account and no key is involved, nothing is written, and the app sends
+nothing else there. The service is operated by a third party under its own terms.
+
+Tapping the tile opens the **VDGS website** (`vdgs.vatsimspain.es`) inside the app,
+which is where a TOBT is actually set. That is the real website: you log in with your
+own VATSIM account, and your session cookie stays in this app so the login is not asked
+for again every time. The app does not read, store or forward what you type there, and
+the embedded window may only *open pages* on that site, VATSIM's login, and the bot check in
+front of them — a link anywhere else is refused. Parts a page loads for itself (scripts, styles,
+the bot check's own frame) are not restricted, because the page could not work otherwise.
+
 ## What the app requests from iOS
 
 **Local network access**, and nothing else. Without it the app cannot find or reach
-your PC. No location, no contacts, no photos, no microphone, no notifications.
+your PC. No location, no contacts, no photos, no microphone, no notifications. The
+A-CDM request described above goes over your ordinary internet connection, for which
+iOS asks no permission.
 
 ## Your PC is a separate matter
 
@@ -112,7 +136,7 @@ Das Löschen der App entfernt alles davon.
 
 ## Was gesendet wird, und an wen
 
-Ausschließlich an das Plugin auf deinem eigenen PC, über dein lokales Netz:
+### An das Plugin auf deinem eigenen PC, über dein lokales Netz
 
 - der Kopplungscode, den du eingibst, und danach das oben genannte Token,
 - die Installationskennung,
@@ -127,11 +151,37 @@ diese App verlässt es deinen PC nicht. Der Debug-Modus ist standardmäßig aus.
 erlaubt einer App nicht, etwas außerhalb ihres eigenen Fensters aufzunehmen — es
 kann also nichts anderes von deinem iPad darauf erscheinen.
 
+### An den A-CDM-Dienst, über das Internet
+
+Die Kachel mit der Abflugzeit (TOBT/TSAT/CTOT) liest `api.viffsys.com`, denselben
+A-CDM-Dienst, den auch die Android-App und das EuroScope-CDM-Plugin nutzen. Sie läuft
+**nur**, wenn ein bei VATSIM eingereichter Flugplan einen Abflughafen nennt, und dann etwa
+einmal pro Minute, bis der Flug gestartet oder die Sitzung beendet ist. Die erste Anfrage holt,
+welche Flughäfen überhaupt am CDM-Netz teilnehmen; ist deiner nicht dabei, wird nichts weiter
+gesendet.
+
+Jede Anfrage holt die Liste der verfolgten Flüge dieses Flughafens. Dein iPad gibt
+dabei **den Abflughafen** preis (in der Anfrage) und, wie bei jedem Webzugriff, seine
+IP-Adresse. Dein Rufzeichen wird **auf dem Gerät** mit der Antwort abgeglichen und
+nicht übertragen. Es ist kein Konto und kein Schlüssel beteiligt, es wird nichts
+geschrieben, und die App sendet sonst nichts dorthin. Der Dienst wird von Dritten
+betrieben, zu deren eigenen Bedingungen.
+
+Ein Tipp auf die Kachel öffnet die **VDGS-Webseite** (`vdgs.vatsimspain.es`) innerhalb
+der App — dort wird eine TOBT tatsächlich gesetzt. Das ist die echte Webseite: Du
+meldest dich mit deinem eigenen VATSIM-Konto an, und dein Sitzungs-Cookie bleibt in
+dieser App, damit die Anmeldung nicht jedes Mal neu nötig ist. Die App liest, speichert
+und leitet nicht weiter, was du dort eingibst, und das eingebettete Fenster darf nur
+*Seiten* dieser Seite, der VATSIM-Anmeldung und der davor liegenden Bot-Prüfung öffnen — ein Link
+woandershin wird abgewiesen. Was eine Seite für sich selbst nachlädt (Skripte, Gestaltung, der
+Rahmen der Bot-Prüfung), ist nicht eingeschränkt, weil die Seite sonst nicht funktionieren würde.
+
 ## Was die App vom System verlangt
 
 **Zugriff auf das lokale Netzwerk**, und sonst nichts. Ohne ihn findet und erreicht
 die App deinen PC nicht. Kein Standort, keine Kontakte, keine Fotos, kein Mikrofon,
-keine Mitteilungen.
+keine Mitteilungen. Die oben beschriebene A-CDM-Anfrage läuft über deine gewöhnliche
+Internetverbindung, für die iOS keine Erlaubnis abfragt.
 
 ## Dein PC ist eine eigene Angelegenheit
 

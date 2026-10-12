@@ -17,6 +17,15 @@ struct SendPrivateMessageCommand: Encodable {
     let message: String
 }
 
+/// Advances the plugin-owned read watermark for one tab (issue #151). `tab` is
+/// `"radio"` or a private peer's callsign; the plugin keeps the higher of the two
+/// watermarks, so a stale value can never un-read anything.
+struct MarkChatReadCommand: Encodable {
+    let type = "markChatRead"
+    let tab: String
+    let throughId: Int
+}
+
 struct SendRadioMessageCommand: Encodable {
     let type = "sendRadioMessage"
     let message: String

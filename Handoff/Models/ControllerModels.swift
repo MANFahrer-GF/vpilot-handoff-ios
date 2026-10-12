@@ -52,6 +52,11 @@ struct Controller: Decodable, Identifiable, Equatable {
     let requestsContactMe: Bool
     let isCurrent: Bool
     let isContactMe: Bool
+    /// The wording of that "contact me" request (issue #151). From a plugin that has
+    /// this field, a known controller's request no longer arrives as a chat message at
+    /// all -- it is this plus `isContactMe`, so the row is the only place it can be
+    /// read. `nil` from an older plugin, which still sends the message as chat.
+    let contactMeText: String?
     let isHighlighted: Bool
     let isNext: Bool
     let isLikelyNext: Bool
@@ -96,6 +101,7 @@ struct Controller: Decodable, Identifiable, Equatable {
         requestsContactMe = try c.decodeIfPresent(Bool.self, forKey: .requestsContactMe) ?? false
         isCurrent = try c.decodeIfPresent(Bool.self, forKey: .isCurrent) ?? false
         isContactMe = try c.decodeIfPresent(Bool.self, forKey: .isContactMe) ?? false
+        contactMeText = try c.decodeIfPresent(String.self, forKey: .contactMeText)
         isHighlighted = try c.decodeIfPresent(Bool.self, forKey: .isHighlighted) ?? false
         isNext = try c.decodeIfPresent(Bool.self, forKey: .isNext) ?? false
         isLikelyNext = try c.decodeIfPresent(Bool.self, forKey: .isLikelyNext) ?? false
@@ -110,7 +116,7 @@ struct Controller: Decodable, Identifiable, Equatable {
     enum CodingKeys: String, CodingKey {
         case callsign, frequency, latitude, longitude, cid, name, facility, rating
         case stationName, textAtis, requestsContactMe
-        case isCurrent, isContactMe, isHighlighted, isNext, isLikelyNext
+        case isCurrent, isContactMe, contactMeText, isHighlighted, isNext, isLikelyNext
         case isPinned, isStandbyTuned, isSelcalActive, etaMinutes, debug
     }
 

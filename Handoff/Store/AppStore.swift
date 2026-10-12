@@ -85,6 +85,72 @@ final class AppStore {
     private var seenChatMessageIds: Set<String> = []
     private var hasReceivedChatSnapshot = false
 
+    // MARK: Plugin-owned chat read state (issue #151)
+
+    /// The connected plugin's chat session, or nil from one that predates issue #151.
+    /// Its presence is what decides which of the two unread paths is in charge: the
+    /// watermark below, or the local counting that came before it.
+    private(set) var chatSessionId: String?
+    /// True once the plugin reports a session, i.e. it also owns the read watermark.
+    var pluginOwnsChatReadState: Bool { chatSessionId != nil }
+    /// Last `chatReadState` as received. Kept raw rather than merged, because it can
+    /// arrive before the `chat` whose session it belongs to.
+    private var readStateMessage: ChatReadStateMessage?
+    /// This device's own advances, applied before the plugin echoes them back, so a
+    /// tab doesn't flash unread for one round trip.
+    private var localReadThrough: [String: Int] = [:]
+
+    /// Tab keys are compared case-insensitively: the plugin spells a peer the way the
+    /// network did, and nothing guarantees both sides capitalise a callsign the same.
+    private func normalizedTab(_ tab: String) -> String { tab.uppercased() }
+
+    /// The wire tab name for one of this app's conversation keys.
+    private func readStateTab(forConversation key: String) -> String {
+        key == ChatMessage.radioConversationKey ? ChatReadStateMessage.radioTab : key
+    }
+
+    /// The plugin's watermarks, but only while they refer to the session the current
+    /// log came from -- a mismatch means one of the two hasn't caught up with a plugin
+    /// restart yet, and acting on it would mark unseen messages as read.
+    private var serverReadThrough: [String: Int] {
+        guard let readStateMessage, readStateMessage.sessionId == chatSessionId else { return [:] }
+        return readStateMessage.readThrough
+    }
+
+    private func readThrough(forConversation key: String) -> Int {
+        let tab = normalizedTab(readStateTab(forConversation: key))
+        let server = serverReadThrough.first { normalizedTab($0.key) == tab }?.value ?? 0
+        return max(server, localReadThrough[tab] ?? 0)
+    }
+
+    // MARK: A-CDM / VDGS slot (upstream issue #143)
+
+    /// The departure slot tile, or nil when there is nothing to show: no flight plan, a departure
+    /// airport outside the CDM network, or a flight that has already taken off.
+    var cdmSlot: CdmSlotDisplay?
+    /// How often the backend is asked. A static so a test doesn't have to wait a minute.
+    static var cdmPollInterval: Duration = .seconds(60)
+    private let cdmClient = CdmClient()
+    private var cdmTask: Task<Void, Never>?
+    /// What the running poll was started for, so a flight-plan resend that changes nothing
+    /// doesn't restart it (the plugin resends the plan on several unrelated triggers).
+    private var cdmPollKey: String?
+
+    /// Where the flight departs from, strictly as filed with VATSIM. Deliberately *not*
+    /// falling back to SimBrief the way `ownCallsign` does: the backend only knows flights that
+    /// were actually filed, so a SimBrief-only plan would mean asking a stranger's server about
+    /// a flight that cannot be there, and showing "waiting for flight" for it.
+    private var cdmOrigin: String? {
+        guard let origin = flightPlan?.vatsimOrigin, origin.count >= 3 else { return nil }
+        return origin.uppercased()
+    }
+
+    /// The callsign the filed flight is under — same reasoning as `cdmOrigin`.
+    private var cdmCallsign: String? {
+        guard let callsign = flightPlan?.vatsimCallsign, !callsign.isEmpty else { return nil }
+        return callsign
+    }
+
     // MARK: Debug mode
 
     var debugMode = false
@@ -163,8 +229,30 @@ final class AppStore {
             if self.etaMinutes != msg.etaMinutes { self.etaMinutes = msg.etaMinutes }
             self.controllersDebug = msg.debug
         }
+        connection.onChatReadState = { [weak self] msg in
+            guard let self else { return }
+            self.readStateMessage = msg
+            if self.pluginOwnsChatReadState { self.recomputeUnreadFromWatermarks() }
+        }
         connection.onChat = { [weak self] msg in
             guard let self else { return }
+            // Issue #151: a new session means every id the watermarks refer to is gone
+            // with the plugin process that handed them out, so nothing cached survives.
+            if msg.sessionId != self.chatSessionId {
+                self.chatSessionId = msg.sessionId
+                self.localReadThrough.removeAll()
+            }
+            if self.pluginOwnsChatReadState {
+                if self.chatMessages != msg.messages { self.chatMessages = msg.messages }
+                if self.selcalAlerts != msg.selcalAlerts { self.selcalAlerts = msg.selcalAlerts }
+                // A message landing in the tab on screen is read where it lands -- and
+                // has to be told to the plugin, or the other device keeps it unread.
+                if self.chatPanelVisible, let visible = self.visibleConversation {
+                    self.advanceWatermark(forConversation: visible)
+                }
+                self.recomputeUnreadFromWatermarks()
+                return
+            }
             // Full-state resend on every change (protocol.md) -- skip the write when
             // nothing actually changed so the list doesn't rebuild needlessly.
             if self.chatMessages != msg.messages {
@@ -180,7 +268,8 @@ final class AppStore {
                         self.unreadByConversation[key, default: 0] += 1
                         // A call that names us is directed traffic even though it came
                         // over the shared frequency.
-                        if message.isRadio, message.mentions(callsign: self.ownCallsign) {
+                        if key == ChatMessage.radioConversationKey,
+                           message.mentions(callsign: self.ownCallsign) {
                             self.unreadRadioMentionsUs = true
                         }
                     }
@@ -192,7 +281,17 @@ final class AppStore {
             if self.selcalAlerts != msg.selcalAlerts { self.selcalAlerts = msg.selcalAlerts }
         }
         connection.onRadioState = { [weak self] msg in self?.radioState = msg }
-        connection.onFlightPlan = { [weak self] msg in self?.flightPlan = msg }
+        connection.onStateChanged = { [weak self] state in
+            // A link that drops by itself never calls disconnect(), and the slot poll must not
+            // outlive the session: it would keep asking a third-party server once a minute and
+            // keep showing a tile next to a red "disconnected".
+            guard state != .connected else { return }
+            self?.stopCdmPolling()
+        }
+        connection.onFlightPlan = { [weak self] msg in
+            self?.flightPlan = msg
+            self?.syncCdmPolling()
+        }
         connection.onSubsystemStatus = { [weak self] msg in self?.subsystemStatus = msg }
         connection.onDiversionPending = { [weak self] msg in self?.diversionDestination = msg.destination }
         connection.onNearbyAircraft = { [weak self] msg in self?.nearbyAircraft = msg.aircraft }
@@ -254,6 +353,11 @@ final class AppStore {
         hasReceivedChatSnapshot = false
         unreadByConversation.removeAll()
         unreadRadioMentionsUs = false
+        chatSessionId = nil
+        readStateMessage = nil
+        localReadThrough.removeAll()
+        stopCdmPolling()
+        cdmSlot = nil
         lastSendError = nil
     }
 
@@ -315,6 +419,10 @@ final class AppStore {
         hasReceivedChatSnapshot = false
         unreadByConversation.removeAll()
         unreadRadioMentionsUs = false
+        chatSessionId = nil
+        readStateMessage = nil
+        localReadThrough.removeAll()
+        stopCdmPolling()
         connection.connect(host: host, port: port)
     }
 
@@ -325,6 +433,10 @@ final class AppStore {
 
     func disconnect() {
         connection.disconnect()
+        // The slot poll is tied to the session, not to the socket's own lifetime: without this
+        // it would keep asking a third-party server once a minute after the pilot has left, and
+        // keep showing a tile for a flight the app no longer tracks.
+        stopCdmPolling()
     }
 
     /// Called when the app returns to the foreground. The socket may be dead even
@@ -487,6 +599,77 @@ final class AppStore {
         }
     }
 
+    // MARK: A-CDM polling
+
+    /// Starts, restarts or stops the slot poll to match the current flight. Called whenever the
+    /// flight plan changes and when a session ends; cheap and idempotent, so it can be called on
+    /// every resend.
+    private func syncCdmPolling() {
+        let key = [cdmOrigin, cdmCallsign].compactMap { $0 }.joined(separator: "|")
+        guard !demoMode, let origin = cdmOrigin, let callsign = cdmCallsign else {
+            stopCdmPolling()
+            return
+        }
+        guard key != cdmPollKey else { return }
+        cdmPollKey = key
+        cdmSlot = nil
+        cdmTask?.cancel()
+        cdmTask = Task { [weak self] in await self?.pollCdm(origin: origin, callsign: callsign) }
+    }
+
+    private func stopCdmPolling() {
+        cdmTask?.cancel()
+        cdmTask = nil
+        cdmPollKey = nil
+        cdmSlot = nil
+    }
+
+    /// One flight's slot, polled until it departs or the flight changes. A failed request keeps
+    /// the last known tile and tries again rather than blanking it — this is an undocumented
+    /// backend on the open internet, and a dropped minute is not news the pilot needs.
+    ///
+    /// Every write back into the store is guarded by `Task.isCancelled`: cancelling does not
+    /// abort a request already in flight, so without that an answer about the previous flight
+    /// could still land in the tile of the next one — or over the demo sample.
+    private func pollCdm(origin: String, callsign: String) async {
+        var airportIsCdm = false
+        while !Task.isCancelled {
+            // A departure airport outside the CDM network has nothing to poll for. Checked
+            // before any flight list is ever requested, and retried rather than assumed when
+            // the list itself fails to load.
+            if !airportIsCdm {
+                guard let airports = await cdmClient.fetchCadAirports() else {
+                    try? await Task.sleep(for: AppStore.cdmPollInterval)
+                    continue
+                }
+                guard !Task.isCancelled else { return }
+                guard CdmSlot.isCdmCovered(airports, origin: origin) else {
+                    // Not (yet) a CDM airport: no flight list is requested, but the question is
+                    // asked again next tick rather than settled for the whole session -- an
+                    // airport can be missing from one answer and present in the next.
+                    cdmSlot = nil
+                    try? await Task.sleep(for: AppStore.cdmPollInterval)
+                    continue
+                }
+                airportIsCdm = true
+            }
+
+            if let flights = await cdmClient.fetchDepartureAirportFlights(icao: origin) {
+                guard !Task.isCancelled else { return }
+                switch CdmSlot.outcome(forFlights: flights, callsign: callsign, now: Date()) {
+                case .departed:
+                    cdmSlot = nil
+                    return
+                case .slot(let display):
+                    cdmSlot = display
+                case .waiting:
+                    cdmSlot = CdmSlot.waitingDisplay()
+                }
+            }
+            try? await Task.sleep(for: AppStore.cdmPollInterval)
+        }
+    }
+
     // MARK: Operations
 
     /// Finished operations linger briefly so the pilot actually sees the outcome --
@@ -528,8 +711,59 @@ final class AppStore {
     /// at the frequency.
     func markConversationRead(_ key: String) {
         visibleConversation = key
+        guard !pluginOwnsChatReadState else {
+            advanceWatermark(forConversation: key)
+            recomputeUnreadFromWatermarks()
+            return
+        }
         unreadByConversation[key] = 0
         if key == ChatMessage.radioConversationKey { unreadRadioMentionsUs = false }
+    }
+
+    /// Moves one tab's watermark up to the newest message it currently holds and tells
+    /// the plugin, which rebroadcasts it to every other paired device. A no-op when
+    /// there is nothing newer than what is already read, so an open tab doesn't send a
+    /// command on every resend.
+    private func advanceWatermark(forConversation key: String) {
+        guard let command = markChatReadCommand(forConversation: key) else { return }
+        localReadThrough[normalizedTab(command.tab)] = command.throughId
+        send(command)
+    }
+
+    /// The command one tab's advance would send, or nil when there is nothing newer than what is
+    /// already read. Split out from the sending so a test can prove what goes on the wire —
+    /// `send` needs a socket, and the tab name and watermark are exactly what a second device
+    /// depends on being right.
+    func markChatReadCommand(forConversation key: String) -> MarkChatReadCommand? {
+        // "?" is the placeholder for a private message that arrived without a peer. There is no
+        // such tab on the plugin's side, so claiming one read would be nonsense.
+        guard key != "?" else { return nil }
+        let newest = chatMessages
+            .filter { $0.conversationKey == key }
+            .compactMap(\.messageId)
+            .max()
+        guard let newest, newest > readThrough(forConversation: key) else { return nil }
+        return MarkChatReadCommand(tab: readStateTab(forConversation: key), throughId: newest)
+    }
+
+    /// Unread is a derivation, not a counter, once the plugin owns the watermark: every
+    /// incoming message in a tab newer than that tab's watermark. That is what makes it
+    /// survive an app restart and agree across devices.
+    private func recomputeUnreadFromWatermarks() {
+        var counts: [String: Int] = [:]
+        var radioMentionsUs = false
+        for message in chatMessages where !message.isOutgoing {
+            let key = message.conversationKey
+            guard (message.messageId ?? 0) > readThrough(forConversation: key) else { continue }
+            counts[key, default: 0] += 1
+            // Anything in the shared tab that names us -- a radio call or a broadcast -- is
+            // directed traffic, and that is what turns the MSG tile orange.
+            if key == ChatMessage.radioConversationKey, message.mentions(callsign: ownCallsign) {
+                radioMentionsUs = true
+            }
+        }
+        if unreadByConversation != counts { unreadByConversation = counts }
+        if unreadRadioMentionsUs != radioMentionsUs { unreadRadioMentionsUs = radioMentionsUs }
     }
 
     /// Kicks off the full snapshot round trip: save -> (once acknowledged) attach a
