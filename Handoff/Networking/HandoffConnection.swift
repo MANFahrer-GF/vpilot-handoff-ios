@@ -76,6 +76,7 @@ final class HandoffConnection: NSObject {
 
     var onControllers: ((ControllersMessage) -> Void)?
     var onChat: ((ChatMessagePayload) -> Void)?
+    var onChatReadState: ((ChatReadStateMessage) -> Void)?
     var onRadioState: ((RadioState) -> Void)?
     var onFlightPlan: ((FlightPlanMessage) -> Void)?
     var onSubsystemStatus: ((SubsystemStatus) -> Void)?
@@ -256,6 +257,8 @@ final class HandoffConnection: NSObject {
             if let msg = try? decoder.decode(ControllersMessage.self, from: data) { onControllers?(msg) }
         case "chat":
             if let msg = try? decoder.decode(ChatMessagePayload.self, from: data) { onChat?(msg) }
+        case "chatReadState":
+            if let msg = try? decoder.decode(ChatReadStateMessage.self, from: data) { onChatReadState?(msg) }
         case "radioState":
             if let msg = try? decoder.decode(RadioState.self, from: data) { onRadioState?(msg) }
         case "flightPlan":

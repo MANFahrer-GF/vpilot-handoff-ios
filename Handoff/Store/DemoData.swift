@@ -66,7 +66,7 @@ enum DemoData {
     {"type":"controllers","controllers":[
       {"callsign":"LOWW_TWR","frequency":19400,"cid":1,"name":"A. Muster","facility":4,"rating":3,
        "stationName":"Wien Tower","textAtis":["Wien Tower DCL LOWW","My active sector vats.im/lovv"],
-       "isContactMe":true,"isHighlighted":true},
+       "isContactMe":true,"contactMeText":"LOWW_TWR: DLH123, contact me on 119.400","isHighlighted":true},
       {"callsign":"LOWW_APP","frequency":34675,"cid":2,"name":"B. Beispiel","facility":5,"rating":4,
        "stationName":"Wien Radar","isNext":true,"isHighlighted":true,"etaMinutes":14},
       {"callsign":"LOWW_D_ATIS","frequency":21730,"facility":0,

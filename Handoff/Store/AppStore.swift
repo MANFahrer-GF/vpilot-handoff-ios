@@ -85,6 +85,44 @@ final class AppStore {
     private var seenChatMessageIds: Set<String> = []
     private var hasReceivedChatSnapshot = false
 
+    // MARK: Plugin-owned chat read state (issue #151)
+
+    /// The connected plugin's chat session, or nil from one that predates issue #151.
+    /// Its presence is what decides which of the two unread paths is in charge: the
+    /// watermark below, or the local counting that came before it.
+    private(set) var chatSessionId: String?
+    /// True once the plugin reports a session, i.e. it also owns the read watermark.
+    var pluginOwnsChatReadState: Bool { chatSessionId != nil }
+    /// Last `chatReadState` as received. Kept raw rather than merged, because it can
+    /// arrive before the `chat` whose session it belongs to.
+    private var readStateMessage: ChatReadStateMessage?
+    /// This device's own advances, applied before the plugin echoes them back, so a
+    /// tab doesn't flash unread for one round trip.
+    private var localReadThrough: [String: Int] = [:]
+
+    /// Tab keys are compared case-insensitively: the plugin spells a peer the way the
+    /// network did, and nothing guarantees both sides capitalise a callsign the same.
+    private func normalizedTab(_ tab: String) -> String { tab.uppercased() }
+
+    /// The wire tab name for one of this app's conversation keys.
+    private func readStateTab(forConversation key: String) -> String {
+        key == ChatMessage.radioConversationKey ? ChatReadStateMessage.radioTab : key
+    }
+
+    /// The plugin's watermarks, but only while they refer to the session the current
+    /// log came from -- a mismatch means one of the two hasn't caught up with a plugin
+    /// restart yet, and acting on it would mark unseen messages as read.
+    private var serverReadThrough: [String: Int] {
+        guard let readStateMessage, readStateMessage.sessionId == chatSessionId else { return [:] }
+        return readStateMessage.readThrough
+    }
+
+    private func readThrough(forConversation key: String) -> Int {
+        let tab = normalizedTab(readStateTab(forConversation: key))
+        let server = serverReadThrough.first { normalizedTab($0.key) == tab }?.value ?? 0
+        return max(server, localReadThrough[tab] ?? 0)
+    }
+
     // MARK: Debug mode
 
     var debugMode = false
@@ -163,8 +201,30 @@ final class AppStore {
             if self.etaMinutes != msg.etaMinutes { self.etaMinutes = msg.etaMinutes }
             self.controllersDebug = msg.debug
         }
+        connection.onChatReadState = { [weak self] msg in
+            guard let self else { return }
+            self.readStateMessage = msg
+            if self.pluginOwnsChatReadState { self.recomputeUnreadFromWatermarks() }
+        }
         connection.onChat = { [weak self] msg in
             guard let self else { return }
+            // Issue #151: a new session means every id the watermarks refer to is gone
+            // with the plugin process that handed them out, so nothing cached survives.
+            if msg.sessionId != self.chatSessionId {
+                self.chatSessionId = msg.sessionId
+                self.localReadThrough.removeAll()
+            }
+            if self.pluginOwnsChatReadState {
+                if self.chatMessages != msg.messages { self.chatMessages = msg.messages }
+                if self.selcalAlerts != msg.selcalAlerts { self.selcalAlerts = msg.selcalAlerts }
+                // A message landing in the tab on screen is read where it lands -- and
+                // has to be told to the plugin, or the other device keeps it unread.
+                if self.chatPanelVisible, let visible = self.visibleConversation {
+                    self.advanceWatermark(forConversation: visible)
+                }
+                self.recomputeUnreadFromWatermarks()
+                return
+            }
             // Full-state resend on every change (protocol.md) -- skip the write when
             // nothing actually changed so the list doesn't rebuild needlessly.
             if self.chatMessages != msg.messages {
@@ -254,6 +314,9 @@ final class AppStore {
         hasReceivedChatSnapshot = false
         unreadByConversation.removeAll()
         unreadRadioMentionsUs = false
+        chatSessionId = nil
+        readStateMessage = nil
+        localReadThrough.removeAll()
         lastSendError = nil
     }
 
@@ -315,6 +378,9 @@ final class AppStore {
         hasReceivedChatSnapshot = false
         unreadByConversation.removeAll()
         unreadRadioMentionsUs = false
+        chatSessionId = nil
+        readStateMessage = nil
+        localReadThrough.removeAll()
         connection.connect(host: host, port: port)
     }
 
@@ -528,8 +594,44 @@ final class AppStore {
     /// at the frequency.
     func markConversationRead(_ key: String) {
         visibleConversation = key
+        guard !pluginOwnsChatReadState else {
+            advanceWatermark(forConversation: key)
+            recomputeUnreadFromWatermarks()
+            return
+        }
         unreadByConversation[key] = 0
         if key == ChatMessage.radioConversationKey { unreadRadioMentionsUs = false }
+    }
+
+    /// Moves one tab's watermark up to the newest message it currently holds and tells
+    /// the plugin, which rebroadcasts it to every other paired device. A no-op when
+    /// there is nothing newer than what is already read, so an open tab doesn't send a
+    /// command on every resend.
+    private func advanceWatermark(forConversation key: String) {
+        let newest = chatMessages
+            .filter { $0.conversationKey == key }
+            .compactMap(\.messageId)
+            .max()
+        guard let newest, newest > readThrough(forConversation: key) else { return }
+        let tab = readStateTab(forConversation: key)
+        localReadThrough[normalizedTab(tab)] = newest
+        send(MarkChatReadCommand(tab: tab, throughId: newest))
+    }
+
+    /// Unread is a derivation, not a counter, once the plugin owns the watermark: every
+    /// incoming message in a tab newer than that tab's watermark. That is what makes it
+    /// survive an app restart and agree across devices.
+    private func recomputeUnreadFromWatermarks() {
+        var counts: [String: Int] = [:]
+        var radioMentionsUs = false
+        for message in chatMessages where !message.isOutgoing {
+            let key = message.conversationKey
+            guard (message.messageId ?? 0) > readThrough(forConversation: key) else { continue }
+            counts[key, default: 0] += 1
+            if message.isRadio, message.mentions(callsign: ownCallsign) { radioMentionsUs = true }
+        }
+        if unreadByConversation != counts { unreadByConversation = counts }
+        if unreadRadioMentionsUs != radioMentionsUs { unreadRadioMentionsUs = radioMentionsUs }
     }
 
     /// Kicks off the full snapshot round trip: save -> (once acknowledged) attach a

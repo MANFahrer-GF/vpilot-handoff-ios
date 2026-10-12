@@ -7,17 +7,47 @@ import Foundation
 struct ChatMessagePayload: Decodable {
     let messages: [ChatMessage]
     let selcalAlerts: [SelcalAlert]
+    /// Issue #151: changes on every plugin restart, which invalidates every message
+    /// `id` that came before it. `nil` from a plugin that predates the feature, and
+    /// that absence is what tells the app to keep tracking unread by itself.
+    let sessionId: String?
 
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         messages = try c.decodeIfPresent([ChatMessage].self, forKey: .messages) ?? []
         selcalAlerts = try c.decodeIfPresent([SelcalAlert].self, forKey: .selcalAlerts) ?? []
+        sessionId = try c.decodeIfPresent(String.self, forKey: .sessionId)
     }
 
-    enum CodingKeys: String, CodingKey { case messages, selcalAlerts }
+    enum CodingKeys: String, CodingKey { case messages, selcalAlerts, sessionId }
+}
+
+/// The plugin's own per-tab read watermark (issue #151), so an unread count survives
+/// an app restart and matches on every paired device. Its own message rather than part
+/// of `chat`, because it changes far more often than the log it refers to.
+struct ChatReadStateMessage: Decodable {
+    let sessionId: String?
+    /// Tab -> highest message id read there. A tab nobody has read yet is simply absent.
+    let readThrough: [String: Int]
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        sessionId = try c.decodeIfPresent(String.self, forKey: .sessionId)
+        readThrough = try c.decodeIfPresent([String: Int].self, forKey: .readThrough) ?? [:]
+    }
+
+    enum CodingKeys: String, CodingKey { case sessionId, readThrough }
+
+    /// The wire name of the shared frequency tab, which the app keys as
+    /// `ChatMessage.radioConversationKey` internally.
+    static let radioTab = "radio"
 }
 
 struct ChatMessage: Decodable, Identifiable, Equatable {
+    /// The plugin's own message id (issue #151): monotonic for one plugin run, reset by
+    /// a restart, and only meaningful together with the payload's `sessionId`. `nil`
+    /// from an older plugin. Distinct from `id` below, which identifies a row on screen.
+    let messageId: Int?
     let channel: String // private | radio | broadcast
     let direction: String // incoming | outgoing
     let peer: String?
@@ -41,8 +71,9 @@ struct ChatMessage: Decodable, Identifiable, Equatable {
     /// moment the real one comes back.
     init(
         channel: String, direction: String, peer: String?, from: String?,
-        text: String, frequencies: [Int]?, timestamp: String
+        text: String, frequencies: [Int]?, timestamp: String, messageId: Int? = nil
     ) {
+        self.messageId = messageId
         self.channel = channel
         self.direction = direction
         self.peer = peer
@@ -55,6 +86,7 @@ struct ChatMessage: Decodable, Identifiable, Equatable {
 
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
+        messageId = try c.decodeIfPresent(Int.self, forKey: .id)
         channel = try c.decodeIfPresent(String.self, forKey: .channel) ?? "radio"
         direction = try c.decodeIfPresent(String.self, forKey: .direction) ?? "incoming"
         peer = try c.decodeIfPresent(String.self, forKey: .peer)
@@ -71,7 +103,13 @@ struct ChatMessage: Decodable, Identifiable, Equatable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case channel, direction, peer, from, text, frequencies, timestamp
+        case id, channel, direction, peer, from, text, frequencies, timestamp
+    }
+
+    /// The tab name the plugin uses in `readThrough`/`markChatRead`: `"radio"` for the
+    /// shared frequency, otherwise the peer's callsign as the plugin spelled it.
+    var readStateTab: String {
+        isRadio ? ChatReadStateMessage.radioTab : (peer ?? "?")
     }
 
     var isOutgoing: Bool { direction == "outgoing" }
