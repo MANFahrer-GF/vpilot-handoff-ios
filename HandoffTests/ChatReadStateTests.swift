@@ -134,6 +134,14 @@ struct ChatReadStateTests {
         #expect(store.unreadByConversation[ChatMessage.radioConversationKey] == 1)
         #expect(store.unreadByConversation["EDDM_ATIS"] == nil)
         #expect(store.markChatReadCommand(forConversation: ChatMessage.radioConversationKey)?.tab == "radio")
+
+        // Counting it towards a tab it is then filtered out of would be worse than the tab it
+        // had before: a badge for a message the pilot cannot find.
+        let message = store.chatMessages[0]
+        #expect(message.belongs(toConversation: ChatMessage.radioConversationKey))
+        #expect(message.belongs(toConversation: "EDDM_ATIS") == false)
+        // And it is not traffic aimed at this pilot unless it names them.
+        #expect(message.isDirectedAtUs(ownCallsign: "DLH4TK") == false)
     }
 
     /// A message landing in the tab already on screen is read where it lands — and the plugin

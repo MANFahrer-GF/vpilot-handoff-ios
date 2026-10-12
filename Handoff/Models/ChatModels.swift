@@ -118,6 +118,10 @@ struct ChatMessage: Decodable, Identifiable, Equatable {
     /// Reserved key for the frequency's own traffic, distinct from any callsign.
     static let radioConversationKey = "\u{0}radio"
 
+    /// Does this message belong in `key`'s tab? The one place that decides it, so the list on
+    /// screen and the unread count can never disagree about where a message lives.
+    func belongs(toConversation key: String) -> Bool { conversationKey == key }
+
     /// Which tab this message belongs to: a private exchange sits under the station it was with,
     /// everything else — radio *and* broadcast — under the shared frequency. protocol.md names
     /// one tab `"radio"` for both, so a broadcast in its own tab would mark the wrong tab read
@@ -142,7 +146,9 @@ struct ChatMessage: Decodable, Identifiable, Equatable {
     /// highlight -- ambient chatter does not.
     func isDirectedAtUs(ownCallsign: String?) -> Bool {
         guard !isOutgoing else { return false }
-        if !isRadio { return true }
+        if channel == "private" { return true }
+        // A broadcast goes to everyone on the network, so it is only directed at this pilot if
+        // it names them -- same test as frequency chatter.
         return mentions(callsign: ownCallsign)
     }
 
