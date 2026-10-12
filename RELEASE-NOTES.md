@@ -1,4 +1,4 @@
-# vPilot Remote 1.2.2
+# vPilot Remote 1.3.0
 
 The VATSIM controller list, chat and radio panel on your tablet — next to your charts
 in Split View. This is the companion app for the
@@ -15,6 +15,23 @@ https://apps.apple.com/app/vpilot-remote/id6817687242
 then open this link on the tablet and tap *Accept*:
 
 https://testflight.apple.com/join/BNjesezx
+
+## What's new in 1.3.0
+
+- **Departure slot on the status bar.** With a flight plan filed from a CDM airport, the
+  footer shows your TOBT, TSAT or CTOT with a countdown and a traffic-light dot that
+  follows the start-up window; expanded, it adds the assigned runway and SID and the
+  reason for any delay. Tapping it opens the VDGS site, where the TOBT is set — the one
+  step that still needs the website and your own VATSIM login.
+- **Unread chat now matches your other devices.** Newer plugins keep the read mark
+  themselves, so what you have read stays read after an app restart and across every
+  paired tablet or phone. Against older plugins nothing changes.
+- **A controller's "contact me" is readable on their row.** Newer plugins deliver the
+  wording with the controller instead of as a chat message; without this it would have
+  disappeared from view entirely.
+
+Both chat changes need the next plugin release; everything keeps working with the
+current one.
 
 ## What's new in 1.2.2
 
