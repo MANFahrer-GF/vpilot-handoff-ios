@@ -54,7 +54,27 @@ enum DemoData {
         store.flightPlan = decode(flightPlanJSON, as: FlightPlanMessage.self)
         store.subsystemStatus = decode(subsystemJSON, as: SubsystemStatus.self)
         store.nearbyAircraft = decode(nearbyJSON, as: NearbyAircraftMessage.self)?.aircraft ?? []
+        // A slot roughly ten minutes out, with a runway and SID assigned -- enough for the tile,
+        // its countdown and the expanded rows to show something real.
+        store.cdmSlot = CdmSlot.display(for: demoCdmFlight(), now: Date())
         store.unreadByConversation = [ChatMessage.radioConversationKey: 1, "LOWW_TWR": 2]
+    }
+
+    /// Built in code rather than as wire JSON: the times have to sit relative to "now", or the
+    /// sample tile would show a countdown from whenever this file was last edited.
+    private static func demoCdmFlight() -> CdmFlight {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HHmm"
+        formatter.timeZone = TimeZone(identifier: "UTC")
+        let tobt = formatter.string(from: Date().addingTimeInterval(10 * 60))
+        var data = CdmFlightData()
+        data.tobt = tobt
+        data.depInfo = "29/LANUX2C"
+        var flight = CdmFlight(callsign: "DLH123", departure: "LOWW", arrival: "EDDF")
+        flight.tobt = tobt
+        flight.cdmSts = "COMPLY"
+        flight.cdmData = data
+        return flight
     }
 
     private static func decode<T: Decodable>(_ json: String, as type: T.Type) -> T? {

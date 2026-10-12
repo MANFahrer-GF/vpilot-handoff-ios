@@ -8,6 +8,11 @@ struct StatusFooterView: View {
     var onOpenSettings: () -> Void
 
     @State private var isExpanded = false
+    @State private var showVdgs = false
+    /// Drives the flashing dot and the once-a-minute countdown without the store having to
+    /// re-publish the slot every second.
+    @State private var now = Date()
+    private let tick = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -18,7 +23,12 @@ struct StatusFooterView: View {
                 expandedDetail
             }
         }
+        .onReceive(tick) { now = $0 }
+        .sheet(isPresented: $showVdgs) { VdgsWebSheet() }
     }
+
+    /// The live slot, with its countdown and dot re-derived for the current second.
+    private var cdmSlot: CdmSlotDisplay? { store.cdmSlot?.at(now) }
 
     private var summaryRow: some View {
         HStack(spacing: 8) {
@@ -48,6 +58,22 @@ struct StatusFooterView: View {
             .buttonStyle(.plain)
             .foregroundStyle(.primary)
 
+            if let slot = cdmSlot {
+                Button { showVdgs = true } label: {
+                    HStack(spacing: 5) {
+                        Circle()
+                            .fill(color(for: slot.urgency))
+                            .frame(width: 9, height: 9)
+                        Text(slot.chipLabel)
+                            .font(.caption)
+                            .lineLimit(1)
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Departure slot \(slot.chipLabel), opens the VDGS site")
+            }
+
             Button {
                 isExpanded.toggle()
             } label: {
@@ -70,6 +96,18 @@ struct StatusFooterView: View {
         .foregroundStyle(.secondary)
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
+    }
+
+    /// Traffic-light colour for the slot dot. Flashing alternates once a second between the two
+    /// window colours, the way the Android client and the CDM plugin itself do it.
+    private func color(for urgency: CdmUrgency) -> Color {
+        switch urgency {
+        case .good: return .green
+        case .attention: return .orange
+        case .urgent: return .red
+        case .flashing: return Int(now.timeIntervalSince1970) % 2 == 0 ? .green : .orange
+        case .neutral: return .secondary
+        }
     }
 
     private var expandedDetail: some View {
@@ -121,6 +159,20 @@ struct StatusFooterView: View {
                     if plan.vatsimCidMismatch == true {
                         warningLine("Filed VATSIM plan may not be yours (CID mismatch)")
                     }
+                }
+
+                if let slot = cdmSlot {
+                    Divider().padding(.vertical, 2)
+                    if let departure = slot.departureLine {
+                        detailRow("Departure", departure, warn: false)
+                    }
+                    if let reason = slot.reason {
+                        detailRow("CDM reason", reason, warn: true)
+                    }
+                    Button { showVdgs = true } label: {
+                        detailRow("TOBT/CDM", slot.detailLine, warn: slot.urgency == .urgent)
+                    }
+                    .buttonStyle(.plain)
                 }
 
                 Divider().padding(.vertical, 2)

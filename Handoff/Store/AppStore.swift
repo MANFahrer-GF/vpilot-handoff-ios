@@ -123,6 +123,27 @@ final class AppStore {
         return max(server, localReadThrough[tab] ?? 0)
     }
 
+    // MARK: A-CDM / VDGS slot (upstream issue #143)
+
+    /// The departure slot tile, or nil when there is nothing to show: no flight plan, a departure
+    /// airport outside the CDM network, or a flight that has already taken off.
+    var cdmSlot: CdmSlotDisplay?
+    /// How often the backend is asked. A static so a test doesn't have to wait a minute.
+    static var cdmPollInterval: Duration = .seconds(60)
+    private let cdmClient = CdmClient()
+    private var cdmTask: Task<Void, Never>?
+    /// What the running poll was started for, so a flight-plan resend that changes nothing
+    /// doesn't restart it (the plugin resends the plan on several unrelated triggers).
+    private var cdmPollKey: String?
+
+    /// Where the flight departs from: the filed plan first, SimBrief as the fallback before the
+    /// pilot is connected to the network — the same order `ownCallsign` uses.
+    private var cdmOrigin: String? {
+        let origin = flightPlan?.vatsimOrigin ?? flightPlan?.simbriefOrigin
+        guard let origin, origin.count >= 3 else { return nil }
+        return origin.uppercased()
+    }
+
     // MARK: Debug mode
 
     var debugMode = false
@@ -252,7 +273,10 @@ final class AppStore {
             if self.selcalAlerts != msg.selcalAlerts { self.selcalAlerts = msg.selcalAlerts }
         }
         connection.onRadioState = { [weak self] msg in self?.radioState = msg }
-        connection.onFlightPlan = { [weak self] msg in self?.flightPlan = msg }
+        connection.onFlightPlan = { [weak self] msg in
+            self?.flightPlan = msg
+            self?.syncCdmPolling()
+        }
         connection.onSubsystemStatus = { [weak self] msg in self?.subsystemStatus = msg }
         connection.onDiversionPending = { [weak self] msg in self?.diversionDestination = msg.destination }
         connection.onNearbyAircraft = { [weak self] msg in self?.nearbyAircraft = msg.aircraft }
@@ -317,6 +341,8 @@ final class AppStore {
         chatSessionId = nil
         readStateMessage = nil
         localReadThrough.removeAll()
+        stopCdmPolling()
+        cdmSlot = nil
         lastSendError = nil
     }
 
@@ -550,6 +576,60 @@ final class AppStore {
         send(SetDebugModeCommand(enabled: enabled))
         if !enabled {
             controllersDebug = nil
+        }
+    }
+
+    // MARK: A-CDM polling
+
+    /// Starts, restarts or stops the slot poll to match the current flight. Called whenever the
+    /// flight plan changes and when a session ends; cheap and idempotent, so it can be called on
+    /// every resend.
+    private func syncCdmPolling() {
+        let key = [cdmOrigin, ownCallsign].compactMap { $0 }.joined(separator: "|")
+        guard !demoMode, let origin = cdmOrigin, let callsign = ownCallsign else {
+            stopCdmPolling()
+            return
+        }
+        guard key != cdmPollKey else { return }
+        cdmPollKey = key
+        cdmSlot = nil
+        cdmTask?.cancel()
+        cdmTask = Task { [weak self] in await self?.pollCdm(origin: origin, callsign: callsign) }
+    }
+
+    private func stopCdmPolling() {
+        cdmTask?.cancel()
+        cdmTask = nil
+        cdmPollKey = nil
+        cdmSlot = nil
+    }
+
+    /// One flight's slot, polled until it departs or the flight changes. Every failure keeps the
+    /// last known tile and tries again rather than blanking it — this is an undocumented backend
+    /// on the open internet, and a dropped request is not news the pilot needs.
+    private func pollCdm(origin: String, callsign: String) async {
+        // A departure airport outside the CDM network has nothing to poll for, and asking once a
+        // minute forever would be pure noise on someone else's server.
+        let airports = await cdmClient.fetchCadAirports()
+        if let airports, !airports.isEmpty {
+            let airport = airports.first { $0.icao.caseInsensitiveCompare(origin) == .orderedSame }
+            guard airport?.isCdm == true || airport?.tobtReady == true else {
+                cdmSlot = nil
+                return
+            }
+        }
+
+        while !Task.isCancelled {
+            if let flights = await cdmClient.fetchDepartureAirportFlights(icao: origin) {
+                let mine = flights.first { $0.callsign.caseInsensitiveCompare(callsign) == .orderedSame }
+                // An actual takeoff time ends CDM tracking for this flight for good.
+                if let atot = mine?.atot, !atot.trimmingCharacters(in: .whitespaces).isEmpty {
+                    cdmSlot = nil
+                    return
+                }
+                cdmSlot = CdmSlot.display(for: mine, now: Date()) ?? CdmSlot.waitingDisplay()
+            }
+            try? await Task.sleep(for: AppStore.cdmPollInterval)
         }
     }
 
