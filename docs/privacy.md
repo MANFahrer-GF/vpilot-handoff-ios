@@ -55,8 +55,9 @@ it.
 
 The departure-slot tile (TOBT/TSAT/CTOT) reads `api.viffsys.com`, the same A-CDM
 backend the Android client and the EuroScope CDM plugin use. It runs **only** while a
-flight plan gives a departure airport that is part of the CDM network, and then roughly
-once a minute until the flight takes off.
+flight plan filed with VATSIM gives a departure airport, and then roughly once a minute until
+the flight takes off or the session ends. The first request asks which airports are part of the
+CDM network at all; if yours is not, nothing further is sent.
 
 Each request asks that airport for its list of tracked flights, so what leaves your
 iPad is **the departure airport** (in the request) and your iPad's IP address, as with
@@ -153,8 +154,10 @@ kann also nichts anderes von deinem iPad darauf erscheinen.
 
 Die Kachel mit der Abflugzeit (TOBT/TSAT/CTOT) liest `api.viffsys.com`, denselben
 A-CDM-Dienst, den auch die Android-App und das EuroScope-CDM-Plugin nutzen. Sie läuft
-**nur**, wenn ein Flugplan einen Abflughafen nennt, der am CDM-Netz teilnimmt, und
-dann etwa einmal pro Minute, bis der Flug gestartet ist.
+**nur**, wenn ein bei VATSIM eingereichter Flugplan einen Abflughafen nennt, und dann etwa
+einmal pro Minute, bis der Flug gestartet oder die Sitzung beendet ist. Die erste Anfrage holt,
+welche Flughäfen überhaupt am CDM-Netz teilnehmen; ist deiner nicht dabei, wird nichts weiter
+gesendet.
 
 Jede Anfrage holt die Liste der verfolgten Flüge dieses Flughafens. Dein iPad gibt
 dabei **den Abflughafen** preis (in der Anfrage) und, wie bei jedem Webzugriff, seine

@@ -120,6 +120,35 @@ struct CdmSlotTests {
         #expect(overdue?.chipLabel == "TOBT +15m")
     }
 
+    /// Sub-resources must pass: the bot check in front of the site loads frames and scripts from
+    /// hosts nobody listed, and gating those would break the page this exists to show. What the
+    /// privacy policy actually promises is fenced in is whole-page navigation — including a new
+    /// window, which arrives with no frame at all.
+    @Test func onlyWholePageNavigationIsFenced() {
+        let site = URL(string: "https://vdgs.vatsimspain.es/vdgs/index.php")
+        let elsewhere = URL(string: "https://example.com/")
+        #expect(vdgsNavigationAllowed(url: site, isMainFrame: true))
+        #expect(vdgsNavigationAllowed(url: elsewhere, isMainFrame: true) == false)
+        #expect(vdgsNavigationAllowed(url: elsewhere, isMainFrame: nil) == false)
+        #expect(vdgsNavigationAllowed(url: elsewhere, isMainFrame: false))
+    }
+
+    /// The sequencer sends seconds once it has processed a TOBT; the tile works in minutes.
+    @Test func sixDigitTimesFromTheSequencerAreAccepted() {
+        let display = CdmSlot.display(for: flight(tobt: "181500"), now: utc(18, 0))
+        #expect(display?.tobt == "1815")
+        #expect(display?.minutesUntil == 15)
+    }
+
+    /// The placeholder for "this airport does CDM, but your flight isn't in the system yet" — a
+    /// grey, time-less chip, so that reads differently from no CDM coverage at all.
+    @Test func theWaitingPlaceholderShowsNoTimeAndNoColour() {
+        let waiting = CdmSlot.waitingDisplay()
+        #expect(waiting.urgency == .neutral)
+        #expect(waiting.chipLabel == "TOBT –")
+        #expect(waiting.detailLine == "waiting for flight")
+    }
+
     /// Only https on the site, VATSIM's login and the bot check in front of them -- a stray link
     /// must not be able to take a JavaScript-enabled web view somewhere else.
     @Test func theEmbeddedSiteOnlyFollowsItsOwnHosts() {

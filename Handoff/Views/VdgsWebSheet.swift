@@ -40,6 +40,18 @@ func isAllowedVdgsNavigation(_ url: URL?) -> Bool {
     return allowedHostSuffixes.contains { host == $0 || host.hasSuffix(".\($0)") }
 }
 
+/// Whether the embedded window may follow one navigation. Only whole-page navigation is gated —
+/// a sub-resource (the site's own scripts, styles, and the bot check's iframe) is the page's
+/// business, and blocking those would break the page this is here to show. A `nil` frame means
+/// a new window, which counts as whole-page.
+///
+/// Its own function because this is the actual promise the privacy policy makes: the delegate
+/// below is a one-liner on top of it, and this can be tested without a web view.
+func vdgsNavigationAllowed(url: URL?, isMainFrame: Bool?) -> Bool {
+    guard isMainFrame ?? true else { return true }
+    return isAllowedVdgsNavigation(url)
+}
+
 private struct VdgsWebView: UIViewRepresentable {
     let url: URL
 
@@ -61,14 +73,11 @@ private struct VdgsWebView: UIViewRepresentable {
             decidePolicyFor navigationAction: WKNavigationAction,
             decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
         ) {
-            // Only top-level navigation is gated: sub-resources (the site's own scripts, styles
-            // and images) are the page's business, and blocking those would break the page it is
-            // here to show.
-            guard navigationAction.targetFrame?.isMainFrame != false else {
-                decisionHandler(.allow)
-                return
-            }
-            decisionHandler(isAllowedVdgsNavigation(navigationAction.request.url) ? .allow : .cancel)
+            let allowed = vdgsNavigationAllowed(
+                url: navigationAction.request.url,
+                isMainFrame: navigationAction.targetFrame?.isMainFrame
+            )
+            decisionHandler(allowed ? .allow : .cancel)
         }
     }
 }

@@ -101,6 +101,58 @@ struct ChatReadStateTests {
         #expect(store.unreadChatCount == 0)
     }
 
+    /// What actually reaches the plugin is what a second device depends on: the right tab name
+    /// and the right watermark. Checking only the local badge would pass even if nothing was
+    /// ever sent.
+    @Test func theCommandCarriesTheWireTabNameAndTheNewestId() throws {
+        let store = self.store()
+        store.connection.onChat?(try chat(log(sessionId: "abc", "\(radioFromTwr),\(privateFromApp)")))
+
+        let radio = store.markChatReadCommand(forConversation: ChatMessage.radioConversationKey)
+        #expect(radio?.tab == "radio")   // the wire name, not the app's internal key
+        #expect(radio?.throughId == 41)
+
+        let privateTab = store.markChatReadCommand(forConversation: "EDDM_APP")
+        #expect(privateTab?.tab == "EDDM_APP")
+        #expect(privateTab?.throughId == 42)
+
+        // Once read there is nothing left to tell the plugin — otherwise an open tab would send
+        // a command on every one-second resend.
+        store.markConversationRead("EDDM_APP")
+        #expect(store.markChatReadCommand(forConversation: "EDDM_APP") == nil)
+    }
+
+    /// A broadcast belongs to the shared frequency tab, the way protocol.md and the Android
+    /// client have it. In its own tab it would mark the wrong tab read on the plugin and leave
+    /// the radio tab unread on the pilot's other device.
+    @Test func broadcastsCountAsRadioTraffic() throws {
+        let broadcast = """
+            {"id":50,"channel":"broadcast","direction":"incoming","peer":"EDDM_ATIS","text":"runway change","timestamp":"2026-10-12T10:05:00Z"}
+            """
+        let store = self.store()
+        store.connection.onChat?(try chat(log(sessionId: "abc", broadcast)))
+        #expect(store.unreadByConversation[ChatMessage.radioConversationKey] == 1)
+        #expect(store.unreadByConversation["EDDM_ATIS"] == nil)
+        #expect(store.markChatReadCommand(forConversation: ChatMessage.radioConversationKey)?.tab == "radio")
+    }
+
+    /// A message landing in the tab already on screen is read where it lands — and the plugin
+    /// has to be told, or that message stays unread on the other device.
+    @Test func arrivingInTheOpenTabAdvancesTheWatermark() throws {
+        let later = """
+            {"id":43,"channel":"radio","direction":"incoming","from":"EDDM_TWR","text":"line up","timestamp":"2026-10-12T10:03:00Z"}
+            """
+        let store = self.store()
+        store.chatPanelVisible = true
+        store.connection.onChat?(try chat(log(sessionId: "abc", radioFromTwr)))
+        store.markConversationRead(ChatMessage.radioConversationKey)
+        #expect(store.unreadChatCount == 0)
+
+        store.connection.onChat?(try chat(log(sessionId: "abc", "\(radioFromTwr),\(later)")))
+        #expect(store.unreadChatCount == 0)
+        #expect(store.markChatReadCommand(forConversation: ChatMessage.radioConversationKey) == nil)
+    }
+
     /// Own replies are not unread — true in both paths, and easy to lose when unread
     /// becomes a derivation over the whole log rather than a counter.
     @Test func ownRepliesAreNeverUnread() throws {

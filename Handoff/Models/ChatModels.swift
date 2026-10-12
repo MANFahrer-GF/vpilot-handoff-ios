@@ -109,7 +109,7 @@ struct ChatMessage: Decodable, Identifiable, Equatable {
     /// The tab name the plugin uses in `readThrough`/`markChatRead`: `"radio"` for the
     /// shared frequency, otherwise the peer's callsign as the plugin spelled it.
     var readStateTab: String {
-        isRadio ? ChatReadStateMessage.radioTab : (peer ?? "?")
+        conversationKey == Self.radioConversationKey ? ChatReadStateMessage.radioTab : (peer ?? "?")
     }
 
     var isOutgoing: Bool { direction == "outgoing" }
@@ -118,10 +118,12 @@ struct ChatMessage: Decodable, Identifiable, Equatable {
     /// Reserved key for the frequency's own traffic, distinct from any callsign.
     static let radioConversationKey = "\u{0}radio"
 
-    /// Which tab this message belongs to: the shared radio channel, or the station
-    /// it was exchanged with.
+    /// Which tab this message belongs to: a private exchange sits under the station it was with,
+    /// everything else — radio *and* broadcast — under the shared frequency. protocol.md names
+    /// one tab `"radio"` for both, so a broadcast in its own tab would mark the wrong tab read
+    /// on the plugin and leave the real one unread on the pilot's other device.
     var conversationKey: String {
-        isRadio ? Self.radioConversationKey : (peer ?? "?")
+        channel == "private" ? (peer ?? "?") : Self.radioConversationKey
     }
 
     /// Does this radio call name us? Matched on whole tokens rather than a substring,

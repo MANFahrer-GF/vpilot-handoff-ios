@@ -136,12 +136,19 @@ final class AppStore {
     /// doesn't restart it (the plugin resends the plan on several unrelated triggers).
     private var cdmPollKey: String?
 
-    /// Where the flight departs from: the filed plan first, SimBrief as the fallback before the
-    /// pilot is connected to the network — the same order `ownCallsign` uses.
+    /// Where the flight departs from, strictly as filed with VATSIM. Deliberately *not*
+    /// falling back to SimBrief the way `ownCallsign` does: the backend only knows flights that
+    /// were actually filed, so a SimBrief-only plan would mean asking a stranger's server about
+    /// a flight that cannot be there, and showing "waiting for flight" for it.
     private var cdmOrigin: String? {
-        let origin = flightPlan?.vatsimOrigin ?? flightPlan?.simbriefOrigin
-        guard let origin, origin.count >= 3 else { return nil }
+        guard let origin = flightPlan?.vatsimOrigin, origin.count >= 3 else { return nil }
         return origin.uppercased()
+    }
+
+    /// The callsign the filed flight is under — same reasoning as `cdmOrigin`.
+    private var cdmCallsign: String? {
+        guard let callsign = flightPlan?.vatsimCallsign, !callsign.isEmpty else { return nil }
+        return callsign
     }
 
     // MARK: Debug mode
@@ -407,6 +414,7 @@ final class AppStore {
         chatSessionId = nil
         readStateMessage = nil
         localReadThrough.removeAll()
+        stopCdmPolling()
         connection.connect(host: host, port: port)
     }
 
@@ -417,6 +425,10 @@ final class AppStore {
 
     func disconnect() {
         connection.disconnect()
+        // The slot poll is tied to the session, not to the socket's own lifetime: without this
+        // it would keep asking a third-party server once a minute after the pilot has left, and
+        // keep showing a tile for a flight the app no longer tracks.
+        stopCdmPolling()
     }
 
     /// Called when the app returns to the foreground. The socket may be dead even
@@ -585,8 +597,8 @@ final class AppStore {
     /// flight plan changes and when a session ends; cheap and idempotent, so it can be called on
     /// every resend.
     private func syncCdmPolling() {
-        let key = [cdmOrigin, ownCallsign].compactMap { $0 }.joined(separator: "|")
-        guard !demoMode, let origin = cdmOrigin, let callsign = ownCallsign else {
+        let key = [cdmOrigin, cdmCallsign].compactMap { $0 }.joined(separator: "|")
+        guard !demoMode, let origin = cdmOrigin, let callsign = cdmCallsign else {
             stopCdmPolling()
             return
         }
@@ -604,23 +616,35 @@ final class AppStore {
         cdmSlot = nil
     }
 
-    /// One flight's slot, polled until it departs or the flight changes. Every failure keeps the
-    /// last known tile and tries again rather than blanking it — this is an undocumented backend
-    /// on the open internet, and a dropped request is not news the pilot needs.
+    /// One flight's slot, polled until it departs or the flight changes. A failed request keeps
+    /// the last known tile and tries again rather than blanking it — this is an undocumented
+    /// backend on the open internet, and a dropped minute is not news the pilot needs.
+    ///
+    /// Every write back into the store is guarded by `Task.isCancelled`: cancelling does not
+    /// abort a request already in flight, so without that an answer about the previous flight
+    /// could still land in the tile of the next one — or over the demo sample.
     private func pollCdm(origin: String, callsign: String) async {
-        // A departure airport outside the CDM network has nothing to poll for, and asking once a
-        // minute forever would be pure noise on someone else's server.
-        let airports = await cdmClient.fetchCadAirports()
-        if let airports, !airports.isEmpty {
-            let airport = airports.first { $0.icao.caseInsensitiveCompare(origin) == .orderedSame }
-            guard airport?.isCdm == true || airport?.tobtReady == true else {
-                cdmSlot = nil
-                return
-            }
-        }
-
+        var airportIsCdm = false
         while !Task.isCancelled {
+            // A departure airport outside the CDM network has nothing to poll for. Checked
+            // before any flight list is ever requested, and retried rather than assumed when
+            // the list itself fails to load.
+            if !airportIsCdm {
+                guard let airports = await cdmClient.fetchCadAirports() else {
+                    try? await Task.sleep(for: AppStore.cdmPollInterval)
+                    continue
+                }
+                guard !Task.isCancelled else { return }
+                let airport = airports.first { $0.icao.caseInsensitiveCompare(origin) == .orderedSame }
+                guard airport?.isCdm == true || airport?.tobtReady == true else {
+                    cdmSlot = nil
+                    return
+                }
+                airportIsCdm = true
+            }
+
             if let flights = await cdmClient.fetchDepartureAirportFlights(icao: origin) {
+                guard !Task.isCancelled else { return }
                 let mine = flights.first { $0.callsign.caseInsensitiveCompare(callsign) == .orderedSame }
                 // An actual takeoff time ends CDM tracking for this flight for good.
                 if let atot = mine?.atot, !atot.trimmingCharacters(in: .whitespaces).isEmpty {
@@ -688,14 +712,22 @@ final class AppStore {
     /// there is nothing newer than what is already read, so an open tab doesn't send a
     /// command on every resend.
     private func advanceWatermark(forConversation key: String) {
+        guard let command = markChatReadCommand(forConversation: key) else { return }
+        localReadThrough[normalizedTab(command.tab)] = command.throughId
+        send(command)
+    }
+
+    /// The command one tab's advance would send, or nil when there is nothing newer than what is
+    /// already read. Split out from the sending so a test can prove what goes on the wire —
+    /// `send` needs a socket, and the tab name and watermark are exactly what a second device
+    /// depends on being right.
+    func markChatReadCommand(forConversation key: String) -> MarkChatReadCommand? {
         let newest = chatMessages
             .filter { $0.conversationKey == key }
             .compactMap(\.messageId)
             .max()
-        guard let newest, newest > readThrough(forConversation: key) else { return }
-        let tab = readStateTab(forConversation: key)
-        localReadThrough[normalizedTab(tab)] = newest
-        send(MarkChatReadCommand(tab: tab, throughId: newest))
+        guard let newest, newest > readThrough(forConversation: key) else { return nil }
+        return MarkChatReadCommand(tab: readStateTab(forConversation: key), throughId: newest)
     }
 
     /// Unread is a derivation, not a counter, once the plugin owns the watermark: every
