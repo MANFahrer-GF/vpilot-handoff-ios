@@ -1,5 +1,8 @@
 # vPilot Remote 1.3.0
 
+> **📲 Download: [vPilot Remote on the App Store](https://apps.apple.com/app/vpilot-remote/id6817687242)** — free.
+> There is no file attached to this release on purpose: the App Store is the download, and it keeps the app updated for you.
+
 The VATSIM controller list, chat and radio panel on your tablet — next to your charts
 in Split View. This is the companion app for the
 [Handoff plugin for vPilot](https://github.com/sushiat/vpilot-handoff) by sushi.at,
