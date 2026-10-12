@@ -161,6 +161,78 @@ struct ChatReadStateTests {
         #expect(store.markChatReadCommand(forConversation: ChatMessage.radioConversationKey) == nil)
     }
 
+    /// The one thing the other device depends on is that the command actually goes out. Every
+    /// other test here would stay green if `send` were dropped, because the local watermark
+    /// carries them on its own.
+    @Test func readingATabPutsTheCommandOnTheWire() throws {
+        let store = self.store()
+        var sent: [String] = []
+        store.connection.onDidEncodeCommand = { sent.append($0) }
+        store.connection.onChat?(try chat(log(sessionId: "abc", "\(radioFromTwr),\(privateFromApp)")))
+
+        store.markConversationRead("EDDM_APP")
+        #expect(sent.contains { $0.contains("\"markChatRead\"") && $0.contains("\"EDDM_APP\"") && $0.contains("42") })
+
+        // Demo mode is a hard stop for every command, this one included.
+        sent.removeAll()
+        store.demoMode = true
+        store.markConversationRead(ChatMessage.radioConversationKey)
+        #expect(sent.isEmpty)
+    }
+
+    /// Covers the real type switch rather than the callback behind it — a typo in the case
+    /// string would otherwise pass every test in this file.
+    @Test func theReadStateMessageArrivesThroughTheRealDispatch() throws {
+        let store = self.store()
+        store.connection.receiveForTesting(log(sessionId: "abc", "\(radioFromTwr),\(privateFromApp)"))
+        #expect(store.unreadChatCount == 2)
+
+        store.connection.receiveForTesting("""
+            {"type":"chatReadState","sessionId":"abc","readThrough":{"radio":41,"EDDM_APP":42}}
+            """)
+        #expect(store.unreadChatCount == 0)
+    }
+
+    /// The watermark can arrive before the log it refers to — the connect snapshot sends both,
+    /// and nothing orders them.
+    @Test func aWatermarkArrivingBeforeTheLogStillCounts() throws {
+        let store = self.store()
+        store.connection.onChatReadState?(try readState("""
+            {"type":"chatReadState","sessionId":"abc","readThrough":{"radio":41}}
+            """))
+        store.connection.onChat?(try chat(log(sessionId: "abc", "\(radioFromTwr),\(privateFromApp)")))
+        #expect(store.unreadByConversation[ChatMessage.radioConversationKey] == nil)
+        #expect(store.unreadByConversation["EDDM_APP"] == 1)
+    }
+
+    /// A plugin restart mid-session hands out fresh ids from zero. Keeping the old watermark
+    /// would silence the new log; keeping the old badges would be a lie about what was read.
+    @Test func aPluginRestartInvalidatesWhatWasRead() throws {
+        let store = self.store()
+        store.connection.onChat?(try chat(log(sessionId: "abc", "\(radioFromTwr),\(privateFromApp)")))
+        store.markConversationRead("EDDM_APP")
+        store.markConversationRead(ChatMessage.radioConversationKey)
+        #expect(store.unreadChatCount == 0)
+
+        // Same ids, new session: these are different messages.
+        store.connection.onChat?(try chat(log(sessionId: "xyz", "\(radioFromTwr),\(privateFromApp)")))
+        #expect(store.unreadChatCount == 2)
+    }
+
+    /// A broadcast that names this pilot is directed traffic: the MSG tile has to go orange,
+    /// exactly as it did when a broadcast still had its own tab.
+    @Test func aBroadcastNamingUsStillTurnsTheTileOrange() throws {
+        let store = self.store()
+        store.flightPlan = try JSONDecoder().decode(FlightPlanMessage.self, from: Data("""
+            {"type":"flightPlan","vatsimCallsign":"DLH4TK"}
+            """.utf8))
+        store.connection.onChat?(try chat(log(sessionId: "abc", """
+            {"id":60,"channel":"broadcast","direction":"incoming","peer":"EDDM_ATIS","text":"DLH4TK revised slot","timestamp":"2026-10-12T10:06:00Z"}
+            """)))
+        #expect(store.unreadByConversation[ChatMessage.radioConversationKey] == 1)
+        #expect(store.hasUnreadDirectedMessage)
+    }
+
     /// Own replies are not unread — true in both paths, and easy to lose when unread
     /// becomes a derivation over the whole log rather than a counter.
     @Test func ownRepliesAreNeverUnread() throws {

@@ -268,7 +268,8 @@ final class AppStore {
                         self.unreadByConversation[key, default: 0] += 1
                         // A call that names us is directed traffic even though it came
                         // over the shared frequency.
-                        if message.isRadio, message.mentions(callsign: self.ownCallsign) {
+                        if key == ChatMessage.radioConversationKey,
+                           message.mentions(callsign: self.ownCallsign) {
                             self.unreadRadioMentionsUs = true
                         }
                     }
@@ -280,6 +281,13 @@ final class AppStore {
             if self.selcalAlerts != msg.selcalAlerts { self.selcalAlerts = msg.selcalAlerts }
         }
         connection.onRadioState = { [weak self] msg in self?.radioState = msg }
+        connection.onStateChanged = { [weak self] state in
+            // A link that drops by itself never calls disconnect(), and the slot poll must not
+            // outlive the session: it would keep asking a third-party server once a minute and
+            // keep showing a tile next to a red "disconnected".
+            guard state != .connected else { return }
+            self?.stopCdmPolling()
+        }
         connection.onFlightPlan = { [weak self] msg in
             self?.flightPlan = msg
             self?.syncCdmPolling()
@@ -635,23 +643,28 @@ final class AppStore {
                     continue
                 }
                 guard !Task.isCancelled else { return }
-                let airport = airports.first { $0.icao.caseInsensitiveCompare(origin) == .orderedSame }
-                guard airport?.isCdm == true || airport?.tobtReady == true else {
+                guard CdmSlot.isCdmCovered(airports, origin: origin) else {
+                    // Not (yet) a CDM airport: no flight list is requested, but the question is
+                    // asked again next tick rather than settled for the whole session -- an
+                    // airport can be missing from one answer and present in the next.
                     cdmSlot = nil
-                    return
+                    try? await Task.sleep(for: AppStore.cdmPollInterval)
+                    continue
                 }
                 airportIsCdm = true
             }
 
             if let flights = await cdmClient.fetchDepartureAirportFlights(icao: origin) {
                 guard !Task.isCancelled else { return }
-                let mine = flights.first { $0.callsign.caseInsensitiveCompare(callsign) == .orderedSame }
-                // An actual takeoff time ends CDM tracking for this flight for good.
-                if let atot = mine?.atot, !atot.trimmingCharacters(in: .whitespaces).isEmpty {
+                switch CdmSlot.outcome(forFlights: flights, callsign: callsign, now: Date()) {
+                case .departed:
                     cdmSlot = nil
                     return
+                case .slot(let display):
+                    cdmSlot = display
+                case .waiting:
+                    cdmSlot = CdmSlot.waitingDisplay()
                 }
-                cdmSlot = CdmSlot.display(for: mine, now: Date()) ?? CdmSlot.waitingDisplay()
             }
             try? await Task.sleep(for: AppStore.cdmPollInterval)
         }
@@ -722,6 +735,9 @@ final class AppStore {
     /// `send` needs a socket, and the tab name and watermark are exactly what a second device
     /// depends on being right.
     func markChatReadCommand(forConversation key: String) -> MarkChatReadCommand? {
+        // "?" is the placeholder for a private message that arrived without a peer. There is no
+        // such tab on the plugin's side, so claiming one read would be nonsense.
+        guard key != "?" else { return nil }
         let newest = chatMessages
             .filter { $0.conversationKey == key }
             .compactMap(\.messageId)
@@ -740,7 +756,11 @@ final class AppStore {
             let key = message.conversationKey
             guard (message.messageId ?? 0) > readThrough(forConversation: key) else { continue }
             counts[key, default: 0] += 1
-            if message.isRadio, message.mentions(callsign: ownCallsign) { radioMentionsUs = true }
+            // Anything in the shared tab that names us -- a radio call or a broadcast -- is
+            // directed traffic, and that is what turns the MSG tile orange.
+            if key == ChatMessage.radioConversationKey, message.mentions(callsign: ownCallsign) {
+                radioMentionsUs = true
+            }
         }
         if unreadByConversation != counts { unreadByConversation = counts }
         if unreadRadioMentionsUs != radioMentionsUs { unreadRadioMentionsUs = radioMentionsUs }

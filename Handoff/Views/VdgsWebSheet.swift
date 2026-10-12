@@ -60,6 +60,7 @@ private struct VdgsWebView: UIViewRepresentable {
     func makeUIView(context: Context) -> WKWebView {
         let view = WKWebView(frame: .zero, configuration: WKWebViewConfiguration())
         view.navigationDelegate = context.coordinator
+        view.uiDelegate = context.coordinator
         view.allowsBackForwardNavigationGestures = true
         view.load(URLRequest(url: url))
         return view
@@ -67,7 +68,22 @@ private struct VdgsWebView: UIViewRepresentable {
 
     func updateUIView(_ uiView: WKWebView, context: Context) {}
 
-    final class Coordinator: NSObject, WKNavigationDelegate {
+    final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
+        /// The site opens its VATSIM login in a new window. Without this, a web view silently
+        /// does nothing with it and the pilot is stuck on a button that appears dead -- so the
+        /// request is loaded in this same view instead, through the same host gate.
+        func webView(
+            _ webView: WKWebView,
+            createWebViewWith configuration: WKWebViewConfiguration,
+            for navigationAction: WKNavigationAction,
+            windowFeatures: WKWindowFeatures
+        ) -> WKWebView? {
+            if isAllowedVdgsNavigation(navigationAction.request.url) {
+                webView.load(navigationAction.request)
+            }
+            return nil
+        }
+
         func webView(
             _ webView: WKWebView,
             decidePolicyFor navigationAction: WKNavigationAction,

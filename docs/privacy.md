@@ -69,8 +69,9 @@ Tapping the tile opens the **VDGS website** (`vdgs.vatsimspain.es`) inside the a
 which is where a TOBT is actually set. That is the real website: you log in with your
 own VATSIM account, and your session cookie stays in this app so the login is not asked
 for again every time. The app does not read, store or forward what you type there, and
-the embedded window may only navigate to that site, VATSIM's login, and the bot check
-in front of them.
+the embedded window may only *open pages* on that site, VATSIM's login, and the bot check in
+front of them — a link anywhere else is refused. Parts a page loads for itself (scripts, styles,
+the bot check's own frame) are not restricted, because the page could not work otherwise.
 
 ## What the app requests from iOS
 
@@ -171,7 +172,9 @@ der App — dort wird eine TOBT tatsächlich gesetzt. Das ist die echte Webseite
 meldest dich mit deinem eigenen VATSIM-Konto an, und dein Sitzungs-Cookie bleibt in
 dieser App, damit die Anmeldung nicht jedes Mal neu nötig ist. Die App liest, speichert
 und leitet nicht weiter, was du dort eingibst, und das eingebettete Fenster darf nur
-diese Seite, die VATSIM-Anmeldung und die davor liegende Bot-Prüfung aufrufen.
+*Seiten* dieser Seite, der VATSIM-Anmeldung und der davor liegenden Bot-Prüfung öffnen — ein Link
+woandershin wird abgewiesen. Was eine Seite für sich selbst nachlädt (Skripte, Gestaltung, der
+Rahmen der Bot-Prüfung), ist nicht eingeschränkt, weil die Seite sonst nicht funktionieren würde.
 
 ## Was die App vom System verlangt
 

@@ -120,6 +120,42 @@ struct CdmSlotTests {
         #expect(overdue?.chipLabel == "TOBT +15m")
     }
 
+    /// What one backend answer means for the tile — the layer the polling loop acts on, and
+    /// where both previous reviews found their bugs.
+    @Test func oneAnswerDecidesDepartedTrackedOrWaiting() {
+        var airborne = flight(tobt: "1810")
+        airborne.atot = "1812"
+        let mine = flight(tobt: "1810")
+        let someoneElse = CdmFlight(callsign: "AUA123", eobt: "1900")
+
+        // Airborne: tracking is over, and that must not read as "nothing filed yet".
+        #expect(CdmSlot.outcome(forFlights: [airborne], callsign: "EIDGX", now: utc(18, 20)) == .departed)
+        // Another aircraft's row must never become ours.
+        #expect(CdmSlot.outcome(forFlights: [someoneElse], callsign: "EIDGX", now: utc(18, 0)) == .waiting)
+        // How the network spells the callsign is not a reason to miss our own flight.
+        if case .slot(let display) = CdmSlot.outcome(forFlights: [mine], callsign: "eidgx", now: utc(18, 0)) {
+            #expect(display.targetLabel == "TOBT")
+        } else {
+            Issue.record("own flight was not matched")
+        }
+    }
+
+    /// The gate that runs before any flight list is ever requested. "Does CDM but not
+    /// TOBT-ready" still counts — live data shows pilots getting TOBTs at those airports.
+    @Test func onlyCdmAirportsAreWorthAsking() throws {
+        let json = """
+            [{"icao":"LEBL","isCdm":true,"tobtReady":true},
+             {"icao":"LEMD","isCdm":true,"tobtReady":false},
+             {"icao":"EDDM","isCdm":false,"tobtReady":false}]
+            """
+        let list = try JSONDecoder().decode([CadAirport].self, from: Data(json.utf8))
+        #expect(CdmSlot.isCdmCovered(list, origin: "LEBL"))
+        #expect(CdmSlot.isCdmCovered(list, origin: "lemd"))
+        #expect(CdmSlot.isCdmCovered(list, origin: "EDDM") == false)
+        #expect(CdmSlot.isCdmCovered(list, origin: "EDDF") == false)
+        #expect(CdmSlot.isCdmCovered([], origin: "LEBL") == false)
+    }
+
     /// Sub-resources must pass: the bot check in front of the site loads frames and scripts from
     /// hosts nobody listed, and gating those would break the page this exists to show. What the
     /// privacy policy actually promises is fenced in is whole-page navigation — including a new
@@ -154,6 +190,9 @@ struct CdmSlotTests {
     @Test func theEmbeddedSiteOnlyFollowsItsOwnHosts() {
         #expect(isAllowedVdgsNavigation(URL(string: "https://vdgs.vatsimspain.es/vdgs/index.php")))
         #expect(isAllowedVdgsNavigation(URL(string: "https://auth.vatsim.net/oauth/authorize")))
+        // The bot check in front of both is on the list for a reason: without it the site is
+        // unreachable, which looks like a broken feature rather than a blocked host.
+        #expect(isAllowedVdgsNavigation(URL(string: "https://challenges.cloudflare.com/turnstile")))
         #expect(isAllowedVdgsNavigation(URL(string: "http://vdgs.vatsimspain.es/")) == false)
         #expect(isAllowedVdgsNavigation(URL(string: "https://vatsimspain.es.evil.example/")) == false)
         #expect(isAllowedVdgsNavigation(URL(string: "https://example.com/")) == false)

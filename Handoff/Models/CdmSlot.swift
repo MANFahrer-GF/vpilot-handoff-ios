@@ -248,6 +248,32 @@ enum CdmSlot {
         ).at(now)
     }
 
+    /// What one answer from the backend means for the tile. Pulled out of the polling loop so
+    /// the decisions — departed, tracked, not tracked yet — can be tested without a server;
+    /// that loop is where the last two reviews found their bugs.
+    enum Outcome: Equatable {
+        /// Already airborne: CDM tracking for this flight is over.
+        case departed
+        case slot(CdmSlotDisplay)
+        /// The airport does CDM, but this flight isn't in the system yet.
+        case waiting
+    }
+
+    static func outcome(forFlights flights: [CdmFlight], callsign: String, now: Date) -> Outcome {
+        let mine = flights.first { $0.callsign.caseInsensitiveCompare(callsign) == .orderedSame }
+        if let atot = mine?.atot, !atot.trimmingCharacters(in: .whitespaces).isEmpty { return .departed }
+        guard let display = display(for: mine, now: now) else { return .waiting }
+        return .slot(display)
+    }
+
+    /// Whether this departure airport is worth asking about at all. An airport that does CDM
+    /// without being TOBT-ready still counts: live data shows pilots getting TOBTs there.
+    static func isCdmCovered(_ airports: [CadAirport], origin: String) -> Bool {
+        guard let airport = airports.first(where: { $0.icao.caseInsensitiveCompare(origin) == .orderedSame })
+        else { return false }
+        return airport.isCdm || airport.tobtReady
+    }
+
     /// "This airport does CDM, but the backend isn't tracking the flight yet": a grey, time-less
     /// chip rather than nothing, so the pilot can tell the difference between "no CDM here" and
     /// "CDM here, nothing filed for you yet".
