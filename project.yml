@@ -12,9 +12,19 @@ options:
 fileGroups:
   - Handoff/Localizable.xcstrings
 
+# Xcode's "Update to recommended settings" nag compares this against the running
+# Xcode. Clicking it there would be lost on the next `xcodegen generate`, since the
+# .xcodeproj is generated and not version-controlled -- so it is set here instead,
+# together with the one setting Xcode actually recommends that was still off.
+attributes:
+  LastUpgradeCheck: "2700"
+
 settings:
   base:
     SWIFT_VERSION: "6.0"
+    # Build scripts run sandboxed. Nothing in this project writes outside its own
+    # build directory, so there is nothing to lose by it.
+    ENABLE_USER_SCRIPT_SANDBOXING: "YES"
     # Set your own Apple Development Team ID here (Xcode > Settings > Accounts),
     # or leave blank and pick the team in Xcode's Signing & Capabilities tab.
     # Kept out of version control so a fork doesn't inherit someone else's account.

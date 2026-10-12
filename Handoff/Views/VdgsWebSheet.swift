@@ -52,6 +52,10 @@ func vdgsNavigationAllowed(url: URL?, isMainFrame: Bool?) -> Bool {
     return isAllowedVdgsNavigation(url)
 }
 
+/// The sheet's navigation/UI delegate, reachable from tests so its conformance can be checked.
+@MainActor
+func makeVdgsWebViewDelegate() -> NSObject { VdgsWebView.Coordinator() }
+
 private struct VdgsWebView: UIViewRepresentable {
     let url: URL
 
@@ -68,6 +72,11 @@ private struct VdgsWebView: UIViewRepresentable {
 
     func updateUIView(_ uiView: WKWebView, context: Context) {}
 
+    /// `@MainActor` on purpose: WebKit calls these delegate methods on the main thread, and
+    /// without the annotation the navigation one only *nearly* matches the protocol's
+    /// requirement -- it compiles, WebKit never calls it, and the host gate below silently
+    /// does nothing. The compiler says so as a warning; it is a functional bug.
+    @MainActor
     final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
         /// The site opens its VATSIM login in a new window. Without this, a web view silently
         /// does nothing with it and the pilot is stuck on a button that appears dead -- so the
@@ -84,10 +93,14 @@ private struct VdgsWebView: UIViewRepresentable {
             return nil
         }
 
+        /// The `@MainActor @Sendable` on the handler is not decoration: WebKit declares the
+        /// block `WK_SWIFT_UI_ACTOR`, and without those the method only *nearly* matches the
+        /// protocol requirement. It compiles, WebKit never calls it, and the host gate below
+        /// quietly allows everything. `VdgsWebSheetTests` pins the selector for that reason.
         func webView(
             _ webView: WKWebView,
             decidePolicyFor navigationAction: WKNavigationAction,
-            decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
+            decisionHandler: @escaping @MainActor @Sendable (WKNavigationActionPolicy) -> Void
         ) {
             let allowed = vdgsNavigationAllowed(
                 url: navigationAction.request.url,
