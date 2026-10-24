@@ -240,4 +240,30 @@ struct ProtocolDecodingTests {
         let message = try decode(#"{"type":"nearbyAircraft"}"#, as: NearbyAircraftMessage.self)
         #expect(message.aircraft.isEmpty)
     }
+
+    // MARK: new-station blink (upstream issue #186, plugin 0.8.0)
+
+    @Test func newStationFlagDecodesAndDefaultsToFalse() throws {
+        let message = try decode(
+            #"{"type":"controllers","controllers":[{"callsign":"LOWW_GND","frequency":21700,"isNewStation":true},{"callsign":"LOWW_TWR","frequency":19400}]}"#,
+            as: ControllersMessage.self
+        )
+        #expect(message.controllers.first?.isNewStation == true)
+        // An older plugin never sends the field: no blink, and no failed decode.
+        #expect(message.controllers.last?.isNewStation == false)
+    }
+
+    /// Blinks while the plugin holds the flag -- but not once the pilot tapped it away, and not
+    /// for the station that is already tuned, as on Android.
+    @Test func aNewStationBlinksUntilTappedOrTuned() throws {
+        let message = try decode(
+            #"{"type":"controllers","controllers":[{"callsign":"LOWW_GND","frequency":21700,"isNewStation":true},{"callsign":"LOWW_DEL","frequency":22200,"isNewStation":true,"isCurrent":true},{"callsign":"LOWW_TWR","frequency":19400}]}"#,
+            as: ControllersMessage.self
+        )
+        let new = message.controllers[0], tuned = message.controllers[1], old = message.controllers[2]
+        #expect(new.blinksAsNewStation(dismissed: false))
+        #expect(new.blinksAsNewStation(dismissed: true) == false)
+        #expect(tuned.blinksAsNewStation(dismissed: false) == false)
+        #expect(old.blinksAsNewStation(dismissed: false) == false)
+    }
 }

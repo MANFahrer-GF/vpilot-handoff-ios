@@ -11,6 +11,7 @@ struct DashboardView: View {
     @State private var showSettings = false
     @State private var chatOverlayShown = false
     @State private var chatTarget: String?
+    @State private var showConductNotice = ConductNoticeView.isPending
 
     /// Below this the dashboard alone owns the width and chat overlays on demand.
     private static let sideBySideMinWidth: CGFloat = 900
@@ -78,12 +79,26 @@ struct DashboardView: View {
         } message: { destination in
             Text("New destination on the VATSIM feed: \(destination)")
         }
+        // An overlay rather than a second full-screen cover: two covers on one view compete, and
+        // the settings one opens by itself on a first launch. The notice comes first, settings
+        // after it.
+        .overlay {
+            if showConductNotice {
+                ConductNoticeView {
+                    ConductNoticeView.acknowledge()
+                    showConductNotice = false
+                    if store.lastHost.isEmpty && !store.demoMode { showSettings = true }
+                }
+            }
+        }
         .onAppear {
             if DemoData.isEnabledAtLaunch {
+                // Screenshot tooling (Debug only): the sample screens without the notice on top.
+                showConductNotice = false
                 store.demoMode = true
                 return
             }
-            if store.lastHost.isEmpty { showSettings = true }
+            if store.lastHost.isEmpty && !showConductNotice { showSettings = true }
         }
     }
 

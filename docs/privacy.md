@@ -5,7 +5,7 @@ title: Privacy
 # Privacy policy
 
 *vPilot Remote — iPad client for the [Handoff vPilot plugin](https://github.com/sushiat/vpilot-handoff).*
-Last updated: 8 August 2026.
+Last updated: 24 October 2026.
 
 **Deutsche Fassung weiter unten.**
 
@@ -28,6 +28,7 @@ All of it stays on the device. Nothing here is uploaded anywhere.
 | A random identifier for this installation | iPad preferences | Sent to your plugin so it can recognise this iPad between sessions. A fresh UUID, not tied to you or your hardware |
 | The pairing token issued by your plugin | iPad **Keychain** | It grants control of your radio, so it is kept in the Keychain rather than ordinary preferences |
 | Display preferences: appearance, colour themes, channel spacing, keypad rules | iPad preferences | Your settings |
+| That you have read the note on VATSIM's rules | iPad preferences | So it is shown once, not on every start |
 
 Controllers, chat messages, radio state and flight-plan data are held **in memory
 only** while the app runs. They are never written to storage.
@@ -42,7 +43,10 @@ Deleting the app removes all of it.
 - the installation identifier,
 - your SimBrief user ID/username, when you save them,
 - the commands you trigger — tuning a frequency, setting a squawk, sending a
-  message, pinning a station.
+  message, pinning a station,
+- when you connect to VATSIM from the app: the callsign, aircraft type and SELCAL you
+  entered. It is vPilot on your PC that then connects to the network with them, exactly as
+  if you had used its own window; the app itself never talks to VATSIM.
 
 **One exception worth naming.** If you turn on *Debug mode* **and** leave
 *Attach screenshot* enabled, a diagnostic snapshot includes a **picture of this
@@ -56,8 +60,8 @@ it.
 The departure-slot tile (TOBT/TSAT/CTOT) reads `api.viffsys.com`, the same A-CDM
 backend the Android client and the EuroScope CDM plugin use. It runs **only** while a
 flight plan filed with VATSIM gives a departure airport, and then roughly once a minute until
-the flight takes off or the session ends. The first request asks which airports are part of the
-CDM network at all; if yours is not, nothing further is sent.
+the flight takes off or the session ends. The first request asks which airports the service
+knows at all; if yours is not among them, nothing further is sent.
 
 Each request asks that airport for its list of tracked flights, so what leaves your
 iPad is **the departure airport** (in the request) and your iPad's IP address, as with
@@ -106,7 +110,7 @@ The app is free, open source (MIT) and not a commercial offering.
 
 *vPilot Remote — iPad-Client für das
 [Handoff-vPilot-Plugin](https://github.com/sushiat/vpilot-handoff).*
-Stand: 8. August 2026.
+Stand: 24. Oktober 2026.
 
 ## Kurz gesagt
 
@@ -127,6 +131,7 @@ Alles davon bleibt auf dem Gerät. Nichts wird irgendwohin übertragen.
 | Eine Zufallskennung dieser Installation | iPad-Einstellungen | Geht an dein Plugin, damit es dieses iPad wiedererkennt. Eine frisch erzeugte UUID, nicht mit dir oder deiner Hardware verknüpft |
 | Das Kopplungs-Token deines Plugins | iPad-**Schlüsselbund** | Es erlaubt die Steuerung deines Funkgeräts und liegt deshalb im Schlüsselbund statt in gewöhnlichen Einstellungen |
 | Anzeigeeinstellungen: Erscheinungsbild, Farbschemata, Kanalraster, Tastenfeldregeln | iPad-Einstellungen | Deine Einstellungen |
+| Dass du den Hinweis auf die VATSIM-Regeln gelesen hast | iPad-Einstellungen | Damit er einmal erscheint, nicht bei jedem Start |
 
 Lotsen, Chatnachrichten, Funkzustand und Flugplandaten liegen **nur im
 Arbeitsspeicher**, solange die App läuft. Sie werden nie auf den Speicher
@@ -142,7 +147,10 @@ Das Löschen der App entfernt alles davon.
 - die Installationskennung,
 - deine SimBrief-Kennung und dein Benutzername, wenn du sie sicherst,
 - die Befehle, die du auslöst — Frequenz stellen, Transpondercode setzen,
-  Nachricht senden, Station anheften.
+  Nachricht senden, Station anheften,
+- wenn du dich aus der App mit VATSIM verbindest: das eingegebene Rufzeichen, den
+  Flugzeugtyp und den SELCAL-Code. Mit ihnen verbindet sich dann vPilot auf deinem PC mit
+  dem Netz, genau wie über sein eigenes Fenster; die App selbst spricht nie mit VATSIM.
 
 **Eine Ausnahme, die genannt gehört.** Wenn du den *Debug-Modus* einschaltest
 **und** *Bildschirmfoto anhängen* aktiviert lässt, enthält ein Diagnose-Schnappschuss
@@ -157,7 +165,7 @@ Die Kachel mit der Abflugzeit (TOBT/TSAT/CTOT) liest `api.viffsys.com`, denselbe
 A-CDM-Dienst, den auch die Android-App und das EuroScope-CDM-Plugin nutzen. Sie läuft
 **nur**, wenn ein bei VATSIM eingereichter Flugplan einen Abflughafen nennt, und dann etwa
 einmal pro Minute, bis der Flug gestartet oder die Sitzung beendet ist. Die erste Anfrage holt,
-welche Flughäfen überhaupt am CDM-Netz teilnehmen; ist deiner nicht dabei, wird nichts weiter
+welche Flughäfen der Dienst überhaupt kennt; ist deiner nicht dabei, wird nichts weiter
 gesendet.
 
 Jede Anfrage holt die Liste der verfolgten Flüge dieses Flughafens. Dein iPad gibt

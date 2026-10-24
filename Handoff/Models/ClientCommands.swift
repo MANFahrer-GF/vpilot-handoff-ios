@@ -84,7 +84,25 @@ struct DismissSelcalCommand: Encodable {
     let callsign: String
 }
 
-/// Covers confirmDiversion / dismissDiversion / refreshFlightPlan -- no fields of their own.
+/// Connects to VATSIM through vPilot (upstream issue #171, plugin 0.8.0). `operationId` is minted
+/// here, not by the plugin: `operationProgress` goes to every paired client, and this is how the
+/// requester recognises the answer to its own request. As an observer only `callsign` counts.
+struct ConnectNetworkCommand: Encodable {
+    let type = "connectNetwork"
+    let operationId: String
+    let callsign: String
+    let aircraftType: String?
+    let selcalCode: String?
+    let observer: Bool
+}
+
+struct DisconnectNetworkCommand: Encodable {
+    let type = "disconnectNetwork"
+    let operationId: String
+}
+
+/// Covers confirmDiversion / dismissDiversion / refreshFlightPlan / refreshVatsimFeed -- no
+/// fields of their own.
 struct SimpleCommand: Encodable {
     let type: String
 }

@@ -335,6 +335,7 @@ final class AppStore {
                 connection.disconnect()
                 clearLiveState()
                 DemoData.apply(to: self)
+                startDemoNewStationBlink()
             } else {
                 clearLiveState()
             }
@@ -359,6 +360,35 @@ final class AppStore {
         stopCdmPolling()
         cdmSlot = nil
         lastSendError = nil
+        demoNewStationTask?.cancel()
+        demoNewStationTask = nil
+        clearNetworkRequest()
+    }
+
+    private var demoNewStationTask: Task<Void, Never>?
+
+    /// Shows the new-station blink (upstream issue #186) once in the demo, the way the Android
+    /// demo does: Ground "opens" ten seconds in and blinks for the plugin's five seconds. Not the
+    /// Tower, which already flashes as a contact-me in the sample.
+    private func startDemoNewStationBlink() {
+        demoNewStationTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(10))
+            guard !Task.isCancelled else { return }
+            self?.demoSetNewStation(true)
+            try? await Task.sleep(for: .seconds(5))
+            guard !Task.isCancelled else { return }
+            self?.demoSetNewStation(false)
+        }
+    }
+
+    private func demoSetNewStation(_ isNew: Bool) {
+        guard demoMode, let station = controllers.first(where: { $0.callsign == "LOWW_GND" }) else { return }
+        controllers = controllers.map { controller in
+            guard controller.callsign == station.callsign else { return controller }
+            var copy = controller
+            copy.isNewStation = isNew
+            return copy
+        }
     }
 
     /// The single way out of this app. Demo mode is a hard stop here rather than a
@@ -423,6 +453,7 @@ final class AppStore {
         readStateMessage = nil
         localReadThrough.removeAll()
         stopCdmPolling()
+        clearNetworkRequest()
         connection.connect(host: host, port: port)
     }
 
@@ -561,6 +592,139 @@ final class AppStore {
         send(SimpleCommand(type: "refreshFlightPlan"))
     }
 
+    /// Polls the VATSIM data feed now instead of on the plugin's next 15 s tick (plugin 0.8.0).
+    func refreshVatsimFeed() {
+        send(SimpleCommand(type: "refreshVatsimFeed"))
+    }
+
+    // MARK: VATSIM network (upstream issue #171)
+
+    /// Whether the plugin understands connect/disconnect. An older one ignores both and never
+    /// answers, so the controls stay hidden there rather than spin into a timeout.
+    var networkControlsSupported: Bool {
+        NetworkConnect.isSupported(pluginVersion: subsystemStatus?.pluginVersion)
+    }
+
+    /// On the network as far as the plugin knows: it fills in the callsign once connected.
+    var isOnNetwork: Bool { flightPlan?.vatsimCallsign != nil }
+
+    /// The connect or disconnect this device last asked for, until the form that started it lets
+    /// go of it. Only this device's own request -- `operationProgress` reaches every paired client.
+    private(set) var networkRequest: NetworkRequest?
+    private var networkRequestTimeout: Task<Void, Never>?
+
+    /// How long to wait for the plugin's first or next word on a request. The shared operation
+    /// backstop only starts once a first message has arrived; a request the plugin never answers
+    /// at all would otherwise spin for good. A static so a test doesn't have to wait a minute.
+    static var networkRequestTimeoutInterval: Duration = .seconds(60)
+
+    /// Sends a connect for a filled-in form. False when the form isn't sendable or a request is
+    /// still waiting -- the view keeps Connect disabled in both cases anyway.
+    @discardableResult
+    func connectToNetwork(callsign: String, aircraftType: String, selcal: String, observer: Bool) -> Bool {
+        guard networkRequest.map({ $0.finished }) ?? true,
+              let command = NetworkConnect.command(
+                operationId: UUID().uuidString, callsign: callsign, aircraftType: aircraftType,
+                selcal: selcal, observer: observer
+              ) else { return false }
+        beginNetworkRequest(id: command.operationId, kind: .connect, status: "Connecting to VATSIM...")
+        if demoMode {
+            demoFinishNetworkRequest(callsign: command.callsign)
+        } else {
+            send(command)
+        }
+        return true
+    }
+
+    func disconnectFromNetwork() {
+        guard networkRequest.map({ $0.finished }) ?? true else { return }
+        let id = UUID().uuidString
+        beginNetworkRequest(id: id, kind: .disconnect, status: "Disconnecting from VATSIM...")
+        if demoMode {
+            demoFinishNetworkRequest(callsign: nil)
+        } else {
+            send(DisconnectNetworkCommand(operationId: id))
+        }
+    }
+
+    /// Lets go of a finished (or abandoned) request, so the next form starts clean.
+    func clearNetworkRequest() {
+        networkRequestTimeout?.cancel()
+        networkRequestTimeout = nil
+        networkRequest = nil
+    }
+
+    private func beginNetworkRequest(id: String, kind: NetworkRequest.Kind, status: String) {
+        networkRequest = NetworkRequest(id: id, kind: kind, status: status)
+        armNetworkRequestTimeout(id: id)
+    }
+
+    private func armNetworkRequestTimeout(id: String) {
+        networkRequestTimeout?.cancel()
+        networkRequestTimeout = Task { [weak self] in
+            try? await Task.sleep(for: AppStore.networkRequestTimeoutInterval)
+            guard !Task.isCancelled, let self, var request = self.networkRequest,
+                  request.id == id, !request.finished else { return }
+            request.finished = true
+            request.success = false
+            request.status = "No answer from vPilot. Check that vPilot is running, then try again."
+            self.networkRequest = request
+            self.lingerFinishedDisconnect(request)
+        }
+    }
+
+    /// A disconnect has no form of its own to hold its outcome, so it lingers in the footer the
+    /// way other operations do -- a few seconds for success, longer for a failure -- then goes.
+    /// A connect's outcome stays with its form until that closes.
+    private func lingerFinishedDisconnect(_ request: NetworkRequest) {
+        guard request.kind == .disconnect, request.finished else { return }
+        let linger: Duration = request.failed ? .seconds(12) : .seconds(4)
+        networkRequestTimeout?.cancel()
+        networkRequestTimeout = Task { [weak self] in
+            try? await Task.sleep(for: linger)
+            guard !Task.isCancelled, let self, self.networkRequest?.id == request.id else { return }
+            self.networkRequest = nil
+            self.networkRequestTimeout = nil
+        }
+    }
+
+    /// Follows the plugin's answer to this device's own request; everyone else's is ignored.
+    private func applyNetworkProgress(_ msg: OperationProgressMessage) {
+        guard var request = networkRequest, request.id == msg.operationId, !request.finished else { return }
+        if !msg.status.isEmpty { request.status = msg.status }
+        request.finished = msg.finished
+        request.success = msg.finished ? (msg.success ?? false) : nil
+        networkRequest = request
+        if msg.finished {
+            networkRequestTimeout?.cancel()
+            networkRequestTimeout = nil
+            lingerFinishedDisconnect(request)
+        } else {
+            armNetworkRequestTimeout(id: request.id)
+        }
+    }
+
+    /// Demo mode answers its own request, since no plugin ever will: a second later, as success,
+    /// with the sample flight plan showing the result.
+    private func demoFinishNetworkRequest(callsign: String?) {
+        guard demoMode else { return }
+        let id = networkRequest?.id
+        Task { [weak self] in
+            try? await Task.sleep(for: .seconds(1))
+            guard let self, self.demoMode, var request = self.networkRequest, request.id == id else { return }
+            request.finished = true
+            request.success = true
+            request.status = callsign == nil ? "Disconnected from VATSIM." : "Connected to VATSIM."
+            self.networkRequest = request
+            self.networkRequestTimeout?.cancel()
+            self.lingerFinishedDisconnect(request)
+            if var plan = self.flightPlan {
+                plan.vatsimCallsign = callsign
+                self.flightPlan = plan
+            }
+        }
+    }
+
     // MARK: Settings
 
     func setSimbriefCredentials(userId: String?, username: String?) {
@@ -681,6 +845,7 @@ final class AppStore {
     /// failures longer, since that's the actionable case. protocol.md leaves the
     /// duration to the client but is explicit that clearing on arrival is too fast.
     private func applyOperationProgress(_ msg: OperationProgressMessage) {
+        applyNetworkProgress(msg)
         operations[msg.operationId] = msg
         operationTimeouts[msg.operationId]?.cancel()
 

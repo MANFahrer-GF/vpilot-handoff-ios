@@ -5,7 +5,12 @@ struct FlightPlanMessage: Decodable, Equatable {
     let simbriefOrigin: String?
     let simbriefDestination: String?
     let simbriefAlternate: String?
-    let vatsimCallsign: String?
+    /// The OFP's ICAO type and SELCAL (plugin 0.8.0), only there to prefill the connect form.
+    /// The SELCAL comes as four letters without the dash.
+    var simbriefAircraftType: String? = nil
+    var simbriefSelcal: String? = nil
+    /// `var` only so demo mode can show a connect or disconnect; live, the plugin owns it.
+    var vatsimCallsign: String?
     let vatsimOrigin: String?
     let vatsimDestination: String?
     let originMismatch: Bool?

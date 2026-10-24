@@ -1,4 +1,4 @@
-# vPilot Remote 1.3.0
+# vPilot Remote 1.4.0
 
 > **📲 Download: [vPilot Remote on the App Store](https://apps.apple.com/app/vpilot-remote/id6817687242)** — free.
 > There is no file attached to this release on purpose: the App Store is the download, and it keeps the app updated for you.
@@ -18,6 +18,30 @@ https://apps.apple.com/app/vpilot-remote/id6817687242
 then open this link on the tablet and tap *Accept*:
 
 https://testflight.apple.com/join/BNjesezx
+
+## What's new in 1.4.0
+
+- **Connect to VATSIM from the tablet.** With Handoff 0.8.0 or newer, the antenna icon in
+  the status bar and the *Network* row in the expanded footer connect and disconnect vPilot
+  without reaching the sim PC. The form is prefilled from your SimBrief plan (callsign,
+  aircraft type, SELCAL), offers *Connect as observer*, and shows vPilot's answer in place.
+  Disconnecting always asks first. A refresh button next to the VATSIM row polls the network
+  data right away. Against older plugins the controls stay hidden.
+- **The departure slot now reads like the VDGS site.** The chip follows the start-up window
+  the site's banner shows — anchored on the TSAT, else the CTOT minus the taxi-out time, else
+  the accepted T/OBT, from 5 minutes before to 6 after: yellow *STUP T-8m* before it, green
+  *STUP 4m left* inside it, red *MISS +3m* once it has passed, grey while nothing is accepted
+  yet. Expanded, it lists EOBT, T/OBT, TSAT, EXOT, CTOT, reason and ATFCM status in the site's
+  own terms. The taxi-out time is your flight's own, which is what the backend works with.
+- **The slot tile at more airports.** Any airport the CDM backend knows now gets the tile, not
+  only those already flagged for CDM — a T/OBT set there is kept for when CDM goes live.
+- **New stations blink.** A controller who comes online at your departure airport flashes for a
+  few seconds (Handoff 0.8.0 or newer); tapping the row stops it.
+- **A one-time note on VATSIM's rules.** On first start the app reminds you that a VATSIM
+  connection must not be left unattended, with a link to the Code of Conduct.
+- **Fixed:** a row that had flashed could keep pulsing faintly afterwards.
+
+Everything works with older plugins too; the network controls and the blink need 0.8.0.
 
 ## What's new in 1.3.0
 

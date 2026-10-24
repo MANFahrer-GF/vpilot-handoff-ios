@@ -9,6 +9,14 @@ struct StatusFooterView: View {
 
     @State private var isExpanded = false
     @State private var showVdgs = false
+    @State private var showConnect = false
+    @State private var confirmDisconnect = false
+
+    /// Connect/disconnect is offered only to a plugin that understands it (0.8.0+), and only
+    /// while the app is actually talking to it -- or showing the demo.
+    private var networkControlsShown: Bool {
+        store.networkControlsSupported && (store.connection.state == .connected || store.demoMode)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -20,6 +28,29 @@ struct StatusFooterView: View {
             }
         }
         .sheet(isPresented: $showVdgs) { VdgsWebSheet() }
+        .sheet(isPresented: $showConnect) { NetworkConnectSheet() }
+        .confirmationDialog(
+            "Disconnect from VATSIM?",
+            isPresented: $confirmDisconnect,
+            titleVisibility: .visible
+        ) {
+            // Verbatim throughout: the cockpit stays English, and "Disconnect"/"Cancel" already
+            // carry German translations from the settings screen.
+            Button(role: .destructive) { store.disconnectFromNetwork() } label: { Text(verbatim: "Disconnect") }
+            Button(role: .cancel) {} label: { Text(verbatim: "Cancel") }
+        } message: {
+            Text("vPilot leaves the network. ATC loses you from their scope.")
+        }
+    }
+
+    /// Asks before leaving the network -- a mis-tap mid-flight is costly -- and opens the form
+    /// to join it.
+    private func toggleNetwork() {
+        if store.isOnNetwork { confirmDisconnect = true } else { showConnect = true }
+    }
+
+    private var networkRequestBusy: Bool {
+        store.networkRequest.map { !$0.finished } ?? false
     }
 
     private var summaryRow: some View {
@@ -87,6 +118,17 @@ struct StatusFooterView: View {
             }
             .buttonStyle(.plain)
 
+            if networkControlsShown {
+                Button(action: toggleNetwork) {
+                    Image(systemName: store.isOnNetwork
+                        ? "antenna.radiowaves.left.and.right"
+                        : "antenna.radiowaves.left.and.right.slash")
+                }
+                .buttonStyle(.plain)
+                .disabled(networkRequestBusy)
+                .accessibilityLabel(store.isOnNetwork ? "Disconnect from VATSIM" : "Connect to VATSIM")
+            }
+
             Button(action: onOpenSettings) {
                 Image(systemName: "gearshape.fill")
             }
@@ -146,17 +188,32 @@ struct StatusFooterView: View {
                         routeText(plan.simbriefOrigin, plan.simbriefDestination),
                         warn: false
                     )
-                    detailRow(
-                        "VATSIM",
-                        plan.vatsimPlanMissing ? "MISSING" : routeText(plan.vatsimOrigin, plan.vatsimDestination),
-                        warn: plan.vatsimPlanMissing || plan.simbriefVatsimMismatch
-                    )
+                    HStack(alignment: .top, spacing: 10) {
+                        detailRow(
+                            "VATSIM",
+                            plan.vatsimPlanMissing ? "MISSING" : routeText(plan.vatsimOrigin, plan.vatsimDestination),
+                            warn: plan.vatsimPlanMissing || plan.simbriefVatsimMismatch
+                        )
+                        if networkControlsShown {
+                            Spacer(minLength: 0)
+                            Button { store.refreshVatsimFeed() } label: {
+                                Image(systemName: "arrow.clockwise").font(.caption)
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Refresh VATSIM data")
+                        }
+                    }
                     if plan.originMismatch == true {
                         warningLine("Position doesn't match the filed departure airport")
                     }
                     if plan.vatsimCidMismatch == true {
                         warningLine("Filed VATSIM plan may not be yours (CID mismatch)")
                     }
+                }
+
+                if networkControlsShown {
+                    Divider().padding(.vertical, 2)
+                    networkRow
                 }
 
                 if let slot = store.cdmSlot?.at(Date()) {
@@ -183,6 +240,37 @@ struct StatusFooterView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .frame(maxHeight: 260)
+    }
+
+    /// "Connected as EIDGX" / "Not connected" with the one action that changes it, and the
+    /// outcome of this device's own disconnect while it lingers.
+    private var networkRow: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .center, spacing: 10) {
+                detailRow(
+                    "Network",
+                    store.flightPlan?.vatsimCallsign.map { "Connected as \($0)" } ?? "Not connected",
+                    warn: false
+                )
+                Spacer(minLength: 0)
+                Button(action: toggleNetwork) { Text(verbatim: store.isOnNetwork ? "Disconnect" : "Connect...") }
+                    .font(.caption.bold())
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                    .disabled(networkRequestBusy)
+            }
+            if let request = store.networkRequest, request.kind == .disconnect {
+                HStack(spacing: 8) {
+                    if request.finished {
+                        Image(systemName: request.failed ? "xmark.circle.fill" : "checkmark.circle.fill")
+                            .foregroundStyle(request.failed ? .red : .green)
+                    } else {
+                        ProgressView().controlSize(.mini)
+                    }
+                    Text(request.status).font(.caption)
+                }
+            }
+        }
     }
 
     private func routeText(_ origin: String?, _ destination: String?) -> String {

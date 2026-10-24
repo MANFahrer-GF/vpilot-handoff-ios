@@ -65,6 +65,10 @@ struct Controller: Decodable, Identifiable, Equatable {
     var isPinned: Bool
     let isStandbyTuned: Bool
     let isSelcalActive: Bool
+    /// A station that just opened at the departure airport (upstream issue #186): true for about
+    /// five seconds on the plugin's own clock, then false by itself. The row blinks while it is
+    /// set; missing from an older plugin, which means false. `var` only so demo mode can show it.
+    var isNewStation: Bool
     /// Minutes until ownship reaches this controller's own sector, per protocol.md,
     /// **rounded to whole minutes at decode time**. Per-controller since plugin v0.6.0
     /// (issue #127); before that the plugin sent a single ownship-level `etaMinutes` on
@@ -108,6 +112,7 @@ struct Controller: Decodable, Identifiable, Equatable {
         isPinned = try c.decodeIfPresent(Bool.self, forKey: .isPinned) ?? false
         isStandbyTuned = try c.decodeIfPresent(Bool.self, forKey: .isStandbyTuned) ?? false
         isSelcalActive = try c.decodeIfPresent(Bool.self, forKey: .isSelcalActive) ?? false
+        isNewStation = try c.decodeIfPresent(Bool.self, forKey: .isNewStation) ?? false
         etaMinutes = try c.decodeIfPresent(Double.self, forKey: .etaMinutes)
             .flatMap { Controller.wholeMinutes($0) }
         debug = try c.decodeIfPresent(ControllerDebug.self, forKey: .debug)
@@ -117,7 +122,13 @@ struct Controller: Decodable, Identifiable, Equatable {
         case callsign, frequency, latitude, longitude, cid, name, facility, rating
         case stationName, textAtis, requestsContactMe
         case isCurrent, isContactMe, contactMeText, isHighlighted, isNext, isLikelyNext
-        case isPinned, isStandbyTuned, isSelcalActive, etaMinutes, debug
+        case isPinned, isStandbyTuned, isSelcalActive, isNewStation, etaMinutes, debug
+    }
+
+    /// Whether the row blinks as a newly opened station: while the plugin holds the flag, unless
+    /// the pilot already tapped it away or it is the station that is tuned.
+    func blinksAsNewStation(dismissed: Bool) -> Bool {
+        isNewStation && !isCurrent && !dismissed
     }
 
     /// Whole minutes, or nil when there is nothing sensible to count down to: a

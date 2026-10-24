@@ -15,7 +15,9 @@ struct ControllerRowView: View {
     var onPinTap: () -> Void
     var onChatTap: () -> Void
 
-    @State private var flashOn = false
+    /// The pilot tapped a blinking new station (upstream issue #186). Row-local, and reset each
+    /// time the plugin raises the flag again, so a station that reopens later blinks again.
+    @State private var newStationDismissed = false
 
     private var isDark: Bool { colorScheme == .dark }
 
@@ -23,9 +25,15 @@ struct ControllerRowView: View {
         theme.rowColor(for: controller, darkMode: isDark)
     }
 
-    private var background: Color {
-        controller.isContactMe && flashOn ? theme.contactMeAlert.color : baseColor
+
+    /// A station that just opened at the departure airport blinks like a contact-me, the way the
+    /// Android client does it -- until the plugin's few seconds run out, the pilot taps the row,
+    /// or it is tuned.
+    private var newStationBlinks: Bool {
+        controller.blinksAsNewStation(dismissed: newStationDismissed)
     }
+
+    private var flashes: Bool { controller.isContactMe || newStationBlinks }
 
     /// Contrast is always judged against the row's own resting colour, so the
     /// contact-me flash doesn't make the text strobe between black and white too.
@@ -35,7 +43,10 @@ struct ControllerRowView: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            Button(action: onTap) {
+            Button {
+                newStationDismissed = true
+                onTap()
+            } label: {
                 rowContent
                     .contentShape(Rectangle())
             }
@@ -64,10 +75,28 @@ struct ControllerRowView: View {
         .foregroundStyle(foreground)
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
-        .background(background)
+        .background { rowBackground }
         .clipShape(RoundedRectangle(cornerRadius: 10))
-        .onAppear(perform: syncFlash)
-        .onChange(of: controller.isContactMe) { _, _ in syncFlash() }
+        .onChange(of: controller.isNewStation) { _, isNew in
+            if isNew { newStationDismissed = false }
+        }
+    }
+
+    /// An unresolved contact-me -- and a new station while it blinks -- alternates the row with
+    /// the alert colour twice a second. Driven by a clock rather than a `repeatForever` animation:
+    /// that one could not be stopped reliably, and a row whose blink had ended kept pulsing for
+    /// good (measured on a new station, 2026-10-24). The clock only exists while the row flashes.
+    @ViewBuilder
+    private var rowBackground: some View {
+        if flashes {
+            TimelineView(.periodic(from: .now, by: 0.5)) { context in
+                let alertPhase = Int(context.date.timeIntervalSinceReferenceDate * 2) % 2 == 0
+                (alertPhase ? theme.contactMeAlert.color : baseColor)
+                    .animation(.easeInOut(duration: 0.4), value: alertPhase)
+            }
+        } else {
+            baseColor
+        }
     }
 
     @ViewBuilder
@@ -190,17 +219,5 @@ struct ControllerRowView: View {
             .padding(.vertical, 2)
             .background(foreground.opacity(0.22))
             .clipShape(RoundedRectangle(cornerRadius: 4))
-    }
-
-    /// An unresolved contact-me flashes the row twice a second until the pilot
-    /// tunes the frequency (protocol.md clears `isContactMe` at that point).
-    private func syncFlash() {
-        guard controller.isContactMe else {
-            flashOn = false
-            return
-        }
-        withAnimation(.easeInOut(duration: 0.5).repeatForever(autoreverses: true)) {
-            flashOn = true
-        }
     }
 }

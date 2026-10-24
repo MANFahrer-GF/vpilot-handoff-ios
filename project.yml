@@ -76,8 +76,8 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.thomaskant.vpilothandoff
         # Both feed Info.plist. Bump both for every App Store upload: the version
         # is what users see, the build number is what App Store Connect counts.
-        MARKETING_VERSION: "1.3.0"
-        CURRENT_PROJECT_VERSION: "12"
+        MARKETING_VERSION: "1.4.0"
+        CURRENT_PROJECT_VERSION: "13"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         TARGETED_DEVICE_FAMILY: "2"
         IPHONEOS_DEPLOYMENT_TARGET: "17.0"

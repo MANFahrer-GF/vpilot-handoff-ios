@@ -160,13 +160,14 @@ enum DemoData {
 
     private static let flightPlanJSON = """
     {"type":"flightPlan","simbriefCallsign":"EIDGX","simbriefOrigin":"LOWW",
-     "simbriefDestination":"EDDF","simbriefAlternate":"EDDL","vatsimCallsign":"EIDGX",
+     "simbriefDestination":"EDDF","simbriefAlternate":"EDDL","simbriefAircraftType":"A320",
+     "simbriefSelcal":"BCFH","vatsimCallsign":"EIDGX",
      "vatsimOrigin":null,"vatsimDestination":null,"originMismatch":false,"vatsimCidMismatch":false}
     """
 
     private static let subsystemJSON = """
     {"type":"subsystemStatus","radioHostConnected":true,"simulatorConnected":true,
-     "vatsimDataFeedConnected":true,"simbriefFetched":true,"pluginVersion":"0.2.0",
+     "vatsimDataFeedConnected":true,"simbriefFetched":true,"pluginVersion":"0.8.0",
      "updateInterval":"normal"}
     """
 
