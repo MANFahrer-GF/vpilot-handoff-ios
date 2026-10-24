@@ -30,7 +30,9 @@ struct NetworkConnectTests {
         #expect(NetworkConnect.isSupported(pluginVersion: "0.8.1"))
         #expect(NetworkConnect.isSupported(pluginVersion: "0.10.0"))
         #expect(NetworkConnect.isSupported(pluginVersion: "1.0"))
-        #expect(NetworkConnect.isSupported(pluginVersion: "0.8.0-beta"))
+        // A pre-release of 0.8.0 may predate the finished commands; one of a later version doesn't.
+        #expect(NetworkConnect.isSupported(pluginVersion: "0.8.0-beta") == false)
+        #expect(NetworkConnect.isSupported(pluginVersion: "0.9.0-rc1"))
         #expect(NetworkConnect.isSupported(pluginVersion: "0.7.0") == false)
         #expect(NetworkConnect.isSupported(pluginVersion: "0.7.9") == false)
         #expect(NetworkConnect.isSupported(pluginVersion: "0.8") )

@@ -5,6 +5,9 @@ import SwiftUI
 /// flight-plan cross-check and the plugin/socket line once opened.
 struct StatusFooterView: View {
     @Environment(AppStore.self) private var store
+    /// The narrow layout (split view, slide over): the slot chip drops its "STUP" prefix there,
+    /// the way the Android client's narrowest footer does.
+    var compact = false
     var onOpenSettings: () -> Void
 
     @State private var isExpanded = false
@@ -71,7 +74,7 @@ struct StatusFooterView: View {
                             .font(.caption)
                             .foregroundStyle(.orange)
                     }
-                    if !store.operations.isEmpty {
+                    if !store.operations.isEmpty || networkRequestBusy {
                         ProgressView().controlSize(.mini)
                     }
                     Spacer(minLength: 0)
@@ -92,14 +95,14 @@ struct StatusFooterView: View {
                             Circle()
                                 .fill(color(for: slot.phase))
                                 .frame(width: 9, height: 9)
-                            Text(slot.chipLabel)
+                            Text(slot.chipLabel(compact: compact))
                                 .font(.caption)
                                 .lineLimit(1)
                         }
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel("Departure slot \(slot.chipLabel), opens the VDGS site")
+                    .accessibilityLabel("Start-up window \(slot.chipLabel(compact: false)), opens the VDGS site")
                 }
                 .fixedSize()
             }
@@ -243,7 +246,7 @@ struct StatusFooterView: View {
     }
 
     /// "Connected as EIDGX" / "Not connected" with the one action that changes it, and the
-    /// outcome of this device's own disconnect while it lingers.
+    /// state of this device's own request.
     private var networkRow: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(alignment: .center, spacing: 10) {
@@ -259,7 +262,9 @@ struct StatusFooterView: View {
                     .controlSize(.small)
                     .disabled(networkRequestBusy)
             }
-            if let request = store.networkRequest, request.kind == .disconnect {
+            // This device's own request, while the general list above doesn't show it: before the
+            // plugin's first word, after a timeout, or once the connect form was closed mid-wait.
+            if let request = store.networkRequest, store.operations[request.id] == nil {
                 HStack(spacing: 8) {
                     if request.finished {
                         Image(systemName: request.failed ? "xmark.circle.fill" : "checkmark.circle.fill")

@@ -89,13 +89,13 @@ struct NetworkConnectSheet: View {
             }
         }
         .onAppear(perform: prefill)
-        .onChange(of: request?.succeeded) { _, succeeded in
-            // Long enough to read "connected", short enough not to feel stuck.
-            guard succeeded == true else { return }
-            Task {
-                try? await Task.sleep(for: .seconds(1))
-                dismiss()
-            }
+        // Long enough to read "connected", short enough not to feel stuck. Tied to this
+        // presentation: closing the sheet in that second cancels it, so it can't dismiss a later one.
+        .task(id: request?.succeeded == true) {
+            guard request?.succeeded == true else { return }
+            try? await Task.sleep(for: .seconds(1))
+            guard !Task.isCancelled else { return }
+            dismiss()
         }
         .onDisappear {
             // A request still waiting is left alone: its answer still shows in the footer.

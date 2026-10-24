@@ -157,16 +157,19 @@ struct CdmSlotDisplay: Equatable {
         return copy
     }
 
-    /// The compact chip label, worded as the Android client does: "STUP T-8m", "STUP 4m left",
-    /// "STUP ok", "MISS +3m", or "STUP T-?" while there is nothing to count to.
-    var chipLabel: String {
+    /// The chip label, worded as the Android client does: "STUP T-8m", "STUP 4m left",
+    /// "STUP ok", "MISS +3m", or "STUP T-?" while there is nothing to count to. The narrow layout
+    /// drops the prefix ("T-8m", "4m", "MISS") so the status text beside it keeps some room.
+    func chipLabel(compact: Bool) -> String {
+        func withPrefix(_ text: String) -> String { compact ? text : "STUP \(text)" }
         switch phase {
-        case .unknown: return "STUP T-?"
-        case .before: return "STUP T-\(CdmSlot.formatMinutes(minutes ?? 0))"
+        case .unknown: return withPrefix("T-?")
+        case .before: return withPrefix("T-\(CdmSlot.formatMinutes(minutes ?? 0))")
         case .open:
-            guard let minutes else { return "STUP ok" }
-            return "STUP \(CdmSlot.formatMinutes(minutes)) left"
-        case .missed: return "MISS +\(CdmSlot.formatMinutes(minutes ?? 0))"
+            guard let minutes else { return withPrefix("ok") }
+            return compact ? CdmSlot.formatMinutes(minutes) : "STUP \(CdmSlot.formatMinutes(minutes)) left"
+        // "MISS" has to stay readable as "start-up is gone" even where the number doesn't fit.
+        case .missed: return compact ? "MISS" : "MISS +\(CdmSlot.formatMinutes(minutes ?? 0))"
         }
     }
 

@@ -15,25 +15,29 @@ enum NetworkConnect {
     private static var typePattern: Regex<Substring> { #/^[A-Z0-9]{2,4}$/# }
 
     /// Whether the connected plugin is new enough to offer the controls. An unknown version ("?",
-    /// the decoder's default for a plugin that never sent one) counts as too old.
+    /// the decoder's default for a plugin that never sent one) counts as too old, and so does a
+    /// pre-release of 0.8.0 itself ("0.8.0-beta"), which may predate the finished commands.
     static func isSupported(pluginVersion: String?) -> Bool {
         guard let installed = versionParts(pluginVersion) else { return false }
-        let required = versionParts(minPluginVersion) ?? []
-        for index in 0..<max(installed.count, required.count) {
-            let have = index < installed.count ? installed[index] : 0
+        let required = versionParts(minPluginVersion)?.numbers ?? []
+        for index in 0..<max(installed.numbers.count, required.count) {
+            let have = index < installed.numbers.count ? installed.numbers[index] : 0
             let need = index < required.count ? required[index] : 0
             if have != need { return have > need }
         }
-        return true
+        return !installed.isPrerelease
     }
 
-    /// "0.10.1" as [0, 10, 1], compared number by number so 0.10 is newer than 0.9. Anything after
-    /// the numbers ("-beta") is ignored; nil when there is no leading number at all.
-    private static func versionParts(_ version: String?) -> [Int]? {
+    /// "0.10.1" as [0, 10, 1], compared number by number so 0.10 is newer than 0.9. A suffix after
+    /// the numbers ("-beta") marks a pre-release, which ranks below the same numbers without one;
+    /// nil when there is no leading number at all.
+    private static func versionParts(_ version: String?) -> (numbers: [Int], isPrerelease: Bool)? {
         guard let version else { return nil }
-        let numeric = version.prefix { $0.isNumber || $0 == "." }
+        let trimmed = version.trimmingCharacters(in: .whitespaces)
+        let numeric = trimmed.prefix { $0.isNumber || $0 == "." }
         let parts = numeric.split(separator: ".").compactMap { Int($0) }
-        return parts.isEmpty ? nil : parts
+        guard !parts.isEmpty else { return nil }
+        return (parts, numeric.count < trimmed.count)
     }
 
     static func normalize(_ text: String) -> String {

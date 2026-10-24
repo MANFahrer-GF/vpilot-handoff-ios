@@ -39,7 +39,6 @@ https://testflight.apple.com/join/BNjesezx
   few seconds (Handoff 0.8.0 or newer); tapping the row stops it.
 - **A one-time note on VATSIM's rules.** On first start the app reminds you that a VATSIM
   connection must not be left unattended, with a link to the Code of Conduct.
-- **Fixed:** a row that had flashed could keep pulsing faintly afterwards.
 
 Everything works with older plugins too; the network controls and the blink need 0.8.0.
 

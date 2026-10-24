@@ -123,7 +123,7 @@ struct CdmSlotTests {
         let withAsrt = CdmSlot.display(for: flight(tobt: "1810", asrt: "1808"), now: utc(18, 30))
         #expect(withAsrt?.phase == .open)
         #expect(withAsrt?.minutes == nil)
-        #expect(withAsrt?.chipLabel == "STUP ok")
+        #expect(withAsrt?.chipLabel(compact: false) == "STUP ok")
         #expect(withAsrt?.windowSummary == "open, start-up requested (ASRT) (T/OBT)")
     }
 
@@ -132,7 +132,7 @@ struct CdmSlotTests {
     @Test func requestedAndFiledTimesAnchorNothing() {
         let requested = CdmSlot.display(for: flight(reqTobt: "1750"), now: utc(19, 0))
         #expect(requested?.phase == .unknown)
-        #expect(requested?.chipLabel == "STUP T-?")
+        #expect(requested?.chipLabel(compact: false) == "STUP T-?")
         #expect(requested?.requestedTobt == "1750")
 
         let filed = CdmSlot.display(for: flight(eobt: "1800"), now: utc(19, 0))
@@ -145,10 +145,17 @@ struct CdmSlotTests {
     }
 
     @Test func theChipCountsTheWayAndroidWordsIt() {
-        #expect(CdmSlot.display(for: flight(tobt: "1810"), now: utc(17, 57))?.chipLabel == "STUP T-8m")
-        #expect(CdmSlot.display(for: flight(tobt: "1810"), now: utc(18, 12))?.chipLabel == "STUP 4m left")
-        #expect(CdmSlot.display(for: flight(tobt: "1810"), now: utc(18, 19))?.chipLabel == "MISS +3m")
-        #expect(CdmSlot.display(for: flight(tobt: "1930"), now: utc(18, 0))?.chipLabel == "STUP T-1h25m")
+        func chip(_ hour: Int, _ minute: Int, tobt: String = "1810", compact: Bool = false) -> String? {
+            CdmSlot.display(for: flight(tobt: tobt), now: utc(hour, minute))?.chipLabel(compact: compact)
+        }
+        #expect(chip(17, 57) == "STUP T-8m")
+        #expect(chip(18, 12) == "STUP 4m left")
+        #expect(chip(18, 19) == "MISS +3m")
+        #expect(chip(18, 0, tobt: "1930") == "STUP T-1h25m")
+        // The narrow footer drops the prefix; MISS keeps its word even without the number.
+        #expect(chip(17, 57, compact: true) == "T-8m")
+        #expect(chip(18, 12, compact: true) == "4m")
+        #expect(chip(18, 19, compact: true) == "MISS")
         #expect(CdmSlot.display(for: flight(tobt: "1810"), now: utc(18, 19))?.windowSummary
             == "missed 3m ago (T/OBT) - update T/OBT, coordinate")
     }
@@ -260,7 +267,8 @@ struct CdmSlotTests {
     @Test func theWaitingPlaceholderShowsNoTimeAndNoColour() {
         let waiting = CdmSlot.waitingDisplay()
         #expect(waiting.phase == .unknown)
-        #expect(waiting.chipLabel == "STUP T-?")
+        #expect(waiting.chipLabel(compact: false) == "STUP T-?")
+        #expect(waiting.chipLabel(compact: true) == "T-?")
         #expect(waiting.windowSummary == "waiting for flight")
         #expect(waiting.at(utc(12, 0)) == waiting)
     }

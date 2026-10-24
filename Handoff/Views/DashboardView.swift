@@ -122,7 +122,7 @@ struct DashboardView: View {
 
             Divider()
 
-            StatusFooterView { showSettings = true }
+            StatusFooterView(compact: compact) { showSettings = true }
         }
         .background(.background)
     }
