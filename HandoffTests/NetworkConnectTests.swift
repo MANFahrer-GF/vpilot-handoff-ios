@@ -33,6 +33,9 @@ struct NetworkConnectTests {
         // A pre-release of 0.8.0 may predate the finished commands; one of a later version doesn't.
         #expect(NetworkConnect.isSupported(pluginVersion: "0.8.0-beta") == false)
         #expect(NetworkConnect.isSupported(pluginVersion: "0.9.0-rc1"))
+        // Build metadata is not a pre-release (the plugin strips it today, but nothing promises that).
+        #expect(NetworkConnect.isSupported(pluginVersion: "0.8.0+abc1234"))
+        #expect(NetworkConnect.isSupported(pluginVersion: "0.8.0-beta+abc1234") == false)
         #expect(NetworkConnect.isSupported(pluginVersion: "0.7.0") == false)
         #expect(NetworkConnect.isSupported(pluginVersion: "0.7.9") == false)
         #expect(NetworkConnect.isSupported(pluginVersion: "0.8") )

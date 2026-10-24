@@ -28,16 +28,16 @@ enum NetworkConnect {
         return !installed.isPrerelease
     }
 
-    /// "0.10.1" as [0, 10, 1], compared number by number so 0.10 is newer than 0.9. A suffix after
-    /// the numbers ("-beta") marks a pre-release, which ranks below the same numbers without one;
-    /// nil when there is no leading number at all.
+    /// "0.10.1" as [0, 10, 1], compared number by number so 0.10 is newer than 0.9. A "-beta"
+    /// suffix marks a pre-release, which ranks below the same numbers without one; "+abc123" build
+    /// metadata (semver) changes nothing. Nil when there is no leading number at all.
     private static func versionParts(_ version: String?) -> (numbers: [Int], isPrerelease: Bool)? {
         guard let version else { return nil }
-        let trimmed = version.trimmingCharacters(in: .whitespaces)
-        let numeric = trimmed.prefix { $0.isNumber || $0 == "." }
+        let withoutBuild = version.trimmingCharacters(in: .whitespaces).split(separator: "+", maxSplits: 1).first ?? ""
+        let numeric = withoutBuild.prefix { $0.isNumber || $0 == "." }
         let parts = numeric.split(separator: ".").compactMap { Int($0) }
         guard !parts.isEmpty else { return nil }
-        return (parts, numeric.count < trimmed.count)
+        return (parts, withoutBuild.dropFirst(numeric.count).hasPrefix("-"))
     }
 
     static func normalize(_ text: String) -> String {
