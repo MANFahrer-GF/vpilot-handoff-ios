@@ -59,7 +59,7 @@ struct StatusFooterView: View {
                     Button { showVdgs = true } label: {
                         HStack(spacing: 5) {
                             Circle()
-                                .fill(color(for: slot.urgency, at: context.date))
+                                .fill(color(for: slot.phase))
                                 .frame(width: 9, height: 9)
                             Text(slot.chipLabel)
                                 .font(.caption)
@@ -97,15 +97,14 @@ struct StatusFooterView: View {
         .padding(.vertical, 10)
     }
 
-    /// Traffic-light colour for the slot dot. Flashing alternates once a second between the two
-    /// window colours, the way the Android client and the CDM plugin itself do it.
-    private func color(for urgency: CdmUrgency, at date: Date) -> Color {
-        switch urgency {
-        case .good: return .green
-        case .attention: return .orange
-        case .urgent: return .red
-        case .flashing: return Int(date.timeIntervalSince1970) % 2 == 0 ? .green : .orange
-        case .neutral: return .secondary
+    /// Traffic-light colour for the slot dot, as the VDGS site's banner and the Android client use
+    /// it: yellow to prepare, green to request start-up, red once the window is missed.
+    private func color(for phase: CdmWindowPhase) -> Color {
+        switch phase {
+        case .before: return .yellow
+        case .open: return .green
+        case .missed: return .red
+        case .unknown: return .secondary
         }
     }
 
@@ -162,14 +161,14 @@ struct StatusFooterView: View {
 
                 if let slot = store.cdmSlot?.at(Date()) {
                     Divider().padding(.vertical, 2)
-                    if let departure = slot.departureLine {
-                        detailRow("Departure", departure, warn: false)
-                    }
-                    if let reason = slot.reason {
-                        detailRow("CDM reason", reason, warn: true)
-                    }
                     Button { showVdgs = true } label: {
-                        detailRow("TOBT/CDM", slot.detailLine, warn: slot.urgency == .urgent)
+                        VStack(alignment: .leading, spacing: 6) {
+                            detailRow("Start-up window", slot.windowSummary, warn: slot.phase == .missed)
+                            ForEach(slot.detailRows, id: \.label) { row in
+                                detailRow(LocalizedStringKey(row.label), row.value, warn: row.label == "Reason")
+                            }
+                        }
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                 }

@@ -126,7 +126,7 @@ final class AppStore {
     // MARK: A-CDM / VDGS slot (upstream issue #143)
 
     /// The departure slot tile, or nil when there is nothing to show: no flight plan, a departure
-    /// airport outside the CDM network, or a flight that has already taken off.
+    /// airport the backend doesn't list, or a flight that has already taken off.
     var cdmSlot: CdmSlotDisplay?
     /// How often the backend is asked. A static so a test doesn't have to wait a minute.
     static var cdmPollInterval: Duration = .seconds(60)
@@ -632,31 +632,36 @@ final class AppStore {
     /// abort a request already in flight, so without that an answer about the previous flight
     /// could still land in the tile of the next one — or over the demo sample.
     private func pollCdm(origin: String, callsign: String) async {
-        var airportIsCdm = false
+        var airport: CadAirport?
         while !Task.isCancelled {
-            // A departure airport outside the CDM network has nothing to poll for. Checked
+            // A departure airport the backend doesn't list has nothing to poll for. Checked
             // before any flight list is ever requested, and retried rather than assumed when
-            // the list itself fails to load.
-            if !airportIsCdm {
+            // the list itself fails to load. Its CDM flags deliberately don't matter (upstream
+            // issue #191): the backend tracks every filed flight at a listed airport.
+            if airport == nil {
                 guard let airports = await cdmClient.fetchCadAirports() else {
                     try? await Task.sleep(for: AppStore.cdmPollInterval)
                     continue
                 }
                 guard !Task.isCancelled else { return }
-                guard CdmSlot.isCdmCovered(airports, origin: origin) else {
-                    // Not (yet) a CDM airport: no flight list is requested, but the question is
-                    // asked again next tick rather than settled for the whole session -- an
-                    // airport can be missing from one answer and present in the next.
+                guard let listed = CdmSlot.listedAirport(airports, origin: origin) else {
+                    // Not listed: no flight list is requested, but the question is asked again
+                    // next tick rather than settled for the whole session -- an airport can be
+                    // missing from one answer and present in the next.
                     cdmSlot = nil
                     try? await Task.sleep(for: AppStore.cdmPollInterval)
                     continue
                 }
-                airportIsCdm = true
+                // Kept, not just checked: its taxi time is the EXOT fallback for a flight
+                // that has none of its own.
+                airport = listed
             }
 
             if let flights = await cdmClient.fetchDepartureAirportFlights(icao: origin) {
                 guard !Task.isCancelled else { return }
-                switch CdmSlot.outcome(forFlights: flights, callsign: callsign, now: Date()) {
+                switch CdmSlot.outcome(
+                    forFlights: flights, callsign: callsign, airportTaxiTime: airport?.taxiTime, now: Date()
+                ) {
                 case .departed:
                     cdmSlot = nil
                     return

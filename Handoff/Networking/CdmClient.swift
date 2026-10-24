@@ -19,7 +19,8 @@ struct CdmClient {
         self.session = session
     }
 
-    /// Every airport the backend knows, used to gate polling to the ones actually CDM-covered.
+    /// Every airport the backend knows: polling is gated to the listed ones, and their taxi time
+    /// is the EXOT fallback.
     func fetchCadAirports() async -> [CadAirport]? {
         await get("/etfms/getCadAirports")
     }
